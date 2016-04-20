@@ -1,0 +1,70 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+		<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+		<meta name="format-detection" content="telephone=no"/>
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta name="msapplication-tap-highlight" content="no"/>
+		<meta name="fragment" content="!"/>
+		<title>fusion mobile</title>
+		<style>
+		body.loading > div{
+			visibility: hidden;
+		}
+		</style>
+		<script src="/framework/all.js" async></script>
+	</head>
+	<body class="loading">
+		<!--页面框架-->
+		<div id="page">
+			<div class="header">
+				<div class="title"> </div>
+				<a class="back"> </a>
+				<a class="leftMenuBtn"></a>
+				<a class="rightMenuBtn"></a>
+			</div>
+		    <div class="content"></div>
+			<div class="navMenu"></div>
+		</div>
+		<!--弹出窗口框架-->
+		<div id="popup">
+			<div class="header">
+				<div class="title"> </div>
+				<a class="back" href="javascript:;"> </a>
+				<a class="close" href="javascript:;"></a>
+			</div>
+			<!-- 弹窗区域 -->
+			<div class="content"></div>
+		</div>
+		<!--帮助指引-->
+		<a id="helper" href="javascript:;"><div><div></div><div><div></div><div></div><div></div></div><div></div></div><img/></a>
+		<!--用于展示自定义的静态或非本地内容-->
+		<div id="readable">
+			<div class="content"></div>
+			<a class="close" href="javascript:;"></a>
+		</div>
+		<!--用于展示图片-->
+		<div id="photoView">
+			<div class="content"></div>
+			<div class="nav">_</div>
+			<a class="close" href="javascript:;"></a>
+		</div>
+		<!--对话框-->
+		<div id="dialog">
+			<div>
+				<div class="content"></div>
+				<div class="btns"><a class="button yes" href="javascript:;">是</a><a class="button no" href="javascript:;">否</a></div>
+				<a class="close" href="javascript:;"></a>
+			</div>
+		</div>
+		<!--用于展示等待提示-->
+		<div id="loading">
+			<div><div class="ico"></div>_</div>
+		</div>
+		<!--底部提示-->
+		<div id="hint"><div class="text">_</div></div>
+	</body>
+</html>

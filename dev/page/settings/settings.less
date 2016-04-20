@@ -1,0 +1,21 @@
+@import "../../config.less";
+#page.settings>.header>.back {
+    display: none;
+}
+#page>.content>.settings{
+    >a{
+        display: block;
+        color: #333333;
+        line-height: 60px;
+        background-color: white;
+        padding-left: 20px;
+        font-size: 20px;
+        &:after{
+            content: "〉";
+        	color: #a0a0a0;
+        	font-size: 24px;
+        	line-height: 60px;
+        	float: right;
+        }
+    }
+}
