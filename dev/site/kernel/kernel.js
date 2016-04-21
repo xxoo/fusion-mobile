@@ -602,7 +602,9 @@ define(['common/router/router', 'common/touchslider/touchslider', 'common/pointe
 		};
 		// 设置点击返回按钮时要传递到该窗口的参数, 不能在loadend之前使用
 		kernel.setPopupBackParam = function(param) {
-			popups[activePopup].backParam = param;
+			if (popupsBox.classList.contains('in')) {
+				popups[activePopup].backParam = param;
+			}
 		};
 		// 如果未指定id则临时改变当前弹窗的后退位置, 临时修改不能在loadend之前使用
 		// 参数1 需要返回的页面id
@@ -612,7 +614,7 @@ define(['common/router/router', 'common/touchslider/touchslider', 'common/pointe
 				if (id in popups) {
 					if (backid) {
 						popups[id].back = backid;
-						if (kernel.getCurrentPopup() === id) {
+						if (activePopup === id) {
 							back.lastChild.data = popups[backid].title;
 						}
 					} else {
@@ -636,7 +638,7 @@ define(['common/router/router', 'common/touchslider/touchslider', 'common/pointe
 			if (id) {
 				if (id in popups) {
 					popups[id].title = newTitle;
-					if (kernel.getCurrentPopup() === id) {
+					if (activePopup === id) {
 						title.data = newTitle;
 					}
 				}
