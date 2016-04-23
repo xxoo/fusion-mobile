@@ -1,0 +1,1 @@
+"use strict";define("page/list/list",["site/kernel/kernel"],function(t){var e="list";document.querySelector("#page>.content>."+e);return{onload:function(e){e?t.alert("opening list page"):t.alert("going back to list page")},onloadend:function(){},onunload:function(){},onunloadend:function(){}}});

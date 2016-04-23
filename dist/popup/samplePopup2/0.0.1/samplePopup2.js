@@ -1,0 +1,1 @@
+define("popup/samplePopup2/samplePopup2",["site/kernel/kernel"],function(t){return{onloadend:function(e){t.setPopupBackParam("going back to samplePopup")}}});
