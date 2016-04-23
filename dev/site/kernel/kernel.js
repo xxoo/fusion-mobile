@@ -7,7 +7,7 @@ define(['common/router/router', 'common/touchslider/touchslider', 'common/pointe
 		// 如果是开发环境 加入less
 		appendCss: function(url) { //自动根据当前环境添加css或less
 			var csslnk = document.createElement('link');
-			if (url.match(/\.less$/)) {
+			if (/\.less$/.test(url)) {
 				if (typeof less === 'object') {
 					csslnk.rel = 'stylesheet/less';
 					csslnk.href = url;
