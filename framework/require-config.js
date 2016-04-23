@@ -10,7 +10,7 @@
 		siteVersion = "1.0.243",
 		//请确保debug第五个被赋值
 		debug = true,
-		prefix = '/',
+		prefix = '/fusion-mobile/',
 		cfg = {
 			baseUrl: prefix + srcRoot
 		};

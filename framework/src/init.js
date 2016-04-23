@@ -76,7 +76,7 @@ var browser = (function() {
 })();
 ! function() {
 	var c = document.createElement('script');
-	c.src = '/framework/require-config.js?' + new Date().valueOf();
+	c.src = '/fusion-mobile/framework/require-config.js?' + new Date().valueOf();
 	c.addEventListener('load', cfgLoad, false);
 	document.head.appendChild(c);
 	window.addEventListener('load', function() {
@@ -93,7 +93,7 @@ var browser = (function() {
 			m.href = require.toUrl('site/kernel/kernel.less');
 			document.head.appendChild(l);
 			l = document.createElement('script');
-			l.src = '/framework/less.js';
+			l.src = '/fusion-mobile/framework/less.js';
 		} else {
 			l.rel = m.rel = 'stylesheet';
 			l.href = require.toUrl('site/index/index.css');
