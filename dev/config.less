@@ -1,3 +1,23 @@
+.flexbox(@vertical){
+    .vertical(@vertical) when(@vertical = 1){
+        -webkit-box-orient: vertical;
+        -ms-flex-direction: column;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+    }
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    .vertical(@vertical)
+}
+.flexcontent(@flexable){
+    -webkit-box-flex: @flexable;
+    -ms-flex: @flexable @flexable auto;
+    -webkit-flex: @flexable @flexable auto;
+    flex: @flexable @flexable auto;
+}
+
 @themeColor:#fd8a32;
 @themeAltColor:#1abc9c;
 @themeBackground:#fffbf0;
@@ -38,4 +58,46 @@
 @openWindowBackgrond : rgba(255,255,255,0.9);
 @popupBorder : rgba(158,158,158,0.9);
 
-@defaultfont: PingFang SC, Heiti SC, Droid Sans, Microsoft YaHei UI;
+@defaultfont: PingFang SC, Heiti SC, Microsoft YaHei UI;
+
+@primaryBackground: #337ab7;
+@primaryActiveBackground: #286090;
+@primaryBorder: #204d74;
+@primaryActiveBorder: @primaryBorder;
+@primaryFrontground: white;
+@primaryActiveFrontground: @primaryFrontground;
+
+@defaultBackground: white;
+@defaultActiveBackground: #e6e6e6;
+@defaultBorder: #ccc;
+@defaultActiveBorder: #adadad;
+@defaultFrontground: #333;
+@defaultActiveFrontground: @defaultFrontground;
+
+@successBackground: #5cb85c;
+@successActiveBackground: #449d44;
+@successBorder:#4cae4c;
+@successActiveBorder:#398439;
+@successFrontground:white;
+@successActiveFrontground:@successFrontground;
+
+@infoBackground: #5bc0de;
+@infoActiveBackground: #31b0d5;
+@infoBorder:#46b8da;
+@infoActiveBorder:#269abc;
+@infoFrontground:white;
+@infoActiveFrontground:@infoFrontground;
+
+@warningBackground:#f0ad4e;
+@warningActiveBackground:#ec971f;
+@warningBorder:#eea236;
+@warningActiveBorder:#d58512;
+@warningFrontground:white;
+@warningActiveFrontground:@warningFrontground;
+
+@dangerBackground:#d9534f;
+@dangerActiveBackground:#c9302c;
+@dangerBorder:#d43f3a;
+@dangerActiveBorder:#ac2925;
+@dangerFrontground:white;
+@dangerActiveFrontground:@dangerFrontground;

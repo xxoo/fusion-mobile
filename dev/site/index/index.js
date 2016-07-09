@@ -1,10 +1,24 @@
 'use strict';
-define(['site/kernel/kernel'], function(kernel) {
-	kernel.init({
-		'home': '首页',
-		'list': '列表',
-		'user': '用户中心',
-		'settings': '设置'
+define(['common/kernel/kernel'], function(kernel) {
+	//百度统计代码
+	if (location.host === 'your_production_host') {
+		window._hmt = document.createElement('script');
+		_hmt.src = '//hm.baidu.com/hm.js?[your_hmid]';
+		document.head.appendChild(_hmt);
+		_hmt = [
+			['_setAutoPageview', false]
+		];
+	}
+	kernel.init('home', {
+		'home': 'home',
+		'list': 'bars',
+		'user': 'user',
+		'settings': 'gear'
+	}, function(){
+		//百度统计接口
+		if (window._hmt && _hmt.push) {
+			_hmt.push(['_trackPageview', '/' + kernel.buildHash(kernel.location)]);
+		}
 	});
 	if (!document.body.classList.contains('clean') && browser.platform === 'Android' && browser.name === 'unsupported' && !browser.app) {
 		kernel.htmlDialog('\

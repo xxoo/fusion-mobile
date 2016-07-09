@@ -1,11 +1,11 @@
 'use strict';
-define(['site/kernel/kernel', 'common/touchslider/touchslider'], function(kernel, touchslider) {
-	var thispage = 'home',
-		thispageDom = document.querySelector('#page>.content>.' + thispage),
-		banner = touchslider(thispageDom.querySelector('.banner'));
-	kernel.scrollReload(thispageDom);
+define(['module', 'common/kernel/kernel', 'common/touchslider/touchslider'], function(module, kernel, touchslider) {
+	var thispage = module.id.replace(/^[^/]+\/|\/[^/]+/g, ''),
+		dom = document.querySelector('#page>.content>.' + thispage),
+		banner = touchslider(dom.querySelector('.banner'));
+	kernel.scrollReload(dom);
 	banner.onchange = function() {
-		thispageDom.querySelector('.nav').firstChild.data = navFormat(this.current, this.children.length);
+		dom.querySelector('.nav').firstChild.data = navFormat(this.current, this.children.length);
 	};
 	var i, tmp,
 		imgs = [{

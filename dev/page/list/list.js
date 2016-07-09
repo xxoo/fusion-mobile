@@ -1,6 +1,6 @@
 'use strict';
-define(['site/kernel/kernel'], function(kernel) {
-	var thispage = 'list',
+define(['module', 'common/kernel/kernel'], function(module, kernel) {
+	var thispage = module.id.replace(/^[^/]+\/|\/[^/]+/g, ''),
 		dom = document.querySelector('#page>.content>.' + thispage);
 	return {
 		onload: function(force) {
