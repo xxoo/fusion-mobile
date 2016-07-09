@@ -1,1 +1,0 @@
-"use strict";define("page/settings/settings",["site/kernel/kernel"],function(t){var e="settings",n=document.querySelector("#page>.content>."+e),i=0;n.querySelector("a").addEventListener("click",function(){t.openPopup("samplePopup",++i)},!1)});

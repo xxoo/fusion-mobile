@@ -1,13 +1,13 @@
 'use strict';
 ! function() {
 	//请确保modules第一个被赋值
-	var modules = {"common/pointerevents":"0.0.1","common/router":"0.0.1","common/touchslider":"0.0.1","page/home":"0.0.1","page/list":"0.0.1","page/settings":"0.0.1","page/user":"0.0.1","popup/samplePopup":"0.0.1","popup/samplePopup2":"0.0.1","site/index":"0.0.1","site/kernel":"0.0.1","site/pages":"0.0.1","site/popups":"0.0.1","site/svgicos":"0.0.1"},
+	var modules = {"common/kernel":"0.0.1","common/pointerevents":"0.0.2","common/svgicos":"0.0.1","common/touchslider":"0.0.2","page/home":"0.0.2","page/list":"0.0.2","page/settings":"0.0.2","page/user":"0.0.2","popup/samplePopup":"0.0.2","popup/samplePopup2":"0.0.2","site/index":"0.0.2","site/pages":"0.0.2","site/popups":"0.0.2"},
 		//请确保srcRoot第二个被赋值
 		srcRoot = 'dev/',
 		//请确保productRoot第三个被赋值
 		productRoot = 'dist/',
 		//请确保siteVersion第四个被赋值
-		siteVersion = "1.0.244",
+		siteVersion = "1.0.245",
 		//请确保debug第五个被赋值
 		debug = false,
 		prefix = '/fusion-mobile/',
