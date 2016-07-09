@@ -1,5 +1,6 @@
-define(['site/kernel/kernel'], function(kernel){
-    var thispopup = 'samplePopup',
+'use strict';
+define(['module', 'common/kernel/kernel'], function(module, kernel){
+    var thispopup = module.id.replace(/^[^/]+\/|\/[^/]+/g, ''),
         dom = document.querySelector('#popup>.content>.'+thispopup);
     dom.querySelector('.menuItem').addEventListener('click', function(){
         kernel.openPopup('samplePopup2');

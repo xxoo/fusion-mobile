@@ -1,11 +1,4 @@
 'use strict';
-//if private browsing is enabled, Safari will throw a stupid exception when calling setItem from sessionStorage or localStorage. the fallowing code can avoid this.
-try {
-	sessionStorage.setItem('test', 1);
-	sessionStorage.removeItem('test');
-} catch (e) {
-	Storage.prototype.setItem = function() {};
-}
 var browser = (function() {
 	var M, browser = {
 		platform: 'unknown',
@@ -75,13 +68,14 @@ var browser = (function() {
 	}
 })();
 ! function() {
-	var c = document.createElement('script');
-	c.src = '/fusion-mobile/framework/require-config.js?' + new Date().valueOf();
+	var prefix = '/fusion-mobile/',
+	c = document.createElement('script');
+	c.src = prefix + 'framework/require-config.js?' + new Date().valueOf();
 	c.addEventListener('load', cfgLoad, false);
 	document.head.appendChild(c);
 	window.addEventListener('load', function() {
 		require(['site/index/index']);
-	}, false);
+	});
 
 	function cfgLoad(evt) {
 		this.removeEventListener('load', cfgLoad, false);
@@ -90,14 +84,12 @@ var browser = (function() {
 		if (require.data.debug) { //全局debug标志在require-config.js中
 			l.rel = m.rel = 'stylesheet/less';
 			l.href = require.toUrl('site/index/index.less');
-			m.href = require.toUrl('site/kernel/kernel.less');
-			document.head.appendChild(l);
-			l = document.createElement('script');
-			l.src = '/fusion-mobile/framework/less.js';
+			m.href = require.toUrl('common/kernel/kernel.less');
+			require([prefix + 'framework/less.js']);
 		} else {
 			l.rel = m.rel = 'stylesheet';
 			l.href = require.toUrl('site/index/index.css');
-			m.href = require.toUrl('site/kernel/kernel.css');
+			m.href = require.toUrl('common/kernel/kernel.css');
 		}
 		document.head.appendChild(l);
 		document.head.appendChild(m);
