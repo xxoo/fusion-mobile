@@ -73,9 +73,6 @@ var browser = (function() {
 	c.src = prefix + 'framework/require-config.js?' + new Date().valueOf();
 	c.addEventListener('load', cfgLoad, false);
 	document.head.appendChild(c);
-	window.addEventListener('load', function() {
-		require(['site/index/index']);
-	});
 
 	function cfgLoad(evt) {
 		this.removeEventListener('load', cfgLoad, false);
@@ -85,11 +82,18 @@ var browser = (function() {
 			l.rel = m.rel = 'stylesheet/less';
 			l.href = require.toUrl('site/index/index.less');
 			m.href = require.toUrl('common/kernel/kernel.less');
-			require([prefix + 'framework/less.js']);
+			require([prefix + 'framework/less.js'], function(){
+				less.pageLoadFinished.then(function(){
+					require(['site/index/index']);
+				});
+			});
 		} else {
 			l.rel = m.rel = 'stylesheet';
 			l.href = require.toUrl('site/index/index.css');
 			m.href = require.toUrl('common/kernel/kernel.css');
+			window.addEventListener('load', function() {
+				require(['site/index/index']);
+			});
 		}
 		document.head.appendChild(l);
 		document.head.appendChild(m);
