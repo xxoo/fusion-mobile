@@ -60,20 +60,20 @@ define(function() {
 		return result;
 
 		function start(evt) {
-			pointerStart(evt, callback, result.pointers);
+			pointerStart(evt, callback, result.pointers, result);
 		}
 	};
 
-	function watchDocument(callback, pointers) {
+	function watchDocument(callback, pointers, self) {
 		var o = {
 			move: function(evt) {
-				process(evt, callback, pointers, 'move', o);
+				process(evt, callback, pointers, 'move', o, self);
 			},
 			end: function(evt) {
-				process(evt, callback, pointers, 'end', o);
+				process(evt, callback, pointers, 'end', o, self);
 			},
 			cancel: function(evt) {
-				process(evt, callback, pointers, 'cancel', o);
+				process(evt, callback, pointers, 'cancel', o, self);
 			}
 		};
 		document.addEventListener(touchEvents.move, o.move, false);
@@ -87,10 +87,10 @@ define(function() {
 		document.removeEventListener(touchEvents.cancel, o.cancel, false);
 	}
 
-	function pointerStart(evt, callback, pointers) {
+	function pointerStart(evt, callback, pointers, self) {
 		var i, t;
 		if ('pointerId' in evt) {
-			if (callback({
+			if (callback.call(self, {
 				type: 'start',
 				id: evt.pointerId,
 				x: evt.clientX,
@@ -99,13 +99,13 @@ define(function() {
 			})) {
 				pointers.push(evt.pointerId);
 				if (pointers.length === 1) {
-					watchDocument(callback, pointers);
+					watchDocument(callback, pointers, self);
 				}
 			}
 		} else {
 			for (i = 0; i < evt.changedTouches.length; i++) {
 				t = evt.changedTouches[i];
-				if (callback({
+				if (callback.call(self, {
 					type: 'start',
 					id: t.identifier,
 					x: t.clientX,
@@ -114,19 +114,19 @@ define(function() {
 				})) {
 					pointers.push(t.identifier);
 					if (pointers.length === 1) {
-						watchDocument(callback, pointers);
+						watchDocument(callback, pointers, self);
 					}
 				}
 			}
 		}
 	}
 
-	function process(evt, callback, pointers, type, o) {
+	function process(evt, callback, pointers, type, o, self) {
 		var i, j, t;
 		if ('pointerId' in evt) {
 			j = pointers.indexOf(evt.pointerId);
 			if (j >= 0) {
-				if (callback({
+				if (callback.call(self, {
 					type: type,
 					id: evt.pointerId,
 					x: evt.clientX,
@@ -144,7 +144,7 @@ define(function() {
 				t = evt.changedTouches[i];
 				j = pointers.indexOf(t.identifier);
 				if (j >= 0) {
-					if (callback({
+					if (callback.call(self ,{
 						type: type,
 						id: t.identifier,
 						x: t.clientX,

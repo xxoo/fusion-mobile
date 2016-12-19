@@ -95,7 +95,7 @@ var browser = (function() {
 				require(['site/index/index']);
 			});
 		}
-		document.head.appendChild(l);
 		document.head.appendChild(m);
+		document.head.appendChild(l);
 	}
 }();

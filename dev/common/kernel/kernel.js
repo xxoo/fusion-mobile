@@ -1,5 +1,5 @@
 'use strict';
-define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 'common/svgicos/svgicos', 'site/pages/pages', 'site/popups/popups'], function(touchslider, pointerevents, svgicos, pages, popups) {
+define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 'common/pointerevents/pointerevents', 'common/svgicos/svgicos', 'site/pages/pages', 'site/popups/popups'], function(touchslider, touchguesture, pointerevents, svgicos, pages, popups) {
 	var homePage, kernel = {
 		// 加入css 到head中;
 		// 如果是生产环境; 加入 css
@@ -92,32 +92,24 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 		},
 		// 后退行为
 		getDefaultBack: function(loc) {
-			var i, o, bk, a;
+			var i, o, bk;
 			if (!loc) {
 				loc = kernel.location;
 			}
-			o = pages[loc.id];
-			if (o) {
-				if (o.back) {
-					a = o.back;
-				} else if (loc.id !== homePage) {
-					a = homePage;
-				}
-				if (a && pages[a]) {
-					if (o.backArgs instanceof Object) {
+			if (pages[loc.id]) {
+				if (pages[loc.id].backLoc instanceof Object) {
+					bk = pages[loc.id].backLoc;
+				} else {
+					if (pages[loc.id].back && pages[pages[loc.id].back]) {
 						bk = {
-							id: a,
-							args: o.backArgs
-						};
-					} else {
-						bk = {
-							id: a,
+							id: pages[loc.id].back,
 							args: {}
 						};
-						if (pages[a].args) {
-							for (i = 0; i < pages[a].args.length; i++) {
-								if (pages[a].args[i] in loc.args) {
-									bk.args[pages[a].args[i]] = loc.args[pages[a].args[i]];
+						o = pages[pages[loc.id].back].alias ? pages[pages[pages[loc.id].back].alias] : pages[pages[loc.id].back];
+						if (o.args) {
+							for (i = 0; i < o.args.length; i++) {
+								if (o.args[i] in loc.args) {
+									bk.args[o.args[i]] = loc.args[o.args[i]];
 								}
 							}
 						}
@@ -143,17 +135,34 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 		},
 		// 判断是否是后退
 		isGoingback: function(from, to) {
-			if (to === homePage) {
+			if (isInBackChain(from, to)) {
+				return true;
+			} else if (isInBackChain(to, from)) {
+				return false;
+			} else if (pages[from].alias) {
+				if (isInBackChain(pages[from].alias, to)) {
+					return true;
+				} else if (isInBackChain(to, pages[from].alias)) {
+					return false;
+				} else if (to === homePage){
+					return true;
+				} else {
+					return false;
+				}
+			} else if (pages[to].alias) {
+				if (isInBackChain(from, pages[to].alias)) {
+					return true;
+				} else if (isInBackChain(pages[to].alias, from)) {
+					return false;
+				} else if (pages[from] === homePage){
+					return true;
+				} else {
+					return false;
+				}
+			} else if (to === homePage) {
 				return true;
 			} else {
-				while (from !== homePage) {
-					if (from === to) {
-						break;
-					} else {
-						from = pages[from].back || homePage;
-					}
-				}
-				return from !== homePage;
+				return false;
 			}
 		},
 		clone: function(d) {
@@ -528,7 +537,7 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 			window.addEventListener('touchmove', function(evt) {
 				var t = evt.target;
 				while (t != document.body) {
-					if (t.classList.contains('iosScrollFix') || t.classList.contains('hScroll')) {
+					if (t.classList.contains('iosScrollFix')) {
 						return;
 					}
 					t = t.parentNode;
@@ -569,14 +578,7 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 			tb = helper.firstChild,
 			img = helper.lastChild,
 			allSteps;
-		helper.addEventListener('click', function(evt) {
-			if (allSteps.length > 1) {
-				allSteps.shift();
-				setStep(allSteps[0]);
-			} else {
-				helper.style.display = '';
-			}
-		}, false);
+		helper.addEventListener('click', nextStep);
 		kernel.showHelper = function(steps) {
 			if (steps instanceof Array) {
 				allSteps = steps;
@@ -586,6 +588,20 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 			setStep(allSteps[0]);
 			helper.style.display = 'block';
 		};
+
+		function nextStep(){
+			if (allSteps.length > 1) {
+				allSteps.shift();
+				if (typeof allSteps[0] === 'function') {
+					allSteps[0]();
+					nextStep();
+				} else {
+					setStep(allSteps[0]);
+				}
+			} else {
+				helper.style.display = '';
+			}
+		}
 
 		function setStep(step) {
 			var tmp, tmp1, i;
@@ -643,17 +659,21 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 		// 如果弹窗有自定义打开方式则直接调用该接口，否则会调用showPopup
 		// 如果定义了open请确保最终打开自己时调用的是showPopup而不是openPopup
 		kernel.openPopup = function(id, param) {
-			var popupcfg = popups[id];
-			if (popupcfg) {
-				initLoad(popupcfg, id, false, function() {
-					if (typeof popupcfg.open === 'function') {
-						popupcfg.open(param);
-					} else {
-						kernel.showPopup(id, param);
-					}
-				});
+			if (window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.openPopup === 'function') {
+				window.frameElement.kernel.openPopup(id, param);
 			} else {
-				kernel.hint('popup config not found: ' + id);
+				var popupcfg = popups[id];
+				if (popupcfg) {
+					initLoad(popupcfg, id, false, function() {
+						if (typeof popupcfg.open === 'function') {
+							popupcfg.open(param);
+						} else {
+							kernel.showPopup(id, param);
+						}
+					});
+				} else {
+					kernel.hint('popup config not found: ' + id);
+				}
 			}
 		};
 		// 普通弹窗
@@ -805,6 +825,7 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 					if (typeof popups[activePopup].onunloadend === 'function') {
 						popups[activePopup].onunloadend();
 					}
+					popupsBox.classList.remove(activePopup);
 					activePopup = undefined;
 				} else {
 					if (typeof popups[activePopup].onloadend === 'function') {
@@ -890,6 +911,7 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 			} else {
 				readableContent.appendChild(html);
 			}
+			readableContent.classList.remove('foreign');
 			readableBox.className = 'in';
 			raCallback = callback;
 		};
@@ -905,7 +927,8 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 			return readableBox.className === 'in';
 		};
 		kernel.showForeign = function(url, callback) { //展示站外内容
-			kernel.showReadable('<iframe frameborder="0" frameborder="no" scrolling="auto" sandbox="allow-same-origin allow-forms allow-scripts" style="position:absolute;width:100%;height:100%;" src="' + url + '"></iframe>', callback);
+			kernel.showReadable('<iframe frameborder="no" scrolling="auto" sandbox="allow-same-origin allow-forms allow-scripts" src="' + url + '"></iframe>', callback);
+			readableContent.classList.add('foreign');
 		};
 		// clearPopup 会检查有那些窗口正在显示, 并自动将其全部关闭, 其它关闭窗口的方法都不执行检查
 		kernel.clearPopup = function() {
@@ -927,41 +950,76 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 	}();
 	//对话框及提示功能
 	! function() {
-		var hintmo, callback,
+		var hintmo, callback, actioncb,
 			loadingRT = 0,
 			dlgStack = [],
+			photoStatus = {},
 			loadingCtn = document.getElementById('loading'),
 			hintCtn = document.getElementById('hint'),
 			dialogCtn = document.getElementById('dialog'),
 			dialogBox = dialogCtn.querySelector('div'),
 			dialogContent = dialogBox.querySelector('.content'),
 			dialogClose = dialogBox.querySelector('.close'),
+			sliderViewCtn = document.getElementById('sliderView'),
+			sliderViewClose = sliderViewCtn.querySelector('.close'),
+			sliderViewActions = sliderViewCtn.querySelector('.actions'),
+			slider = touchslider(sliderViewCtn.querySelector('.content')),
 			photoViewCtn = document.getElementById('photoView'),
 			photoViewClose = photoViewCtn.querySelector('.close'),
-			photoSlider = touchslider(photoViewCtn.querySelector('.content'));
+			photoViewContent = photoViewCtn.querySelector('img'),
+			guesture = touchguesture(photoViewCtn);
 
-		kernel.showPhotoView = function(photos, idx) {
+		guesture.onzoomstart = zoomstart;
+		guesture.ondragstart = dragstart;
+		kernel.showPhotoView = function(url) {
+			photoViewContent.src = url;
+		};
+
+		kernel.hidePhotoView = function() {
+			photoViewContent.src = 'about:blank';
+		};
+		photoViewContent.addEventListener('load', function(){
+			photoViewCtn.style.visibility = 'visible';
+			document.body.classList.add('mask');
+			window.addEventListener('resize', syncPhotoViewSize);
+			syncPhotoViewSize();
+		});
+		photoViewContent.addEventListener('error', function(){
+			photoViewCtn.style.visibility = '';
+			window.removeEventListener('resize', syncPhotoViewSize);
+			unmask();
+		});
+
+		kernel.showSliderView = function(photos, idx, btns, cb) {
 			var i, tmp;
 			for (i = 0; i < photos.length; i++) {
 				tmp = document.createElement('div');
 				tmp.style.backgroundImage = 'url(' + photos[i] + ')';
 				tmp.className = 'item';
-				photoSlider.add(tmp);
+				slider.add(tmp);
 			}
 			if (idx) {
-				photoSlider.slideTo(idx, true);
-			} else {
-				if (photoSlider.children.length > 1) {
-					photoSlider.onchange();
+				slider.slideTo(idx, true);
+			}
+			actioncb = cb;
+			while (sliderViewActions.childNodes.length) {
+				sliderViewActions.removeChild(sliderViewActions.firstChild);
+			}
+			if (btns && btns.length) {
+				for (i = 0; i < btns.length; i++) {
+					tmp = document.createElement('a');
+					tmp.href= 'javascript:;';
+					tmp.appendChild(document.createTextNode(btns[i]));
+					tmp.addEventListener('click', actionClick.bind(i));
+					sliderViewActions.appendChild(tmp);
 				}
+				sliderViewActions.style.display = '';
+			} else {
+				sliderViewActions.style.display = 'none';
 			}
-			document.getElementById('photoView').style.visibility = 'visible';
-			document.body.classList.add('mask');
 		};
-		kernel.hidePhotoView = function() {
-			while (photoSlider.children.length) {
-				photoSlider.remove(0);
-			}
+		kernel.hideSliderView = function() {
+			slider.clear();
 		};
 		kernel.alert = function(text, callback) { //alert对话框
 			openDialog('alert', text, callback);
@@ -1029,20 +1087,21 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 		//目前只有loaded事件
 		kernel.dialogEvents = {};
 
-		photoSlider.onchange = function() {
-			var i, txt;
-			if (this.children.length > 0) {
-				txt = '';
+		slider.onchange = function() {
+			var i, txt = '';
+			if (this.children.length) {
 				if (this.children.length > 1) {
 					for (i = 0; i < this.children.length; i++) {
 						txt += (i === this.current) ? '●' : '○';
 					}
 				}
-				document.querySelector('#photoView>.nav').firstChild.data = txt;
+				document.getElementById('sliderView').style.visibility = 'visible';
+				document.body.classList.add('mask');
 			} else {
-				photoViewCtn.style.visibility = '';
+				sliderViewCtn.style.visibility = '';
 				unmask();
 			}
+			document.querySelector('#sliderView>.nav').firstChild.data = txt;
 		};
 		dialogClose.appendChild(kernel.makeSvg('close'));
 		dialogClose.addEventListener('click', kernel.closeDialog, false);
@@ -1050,11 +1109,19 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 		dialogBox.querySelector('.no').addEventListener('click', function() {
 			kernel.closeDialog();
 		}, false);
+		sliderViewClose.appendChild(dialogClose.firstChild.cloneNode(true));
 		photoViewClose.appendChild(dialogClose.firstChild.cloneNode(true));
+		sliderViewClose.addEventListener('click', kernel.hideSliderView, false);
 		photoViewClose.addEventListener('click', kernel.hidePhotoView, false);
 
+		function actionClick(){
+			if (typeof actioncb === 'function') {
+				actioncb(slider.current, this);
+			}
+		}
+
 		function unmask() {
-			if (hintCtn.style.visibility === '' && dialogCtn.style.visibility === '' && loadingCtn.style.visibility === '' && photoViewCtn.style.visibility === '') {
+			if (dialogCtn.style.visibility === '' && loadingCtn.style.visibility === '' && sliderViewCtn.style.visibility === '' && photoViewCtn.style.visibility === '') {
 				document.body.classList.remove('mask');
 			}
 		}
@@ -1087,6 +1154,90 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 			dialogBox.style.width = dialogBox.offsetWidth + 'px';
 			dialogBox.style.height = dialogBox.offsetHeight + 'px';
 			dialogBox.style.bottom = dialogBox.style.right = '';
+		}
+
+		function setImg(){
+			photoViewContent.style.width = photoStatus.w + 'px';
+			photoViewContent.style.height = photoStatus.h + 'px';
+			photoViewContent.style.left = photoStatus.l + 'px';
+			photoViewContent.style.top = photoStatus.t + 'px';
+		}
+
+		function syncPhotoViewSize() {
+			photoStatus.ww = window.innerWidth;
+			photoStatus.wh = window.innerHeight;
+			photoStatus.wr = photoStatus.ww / photoStatus.wh;
+			photoStatus.ow = photoViewContent.naturalWidth;
+			photoStatus.oh = photoViewContent.naturalHeight;
+			photoStatus.r = photoStatus.ow / photoStatus.oh;
+			if (photoStatus.ow > photoStatus.ww || photoStatus.oh > photoStatus.wh) {
+				if (photoStatus.r > photoStatus.wr) {
+					photoStatus.z = photoStatus.mz = photoStatus.ww / photoStatus.ow;
+					photoStatus.l = 0;
+					photoStatus.w = photoStatus.ww;
+					photoStatus.h = photoStatus.w / photoStatus.r;
+					photoStatus.t = (photoStatus.wh - photoStatus.h) / 2;
+				} else {
+					photoStatus.z = photoStatus.mz = photoStatus.wh / photoStatus.oh;
+					photoStatus.t = 0;
+					photoStatus.h = photoStatus.wh;
+					photoStatus.w = photoStatus.h * photoStatus.r;
+					photoStatus.l = (photoStatus.ww - photoStatus.w) / 2;
+				}
+			} else {
+				photoStatus.z = photoStatus.mz = 1;
+				photoStatus.w = photoStatus.ow;
+				photoStatus.h = photoStatus.oh;
+				photoStatus.l = (photoStatus.ww - photoStatus.w) / 2;
+				photoStatus.t = (photoStatus.wh - photoStatus.h) / 2;
+			}
+			setImg();
+		}
+		function zoomstart(evt) {
+			var x = evt.x,
+				y = evt.y,
+				oz = photoStatus.z;
+			this.onzoomstart = null;
+			this.onzoomchange = zoomchange;
+			this.onzoomend = function(evt) {
+				zoomchange.call(this, evt);
+				this.onzoomchange = this.zoomend = null;
+				this.onzoomstart = zoomstart;
+			};
+			function zoomchange(evt){
+				var nz = Math.max(Math.min(evt.zoom * oz, 1), photoStatus.mz);
+				if (nz !== photoStatus.z) {
+					photoStatus.w = photoStatus.ow * nz;
+					photoStatus.h = photoStatus.oh * nz;
+					photoStatus.l = photoStatus.w > photoStatus.ww ? Math.min(Math.max(x + (photoStatus.l - x) * nz / photoStatus.z, photoStatus.ww - photoStatus.w), 0) : (photoStatus.ww - photoStatus.w) /2;
+					photoStatus.t = photoStatus.h > photoStatus.wh ? Math.min(Math.max(y + (photoStatus.t - y) * nz / photoStatus.z, photoStatus.wh - photoStatus.h), 0) : (photoStatus.wh - photoStatus.h) /2;
+					photoStatus.z = nz;
+					setImg();
+				}
+			}
+		}
+
+		function dragstart(evt){
+			var x = evt.x,
+				y = evt.y,
+				ol = photoStatus.l,
+				ot = photoStatus.t;
+			guesture.ondragmove = dragmove;
+			guesture.ondragend = function(evt) {
+				dragmove.call(this, evt);
+				this.ondragmove = this.ondragend = null;
+				this.ondragstart = dragstart;
+			};
+
+			function dragmove(evt){
+				if (photoStatus.w > photoStatus.ww) {
+					photoStatus.l = Math.min(Math.max(ol + evt.x - x, photoStatus.ww - photoStatus.w), 0);
+				}
+				if (photoStatus.h > photoStatus.wh) {
+					photoStatus.t = Math.min(Math.max(ot + evt.y - y, photoStatus.wh - photoStatus.h), 0);
+				}
+				setImg();
+			}
 		}
 	}();
 
@@ -1128,12 +1279,12 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 					args: {}
 				};
 				// 看是否有 kernelHistory
-				routerHistory = sessionStorage.getItem('routerHistory');
+				routerHistory = sessionStorage.getItem('kernelHistory');
 				routerHistory = routerHistory ? JSON.parse(routerHistory) : {};
 				// 解析 routerHistory
 				for (n in routerHistory) {
 					if (n in pages) {
-						pages[n].backArgs = routerHistory[n];
+						pages[n].backLoc = routerHistory[n];
 					}
 				}
 				window.addEventListener('hashchange', hashchange, false);
@@ -1167,7 +1318,7 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 		};
 
 		//刷新当前页
-		kernel.reloadPage = function() {
+		kernel.reloadPage = function(id, silent) {
 			var thislocation;
 			// 是否有数据正在加载
 			if (kernel.isLoading()) {
@@ -1175,14 +1326,14 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 				// 注册监听 ; loaded
 				kernel.listeners.add(kernel.dialogEvents, 'loaded', listener);
 			} else {
-				reloadPage();
+				reloadPage(id, silent);
 			}
 
 			function listener(evt) {
 				kernel.listeners.remove(this, evt.type, listener);
 				// url 是否改变
 				if (kernel.isSameLocation(thislocation, kernel.location)) {
-					reloadPage();
+					reloadPage(id, silent);
 				}
 			}
 		};
@@ -1228,16 +1379,17 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 				if (animating) {
 					todo = true;
 				} else {
-					var toshow, ctn, oldpageid, page, goingback,
-						pageid = kernel.location.id;
+					var toshow, ctn, oldpageid, oldid, goingback,
+						id = pages[pageid].alias ? pages[pageid].alias : pageid;
 
 					// 只有返回或未发生转向时允许页面缓存
 					if (pageid !== currentpage) {
-						page = document.getElementById('page');
-						// 重置 class
-						page.classList.add(pageid);
+						pagesBox.classList.add(pageid);
 						// 重置 title
 						pagesBox.querySelector(':scope>.header>.title').firstChild.data = pages[pageid].title;
+						if (window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.getCurrentPopup === 'function' && window.frameElement.kernel.getCurrentPopup() === 'page'){
+							window.frameElement.kernel.setPopupTitle(pages[pageid].title);
+						}
 						// 重置 顶部按钮
 						while (headerRightMenuBtn.childNodes.length) {
 							headerRightMenuBtn.removeChild(headerRightMenuBtn.firstChild);
@@ -1276,46 +1428,51 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 						}
 						// 设置 返回按钮URL
 						setBackButton(kernel.getDefaultBack());
-						toshow = pagesBox.querySelector(':scope>.content>.' + pageid);
+						toshow = pagesBox.querySelector(':scope>.content>.' + id);
 
 						// 如果有 上一个pageID; 就动画切换
 						// 如果没有 就直接显示
 						if (currentpage) {
-							page.classList.remove(currentpage);
+							pagesBox.classList.remove(currentpage);
 							oldpageid = currentpage;
+							oldid = pages[oldpageid].alias ? pages[oldpageid].alias : oldpageid;
 							currentpage = pageid;
-							// kernel 判断是否是 返回操作; 处理不一样的动画
-							goingback = kernel.isGoingback(oldpageid, pageid);
-							animating = true;
-							// panelSwitch 动画
-							panelSwitch(toshow, pagesBox.querySelector(':scope>.content>.' + oldpageid), goingback, function() {
-								animating = false;
-								// 切换完成后 就执行 对呀的方法;
-								if (typeof pages[oldpageid].onunloadend === 'function') {
-									// 如果是回退 就不强制刷新
-									pages[oldpageid].onunloadend(!goingback);
-								}
-								// 当前页的加载
-								if (typeof pages[pageid].onloadend === 'function') {
-									pages[pageid].onloadend(!goingback);
-								}
-								if (todo) {
-									todo = false;
-									//toshow可能已被隐藏
-									toshow.style.visibility = 'visible';
-									manageLocation();
-								}
-							});
+							if (id === oldid) {
+								noSwitchLoad(true);
+							} else {
+								// kernel 判断是否是 返回操作; 处理不一样的动画
+								goingback = kernel.isGoingback(oldpageid, pageid);
+								animating = true;
+								// panelSwitch 动画
+								panelSwitch(toshow, pagesBox.querySelector(':scope>.content>.' + oldid), goingback, function() {
+									animating = false;
+									// 切换完成后 就执行 对呀的方法;
+									if (typeof pages[oldid].onunloadend === 'function') {
+										// 如果是回退 就不强制刷新
+										pages[oldid].onunloadend(!goingback);
+									}
+									// 当前页的加载
+									if (typeof pages[id].onloadend === 'function') {
+										pages[pageid].onloadend(!goingback);
+									}
+									if (todo) {
+										todo = false;
+										//toshow可能已被隐藏
+										toshow.style.visibility = 'visible';
+										manageLocation();
+									}
+								});
 
-							// 加载页面的时候
+								// 加载页面的时候
 
-							// 触发上一个页面的卸载事件
-							if (typeof pages[oldpageid].onunload === 'function') {
-								pages[oldpageid].onunload();
-							}
-							// 触发当前页面的加载事件
-							if (typeof pages[pageid].onload === 'function') {
-								pages[pageid].onload(!goingback || firstLoad);
+								// 触发上一个页面的卸载事件
+								if (typeof pages[oldid].onunload === 'function') {
+									pages[oldid].onunload();
+								}
+								// 触发当前页面的加载事件
+								if (typeof pages[id].onload === 'function') {
+									pages[id].onload(!goingback || firstLoad);
+								}
 							}
 						} else { //初次加载不显示动画
 							currentpage = pageid; // 记录当前显示中的页面
@@ -1332,28 +1489,34 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 			});
 		}
 
-		function reloadPage() {
-			kernel.clearPopup();
-			if (typeof pages[currentpage].onunload === 'function') {
-				pages[currentpage].onunload(true);
-			}
-			if (typeof pages[currentpage].onunloadend === 'function') {
-				pages[currentpage].onunloadend(true);
-			}
-			if (typeof pages[currentpage].onload === 'function') {
-				pages[currentpage].onload(true);
-			}
-			if (typeof pages[currentpage].onloadend === 'function') {
-				pages[currentpage].onloadend(true);
+		function reloadPage(id, silent) {
+			var cfg = pages[currentpage].alias ? pages[pages[currentpage].alias] : pages[currentpage];
+			if (!id || (typeof id === 'string' && id === kernel.location.id) || id.indexOf(kernel.location.id) >= 0) {
+				if (!silent) {
+					kernel.clearPopup();
+				}
+				if (typeof cfg.onunload === 'function') {
+					cfg.onunload(true);
+				}
+				if (typeof cfg.onunloadend === 'function') {
+					cfg.onunloadend(true);
+				}
+				if (typeof cfg.onload === 'function') {
+					cfg.onload(true);
+				}
+				if (typeof cfg.onloadend === 'function') {
+					cfg.onloadend(true);
+				}
 			}
 		}
 
 		function noSwitchLoad(force) {
-			if (typeof pages[currentpage].onload === 'function') {
-				pages[currentpage].onload(force);
+			var cfg = pages[currentpage].alias ? pages[pages[currentpage].alias] : pages[currentpage];
+			if (typeof cfg.onload === 'function') {
+				cfg.onload(force);
 			}
-			if (typeof pages[currentpage].onloadend === 'function') {
-				pages[currentpage].onloadend();
+			if (typeof cfg.onloadend === 'function') {
+				cfg.onloadend();
 			}
 		}
 
@@ -1378,19 +1541,18 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 				kernel.lastLocation = kernel.location;
 				kernel.location = newLocation;
 				// 如果是前进操作
-				if ((pages[kernel.location.id].back && kernel.lastLocation.id === pages[kernel.location.id].back) || (!pages[kernel.location.id].back && kernel.lastLocation.id === homePage)) {
+				if ((pages[kernel.location.id].back && (kernel.lastLocation.id === pages[kernel.location.id].back || pages[kernel.lastLocation.id].alias === pages[kernel.location.id].back))) {
 					// 把上一页赋值给他的后退页
-					routerHistory[kernel.location.id] = pages[kernel.location.id].backArgs = kernel.lastLocation.args;
+					routerHistory[kernel.location.id] = pages[kernel.location.id].backLoc = kernel.lastLocation;
 					// 记录到 sessionStorage
 					sessionStorage.setItem('kernelHistory', JSON.stringify(routerHistory));
 				} // 如果是 后退操作
-				else if (pages[kernel.lastLocation.id].backArgs && kernel.location.id === pages[kernel.lastLocation.id].back) {
+				else if (pages[kernel.lastLocation.id].backLoc && (kernel.location.id === pages[kernel.lastLocation.id].back || (pages[kernel.location.id].alias && pages[kernel.location.id].alias === pages[kernel.lastLocation.id].back))) {
 					// 剔除最后一次 back 对象
-					delete pages[kernel.lastLocation.id].backArgs;
+					delete pages[kernel.lastLocation.id].backLoc;
 					delete routerHistory[kernel.lastLocation.id];
 					sessionStorage.setItem('kernelHistory', JSON.stringify(routerHistory));
 				}
-				// kernel onchange 的时候 发送通知
 				manageLocation();
 			}
 		}
@@ -1400,6 +1562,10 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 
 	function initLoad(oldcfg, id, isPage, callback) {
 		var ctn, family, exts, n, m, url, xhr;
+		if (isPage && oldcfg.alias) {
+			id = oldcfg.alias;
+			oldcfg = pages[oldcfg.alias];
+		}
 		if (oldcfg.loaded === 2) {
 			callback();
 		} else if (oldcfg.loaded !== 1) {
@@ -1536,6 +1702,15 @@ define(['common/touchslider/touchslider', 'common/pointerevents/pointerevents', 
 				this.style.right = 0;
 			}
 			this.className = this.className.replace(/ panelTrans[LR][12]/, '');
+		}
+	}
+
+	function isInBackChain(from, to) {
+		while (pages[from].back) {
+			from = pages[from].back;
+			if (from === to){
+				return true;
+			}
 		}
 	}
 });

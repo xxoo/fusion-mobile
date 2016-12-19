@@ -12,8 +12,7 @@ define({
 		'js': 'list',
 		'html': 'list.html',
 		'css': 'list.less',
-		'title': '列表',
-		'back': 'home'
+		'title': '列表'
 	},
 	'user': {
 		'html': 'user.html',

@@ -44,7 +44,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 			this.subcontainer.style.position = 'absolute';
 			this.subcontainer.style.width = '200%';
 			this.subcontainer.style.height = '100%';
-			this.subcontainer.style.left = 0;
+			this.subcontainer.style.left = this.subcontainer.style.top = 0;
 			this.subcontainer.addEventListener(tmp, function(evt) {
 				slided.call(this, evt, self);
 			}, false);
@@ -104,11 +104,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 			o.style.height = '100%';
 			o.style.display = 'inline-block';
 			this.children.push(o);
-			if (result === 0) {
-				this.subcontainer.appendChild(o);
-				this.current = 0;
-				fireEvent(this, 'change');
-			} else {
+			if (result) {
 				if (this.subcontainer.childNodes.length === 2) {
 					if (this.current === result - 1 && this.subcontainer.firstChild === this.children[this.current]) {
 						this.invisible.appendChild(this.subcontainer.firstChild);
@@ -122,6 +118,16 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 				} else {
 					this.invisible.appendChild(o);
 				}
+				fireEvent(this, 'change', {
+					length: true
+				});
+			} else {
+				this.subcontainer.appendChild(o);
+				this.current = 0;
+				fireEvent(this, 'change', {
+					current: true,
+					length: true
+				});
 			}
 		}
 		return result;
@@ -129,7 +135,12 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	touchslider.prototype.remove = function(i) {
 		var result;
 		if (this.sliding) {
-			this.removeStack.push(typeof i === 'number' ? this.children[i] : i);
+			if (typeof i === 'number') {
+				i = this.children[i];
+			}
+			if (this.removeStack.indexOf(i) < 0) {
+				this.removeStack.push(i);
+			}
 		} else if (this.children.length > 0) {
 			if (typeof i !== 'number') {
 				i = this.children.indexOf(i);
@@ -159,7 +170,10 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 					}
 				}
 				this.subcontainer.removeChild(result);
-				fireEvent(this, 'change');
+				fireEvent(this, 'change', {
+					current: true,
+					length: true
+				});
 			} else {
 				if (result.parentNode === this.subcontainer) {
 					if (this.children.length > 1) {
@@ -178,11 +192,29 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 				}
 				if (this.current > i) {
 					this.current -= 1;
-					fireEvent(this, 'change');
+					fireEvent(this, 'change', {
+						current: true,
+						length: true
+					});
+				} else {
+					fireEvent(this, 'change', {
+						length: true
+					});
 				}
 			}
 		}
 		return result;
+	};
+	touchslider.prototype.clear = function() {
+		var i;
+		if (this.sliding) {
+			this.removeStack = this.children.slice(0);
+			this.pushStack = [];
+		} else {
+			while (this.children.length) {
+				this.remove(0);
+			}
+		}
 	};
 	touchslider.prototype.slideTo = function(i, silent) {
 		var result;
@@ -203,7 +235,9 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 					}
 				}
 				this.current = i;
-				fireEvent(this, 'change');
+				fireEvent(this, 'change', {
+					current: true
+				});
 			}
 			result = true;
 		} else {
@@ -352,7 +386,9 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 				}
 				if (n !== obj.current) {
 					obj.current = n;
-					fireEvent(obj, 'change');
+					fireEvent(obj, 'change', {
+						current: true
+					});
 				}
 			}
 		}
@@ -373,7 +409,9 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 				if (obj.subcontainer.offsetLeft + s < obj.container.offsetWidth * -0.5) {
 					beginSlide(obj, false);
 					obj.current = getPos(obj.current + 1, obj.children.length);
-					fireEvent(obj, 'change');
+					fireEvent(obj, 'change', {
+						current: true
+					});
 				} else {
 					beginSlide(obj, true);
 				}
@@ -381,7 +419,9 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 				if (obj.subcontainer.offsetLeft + s > obj.container.offsetWidth * -0.5) {
 					beginSlide(obj, true);
 					obj.current = getPos(obj.current - 1, obj.children.length);
-					fireEvent(obj, 'change');
+					fireEvent(obj, 'change', {
+						current: true
+					});
 				} else {
 					beginSlide(obj, false);
 				}
@@ -417,11 +457,13 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 		return s;
 	}
 
-	function fireEvent(obj, name) {
+	function fireEvent(obj, name, props) {
 		var funcName = 'on' + name;
 		if (typeof obj[funcName] === 'function') {
+			var a =
 			obj[funcName]({
-				type: name
+				type: name,
+				__proto__: props
 			});
 		}
 	}

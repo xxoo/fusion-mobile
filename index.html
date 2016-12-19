@@ -15,7 +15,7 @@
 			visibility: hidden;
 		}
 		</style>
-		<script src="/fusion-mobile/framework/all.js" async></script>
+		<script src="/fusion-mobile/framework/all.js"></script>
 	</head>
 	<body class="loading">
 		<!--页面框架-->
@@ -47,16 +47,21 @@
 			<a class="close" href="javascript:;"></a>
 		</div>
 		<!--用于展示图片-->
-		<div id="photoView">
+		<div id="sliderView">
 			<div class="content"></div>
 			<div class="nav">_</div>
+			<a class="close" href="javascript:;"></a>
+			<div class="actions"></div>
+		</div>
+		<div id="photoView">
+			<img/>
 			<a class="close" href="javascript:;"></a>
 		</div>
 		<!--对话框-->
 		<div id="dialog">
 			<div>
 				<div class="content"></div>
-				<div class="btns"><a class="button yes" href="javascript:;">是</a><a class="button no" href="javascript:;">否</a></div>
+				<div class="btns"><a class="yes" href="javascript:;">是</a><a class="no" href="javascript:;">否</a></div>
 				<a class="close" href="javascript:;"></a>
 			</div>
 		</div>
