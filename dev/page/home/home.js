@@ -18,7 +18,7 @@ define(['module', 'common/kernel/kernel', 'common/touchslider/touchslider'], fun
 			bg:'white'
 		}, {
 			img: 'http://www.apple.com/ac/globalnav/2.0/en_US/images/ac-globalnav/globalnav/apple/image_large.svg',
-			href: 'https://www.apple.com',
+			href: 'https://support.apple.com/',
 			bg:'rgba(0,0,0,0.8)'
 		}];
 	for (i = 0; i < imgs.length; i++) {
