@@ -36,14 +36,14 @@ var browser = (function() {
 		var s, t, sw, ww;
 		if (browser.name === 'Firefox') {
 			s = calcRato(Math.min(screen.width, screen.height));
-			document.write('<meta name="viewport" content="width=' + 100 / s + '%, initial-scale=' + s + ', user-scalable=no"/>');
+			document.write('<meta name="viewport" content="user-scalable=no, width=' + 100 / s + '%, initial-scale=' + s + ', maximum-scale=' + s + ', minimum-scale=' + s + '"/>');
 		} else if (browser.name === 'Trident') {
 			document.write('<meta name="viewport" content="width=device-width, user-scalable=no"/>');
 			document.documentElement.style.zoom = calcRato(Math.min(screen.width, screen.height));
 		} else {
 			t = document.createElement('meta');
 			t.name = 'viewport';
-			t.content = 'width=device-width, user-scalable=no';
+			t.content = 'user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1';
 			document.head.appendChild(t);
 			sw = Math.min(screen.width, screen.height);
 			ww = Math.min(window.innerWidth, window.innerHeight);
@@ -51,7 +51,7 @@ var browser = (function() {
 				document.documentElement.style.zoom = calcRato(sw / devicePixelRatio);
 			} else {
 				s = calcRato(sw);
-				t.content = 'user-scalable=no, width=' + 100 / s + '%, initial-scale=' + s;
+				t.content = 'user-scalable=no, width=' + 100 / s + '%, initial-scale=' + s + ', maximum-scale=' + s + ', minimum-scale=' + s;
 			}
 		}
 	}
@@ -68,9 +68,9 @@ var browser = (function() {
 	}
 })();
 ! function() {
-	var prefix = '/fusion-mobile/',
+	var prefix = document.currentScript.src.replace(/^http(s)?:\/\/[^\/]+|[^\/]+$/g, ''),
 	c = document.createElement('script');
-	c.src = prefix + 'framework/require-config.js?' + new Date().valueOf();
+	c.src = prefix + 'require-config.js?' + new Date().valueOf();
 	c.addEventListener('load', cfgLoad, false);
 	document.head.appendChild(c);
 
@@ -82,7 +82,7 @@ var browser = (function() {
 			l.rel = m.rel = 'stylesheet/less';
 			l.href = require.toUrl('site/index/index.less');
 			m.href = require.toUrl('common/kernel/kernel.less');
-			require([prefix + 'framework/less.js'], function(){
+			require([prefix + 'less.js'], function(){
 				less.pageLoadFinished.then(function(){
 					require(['site/index/index']);
 				});
