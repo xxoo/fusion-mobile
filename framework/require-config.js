@@ -10,7 +10,7 @@
 		siteVersion = "1.0.246",
 		//请确保debug第五个被赋值
 		debug = false,
-		prefix = '/fusion-mobile/',
+		prefix = document.currentScript.src.replace(/^http(s)?:\/\/[^\/]+|framework\/[^\/]+$/g, ''),
 		cfg = {
 			baseUrl: prefix + srcRoot
 		};
