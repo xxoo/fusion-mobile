@@ -57,7 +57,6 @@ a {
         position: relative;
         color: @headerText;
         background-color: @headerBackground;
-		border-bottom: 1px solid @headerBorder;
         .flexcontent(0);
         > .back {
             display: block;
@@ -198,7 +197,7 @@ a {
     bottom: 0;
     top: 0;
     visibility: hidden;
-    background-color: rgba(0,0,0,0.1);
+    background-color: @maskFilterColor;
 }
 #dialog > div {
     max-width: 85%;
@@ -262,8 +261,8 @@ a {
     bottom: 0;
     top: 0;
     border-radius: 8px;
-    background-color: @openWindowBackgrond;
-    box-shadow: 0 0 5px gray;
+    background-color: @dialogBackground;
+    box-shadow: 0 0 5px @dialogShadow;
     color: @appText;
 }
 #loading > div {
@@ -275,8 +274,8 @@ a {
     white-space: pre-wrap;
     > .ico {
         margin: 15px auto;
-        border: 4px solid silver;
-        border-right-color: gray;
+        border: 4px solid @loadingColor;
+        border-right-color: @loadingAltColor;
         border-radius: 100%;
         width: 32px;
         height: 32px;
@@ -454,9 +453,14 @@ a {
         font-size: 18px;
         text-shadow: 0 0 1px @photoNavShadow;
     }
+}
+#photoView {
+	>img{
+		position: absolute;
+	}
 	>.actions{
 		position: absolute;
-		bottom: 40px;
+		bottom: 10px;
 		left:0;
 		right:0;
 		text-align: center;
@@ -464,19 +468,14 @@ a {
 		>a{
 			display: inline-block;
 			vertical-align: top;
-			background-color: @themeColor;
-			color: white;
+			background-color: @photoViewBtnBackground;
+			color: @photoViewBtnText;
 			margin:0 4px;
 			font-size: 14px;
-			padding:4px 8px;
+			padding:8px 16px;
 			border-radius: 4px;
-			box-shadow: 0 0 2px gray;
+			box-shadow: 0 0 2px @photoViewBtnShadow;
 		}
-	}
-}
-#photoView {
-	>img{
-		position: absolute;
 	}
 }
 #sliderView,
@@ -490,13 +489,13 @@ a {
         height: 32px;
         border-radius: 16px;
         display: block;
-        background-color: white;
-        box-shadow: 0 0 4px gray inset;
+        background-color: @roundCloseBackground;
+        box-shadow: 0 0 4px @roundCloseShadow inset;
         > svg {
             width: 16px;
             height: 16px;
             margin: 8px;
-            fill: gray;
+            fill: @roundCloseFrontground;
         }
     }
 }
@@ -508,7 +507,7 @@ a {
     height: 100%;
     visibility: hidden;
     overflow-y: auto;
-    background-color: white;
+    background-color: @readableBackground;
     > .content {
         position: absolute;
         top: 0;
@@ -541,14 +540,14 @@ a {
     transition: opacity 400ms ease-in-out;
     > .text {
         display: inline-block;
-        color: @appBackground;
+        color: @hintText;
         line-height: 20px;
         padding: 5px 12px;
-        background-color: rgba(0,0,0,0.6);
+        background-color: @hintBackground;
         border-radius: 10px;
         line-height: 20px;
         padding: 5px 12px;
-        box-shadow: 0 0 3px silver;
+        box-shadow: 0 0 3px @hintShadow;
         margin: 3px;
         white-space: pre-wrap;
         vertical-align: top;
@@ -564,7 +563,6 @@ a {
     > div {
         width: 100%;
         height: 100%;
-        -webkit-tap-highlight-color: transparent;
         .flexbox(1);
         > div {
             .flexbox(0);
@@ -575,7 +573,7 @@ a {
             &:last-child,
             > div:first-child,
             > div:last-child {
-                background-color: rgba(0,0,0,0.7);
+                background-color: @helperBackground;
             }
         }
     }
@@ -614,18 +612,18 @@ div.reloadHint {
     width: 40px;
     height: 40px;
     opacity: 0;
-    background-color: white;
+    background-color: @reloadHintBackground;
     padding: 8px;
-    box-shadow: 0 0 4px gray;
+    box-shadow: 0 0 4px @reloadHintShadow;
     border-radius: 20px;
     > svg {
         display: block;
         height: 100%;
-        fill: @primaryBackground;
+        fill: @reloadHintStartColor;
         -webkit-transition: fill 200ms ease-in-out;
         transition: fill 200ms ease-in-out;
     }
     &.pin > svg {
-        fill: @successBackground;
+        fill: @reloadHintFinishColor;
     }
 }

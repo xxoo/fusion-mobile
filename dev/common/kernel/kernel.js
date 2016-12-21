@@ -97,7 +97,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				loc = kernel.location;
 			}
 			if (pages[loc.id]) {
-				if (pages[loc.id].backLoc instanceof Object) {
+				if (kernel.dataType(pages[loc.id].backLoc) === 'object') {
 					bk = pages[loc.id].backLoc;
 				} else {
 					if (pages[loc.id].back && pages[pages[loc.id].back]) {
@@ -165,93 +165,18 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				return false;
 			}
 		},
-		clone: function(d) {
-			var result;
-			var s;
-			if (d instanceof Date) {
-				result = new Date(d.valueOf());
-			} else if (d instanceof RegExp) {
-				s = '';
-				if (d.ignoreCase) {
-					s += 'i';
-				}
-				if (d.multiline) {
-					s += 'm';
-				}
-				if (d.global) {
-					s += 'g';
-				}
-				result = RegExp(d.source.RegEncode(), s);
-			} else if (d instanceof Error) {
-				s = d.message ? d.message : '';
-				if (d instanceof RangeError) {
-					result = RangeError(s);
-				} else if (d instanceof ReferenceError) {
-					result = ReferenceError(s);
-				} else if (d instanceof SyntaxError) {
-					result = SyntaxError(s);
-				} else if (d instanceof TypeError) {
-					result = TypeError(s);
-				} else if (d instanceof URIError) {
-					result = URIError(s);
-				} else {
-					result = Error(s);
-				}
-			} else if (d instanceof Array) {
-				result = [];
-				for (s = 0; s < d.length; s++) {
-					result[s] = kernel.clone(d[s]);
-				}
-			} else if (d instanceof Object) {
-				result = {};
-				for (s in d) {
-					result[s] = kernel.clone(d[s]);
-				}
+		dataType: function(a) {
+			var t = typeof a;
+			if (t === 'string' || t === 'number' || t === 'function' || t === 'undefined') {
+				return t;
 			} else {
-				result = d;
-			}
-			return result;
-		},
-		isEqual: function(o1, o2) {
-			var t = Object.prototype.toString.call(o1),
-				n;
-			if (t === Object.prototype.toString.call(o2)) {
-				if (t === '[object Object]') {
-					if (Object.keys(o1).length === Object.keys(o2).length) {
-						for (n in o1) {
-							if (!(n in o2) || !kernel.isEqual(o1[n], o2[n])) {
-								return false;
-							}
-						}
-						return true;
-					} else {
-						return false;
-					}
-				} else if (t === '[object Array]') {
-					if (o1.length === o2.length) {
-						for (n = 0; n < o1.length; n++) {
-							if (!kernel.isEqual(o1[n], o2[n])) {
-								return false;
-							}
-						}
-						return true;
-					} else {
-						return false;
-					}
-				} else if (t === '[object String]' || t === '[object Number]' || t === '[object Undefined]' || t === '[object Null]') {
-					return o1 === o2;
+				t = Object.prototype.toString.call(a).replace(/^\[object |\]$/g, '').toLowerCase();
+				if (t === 'date' || t === 'array' || t === 'regexp' || t === 'error' || t === 'null'){
+					return t;
 				} else {
-					return false;
+					return 'object';
 				}
-			} else {
-				return false;
 			}
-		},
-		cancelEvent: function(evt) {
-			evt.preventDefault();
-		},
-		stopEvent: function(evt) {
-			evt.stopPropagation();
 		}
 	};
 
@@ -267,13 +192,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					o.xEvents[e] = [];
 					o.xEvents[e].stack = [];
 					o.xEvents[e].locked = false;
-					//if (o.addEventListener) {
-					//	o.addEventListener(e, o.xEvents, false);
-					//} else if (o.attachEvent) {
-					//	o.attachEvent('on' + e, o.xEvents);
-					//} else {
-						o['on' + e] = o.xEvents;
-					//}
+					o['on' + e] = o.xEvents;
 				}
 				if (o.xEvents[e].locked) {
 					o.xEvents[e].stack.push([false, f]);
@@ -295,7 +214,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					r = {};
 					if (o.xEvents) {
 						for (n in o.xEvents) {
-							if (o.xEvents[n] instanceof Array && o.xEvents[n].length > 0) {
+							if (kernel.dataType(o.xEvents[n]) === 'array' && o.xEvents[n].length) {
 								r[n] = o.xEvents[n].slice(0);
 							}
 						}
@@ -304,7 +223,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				return r;
 			},
 			remove: function(o, e, f) {
-				var n, addRemoveMark;
+				var n, addRemoveMark, tmp;
 				if (o.xEvents) {
 					if (e) {
 						if (o.xEvents[e]) {
@@ -316,7 +235,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 								}
 							} else {
 								if (f) {
-									var tmp = o.xEvents[e].indexOf(f);
+									tmp = o.xEvents[e].indexOf(f);
 									if (tmp !== -1) {
 										o.xEvents[e].splice(tmp, 1);
 									}
@@ -326,13 +245,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							}
 							if (o.xEvents[e].length === 0) {
 								delete o.xEvents[e];
-								//if (o.removeEventListener) {
-								//	o.removeEventListener(e, o.xEvents, false);
-								//} else if (o.detachEvent) {
-								//	o.detachEvent('on' + e, o.xEvents);
-								//} else {
-									o['on' + e] = null;
-								//}
+								o['on' + e] = null;
 							}
 						}
 					} else {
@@ -340,13 +253,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							for (n in o.xEvents) {
 								if (!o.xEvents[n].locked) {
 									delete o.xEvents[n];
-									//if (o.removeEventListener) {
-									//	o.removeEventListener(n, o.xEvents, false);
-									//} else if (o.detachEvent) {
-									//	o.detachEvent('on' + n, o.xEvents);
-									//} else {
-										o['on' + n] = null;
-									//}
+									o['on' + n] = null;
 								} else {
 									addRemoveMark = true;
 								}
@@ -363,14 +270,15 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		};
 
 		function xEventProcessor(o, evt) {
+			var i, tmp;
 			o.xEvents[evt.type].locked = true;
-			for (var i = 0; i < o.xEvents[evt.type].length; i++) {
+			for (i = 0; i < o.xEvents[evt.type].length; i++) {
 				o.xEvents[evt.type][i].call(o, evt);
 			}
 			o.xEvents[evt.type].locked = false;
-			while (o.xEvents[evt.type].stack.length > 0) {
+			while (o.xEvents[evt.type].stack.length) {
 				if (o.xEvents[evt.type].stack[0]) {
-					var tmp = o.xEvents[evt.type].indexOf(o.xEvents[evt.type].stack[0][1]);
+					tmp = o.xEvents[evt.type].indexOf(o.xEvents[evt.type].stack[0][1]);
 					if (o.xEvents[evt.type].stack[0][0]) {
 						if (tmp !== -1) {
 							o.xEvents[evt.type].splice(tmp, 1);
@@ -385,27 +293,15 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 				o.xEvents[evt.type].stack.shift();
 			}
-			if (o.xEvents[evt.type].length === 0) {
+			if (!o.xEvents[evt.type].length) {
 				delete o.xEvents[evt.type];
-				//if (o.removeEventListener) {
-				//	o.removeEventListener(evt.type, o.xEvents, false);
-				//} else if (o.detachEvent) {
-				//	o.detachEvent('on' + evt.type, o.xEvents);
-				//} else {
-					o['on' + evt.type] = null;
-				//}
+				o['on' + evt.type] = null;
 			}
 			if (o.xEvents.removeMark) {
 				delete o.xEvents.removeMark;
 				for (var n in o.xEvents) {
 					delete o.xEvents[n];
-					//if (o.removeEventListener) {
-					//	o.removeEventListener(n, o.xEvents, false);
-					//} else if (o.detachEvent) {
-					//	o.detachEvent('on' + n, o.xEvents);
-					//} else {
-						o['on' + n] = null;
-					//}
+					o['on' + n] = null;
 				}
 				o.xEvents = null;
 			}
@@ -580,7 +476,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			allSteps;
 		helper.addEventListener('click', nextStep);
 		kernel.showHelper = function(steps) {
-			if (steps instanceof Array) {
+			if (kernel.dataType(steps) === 'array') {
 				allSteps = steps;
 			} else {
 				allSteps = [steps];
@@ -724,7 +620,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				};
 			} else {
 				p = kernel.getCurrentPopup();
-				if (p && (!id || p === id || (id instanceof Array && id.indexOf(p) >= 0))) {
+				if (p && (!id || p === id || (kernel.dataType(id) === 'array' && id.indexOf(p) >= 0))) {
 					//onunload 返回 true可以阻止窗口关闭
 					if (typeof popups[p].onunload !== 'function' || !popups[p].onunload()) {
 						popupsBox.classList.remove('in');
@@ -950,7 +846,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	}();
 	//对话框及提示功能
 	! function() {
-		var hintmo, callback, actioncb,
+		var hintmo, callback,
 			loadingRT = 0,
 			dlgStack = [],
 			photoStatus = {},
@@ -962,17 +858,33 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			dialogClose = dialogBox.querySelector('.close'),
 			sliderViewCtn = document.getElementById('sliderView'),
 			sliderViewClose = sliderViewCtn.querySelector('.close'),
-			sliderViewActions = sliderViewCtn.querySelector('.actions'),
 			slider = touchslider(sliderViewCtn.querySelector('.content')),
 			photoViewCtn = document.getElementById('photoView'),
 			photoViewClose = photoViewCtn.querySelector('.close'),
 			photoViewContent = photoViewCtn.querySelector('img'),
+			photoViewActions = photoViewCtn.querySelector('.actions'),
 			guesture = touchguesture(photoViewCtn);
 
 		guesture.onzoomstart = zoomstart;
 		guesture.ondragstart = dragstart;
-		kernel.showPhotoView = function(url) {
+		kernel.showPhotoView = function(url, btns, cb) {
+			var i, tmp;
 			photoViewContent.src = url;
+			while (photoViewActions.childNodes.length) {
+				photoViewActions.removeChild(photoViewActions.firstChild);
+			}
+			if (typeof cb === 'function' && btns && btns.length) {
+				for (i = 0; i < btns.length; i++) {
+					tmp = document.createElement('a');
+					tmp.href= 'javascript:;';
+					tmp.appendChild(document.createTextNode(btns[i]));
+					tmp.addEventListener('click', cb.bind(kernel, i));
+					photoViewActions.appendChild(tmp);
+				}
+				photoViewActions.style.display = '';
+			} else {
+				photoViewActions.style.display = 'none';
+			}
 		};
 
 		kernel.hidePhotoView = function() {
@@ -990,7 +902,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			unmask();
 		});
 
-		kernel.showSliderView = function(photos, idx, btns, cb) {
+		kernel.showSliderView = function(photos, idx) {
 			var i, tmp;
 			for (i = 0; i < photos.length; i++) {
 				tmp = document.createElement('div');
@@ -1000,22 +912,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 			if (idx) {
 				slider.slideTo(idx, true);
-			}
-			actioncb = cb;
-			while (sliderViewActions.childNodes.length) {
-				sliderViewActions.removeChild(sliderViewActions.firstChild);
-			}
-			if (btns && btns.length) {
-				for (i = 0; i < btns.length; i++) {
-					tmp = document.createElement('a');
-					tmp.href= 'javascript:;';
-					tmp.appendChild(document.createTextNode(btns[i]));
-					tmp.addEventListener('click', actionClick.bind(i));
-					sliderViewActions.appendChild(tmp);
-				}
-				sliderViewActions.style.display = '';
-			} else {
-				sliderViewActions.style.display = 'none';
 			}
 		};
 		kernel.hideSliderView = function() {
@@ -1113,12 +1009,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		photoViewClose.appendChild(dialogClose.firstChild.cloneNode(true));
 		sliderViewClose.addEventListener('click', kernel.hideSliderView, false);
 		photoViewClose.addEventListener('click', kernel.hidePhotoView, false);
-
-		function actionClick(){
-			if (typeof actioncb === 'function') {
-				actioncb(slider.current, this);
-			}
-		}
 
 		function unmask() {
 			if (dialogCtn.style.visibility === '' && loadingCtn.style.visibility === '' && sliderViewCtn.style.visibility === '' && photoViewCtn.style.visibility === '') {
@@ -1307,8 +1197,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 				//禁止各种 long tap 菜单
 				//ios 中需使用样式 -webkit-touch-callout: none;
-				window.addEventListener('contextmenu', browser.name === 'Firefox' ? kernel.stopEvent : kernel.cancelEvent, false);
-				window.addEventListener('dragstart', kernel.cancelEvent, false);
+				window.addEventListener('contextmenu', browser.name === 'Firefox' ? stopEvent : cancelEvent, false);
+				window.addEventListener('dragstart', cancelEvent, false);
 				document.body.classList.remove('loading');
 				manageLocation();
 				if ('autopopup' in kernel.location.args) {
@@ -1712,5 +1602,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				return true;
 			}
 		}
+	}
+	function cancelEvent(evt) {
+		evt.preventDefault();
+	}
+	function stopEvent(evt) {
+		evt.stopPropagation();
 	}
 });
