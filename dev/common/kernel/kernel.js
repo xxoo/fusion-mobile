@@ -433,7 +433,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			window.addEventListener('touchmove', function(evt) {
 				var t = evt.target;
 				while (t != document.body) {
-					if (t.classList.contains('iosScrollFix')) {
+					if (t.classList.contains('iosScrollFix') || t.classList.contains('hScroll')) {
 						return;
 					}
 					t = t.parentNode;
