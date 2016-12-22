@@ -5,17 +5,18 @@ var fs = require('fs'),
 	target = process.argv.length > 2 ? process.argv[2] + '/' : '',
 	svg = fs.readFileSync(target + 'fonts/fontawesome-webfont.svg', {
 		encoding: 'utf8'
-	}).split('\n'),
+	}).split('>'),
 	name = fs.readFileSync(target + 'less/variables.less', {
 		encoding: 'utf8'
 	}).split('\n'),
 	paths = {},
 	vars = {},
 	i, m;
+	console.log(svg[0]);
 for (i = 0; i < svg.length; i++) {
-	m = svg[i].match(/&#x([0-9a-f]+);"(?: +horiz-adv-x="\d+")? +d=("[^"]{6,}")/);
+	m = svg[i].match(/&#x([0-9a-f]+);"(?:(?:\s|\n)+horiz-adv-x="\d+")?(?:\s|\n)+d=("[^"]{6,}")/);
 	if (m) {
-		paths[m[1]] = m[2];
+		paths[m[1]] = m[2].replace(/\n/g, '');
 	}
 }
 for (i = 0; i < name.length; i++) {
