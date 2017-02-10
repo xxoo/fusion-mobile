@@ -21,7 +21,14 @@
 'use strict';
 define(function() {
 	var touchEvents, touchActionStyle;
-	if (window.PointerEvent) {
+	if ('ontouchstart' in window) {
+		touchEvents = {
+			start: 'touchstart',
+			move: 'touchmove',
+			end: 'touchend',
+			cancel: 'touchcancel'
+		};
+	} else if (window.PointerEvent) {
 		touchEvents = {
 			start: 'pointerdown',
 			move: 'pointermove',
@@ -39,11 +46,10 @@ define(function() {
 		touchActionStyle = 'msTouchAction';
 	} else {
 		touchEvents = {
-			start: 'touchstart',
-			move: 'touchmove',
-			end: 'touchend',
-			cancel: 'touchcancel'
-		};
+			start: 'mousedown',
+			move: 'mousemove',
+			end: 'mouseup'
+		}
 	}
 
 	return function(dom, callback) {
@@ -76,46 +82,67 @@ define(function() {
 				process(evt, callback, pointers, 'cancel', o, self);
 			}
 		};
-		document.addEventListener(touchEvents.move, o.move, false);
-		document.addEventListener(touchEvents.end, o.end, false);
-		document.addEventListener(touchEvents.cancel, o.cancel, false);
+		document.addEventListener(touchEvents.move, o.move, {
+			passive: false
+		});
+		document.addEventListener(touchEvents.end, o.end);
+		if (o.cancel) {
+			document.addEventListener(touchEvents.cancel, o.cancel);
+		}
 	}
 
 	function unwatchDocument(o) {
-		document.removeEventListener(touchEvents.move, o.move, false);
-		document.removeEventListener(touchEvents.end, o.end, false);
-		document.removeEventListener(touchEvents.cancel, o.cancel, false);
+		document.removeEventListener(touchEvents.move, o.move, {
+			passive: false
+		});
+		document.removeEventListener(touchEvents.end, o.end);
+		if (o.cancel) {
+			document.removeEventListener(touchEvents.cancel, o.cancel);
+		}
 	}
 
 	function pointerStart(evt, callback, pointers, self) {
 		var i, t;
 		if ('pointerId' in evt) {
 			if (callback.call(self, {
-				type: 'start',
-				id: evt.pointerId,
-				x: evt.clientX,
-				y: evt.clientY,
-				domEvent: evt
-			})) {
+					type: 'start',
+					id: evt.pointerId,
+					x: evt.clientX,
+					y: evt.clientY,
+					domEvent: evt
+				})) {
 				pointers.push(evt.pointerId);
 				if (pointers.length === 1) {
 					watchDocument(callback, pointers, self);
 				}
 			}
-		} else {
+		} else if ('changedTouches' in evt) {
 			for (i = 0; i < evt.changedTouches.length; i++) {
 				t = evt.changedTouches[i];
 				if (callback.call(self, {
-					type: 'start',
-					id: t.identifier,
-					x: t.clientX,
-					y: t.clientY,
-					domEvent: evt
-				})) {
+						type: 'start',
+						id: t.identifier,
+						x: t.clientX,
+						y: t.clientY,
+						domEvent: evt
+					})) {
 					pointers.push(t.identifier);
 					if (pointers.length === 1) {
 						watchDocument(callback, pointers, self);
 					}
+				}
+			}
+		} else {
+			if (callback.call(self, {
+					type: 'start',
+					id: undefined,
+					x: evt.clientX,
+					y: evt.clientY,
+					domEvent: evt
+				})) {
+				pointers.push(undefined);
+				if (pointers.length === 1) {
+					watchDocument(callback, pointers, self);
 				}
 			}
 		}
@@ -127,35 +154,51 @@ define(function() {
 			j = pointers.indexOf(evt.pointerId);
 			if (j >= 0) {
 				if (callback.call(self, {
-					type: type,
-					id: evt.pointerId,
-					x: evt.clientX,
-					y: evt.clientY,
-					domEvent: evt
-				}) || type !== 'move') {
+						type: type,
+						id: evt.pointerId,
+						x: evt.clientX,
+						y: evt.clientY,
+						domEvent: evt
+					}) || type !== 'move') {
 					pointers.splice(j, 1);
 					if (!pointers.length) {
 						unwatchDocument(o);
 					}
 				}
 			}
-		} else {
+		} else if ('changedTouches' in evt) {
 			for (i = 0; i < evt.changedTouches.length; i++) {
 				t = evt.changedTouches[i];
 				j = pointers.indexOf(t.identifier);
 				if (j >= 0) {
-					if (callback.call(self ,{
-						type: type,
-						id: t.identifier,
-						x: t.clientX,
-						y: t.clientY,
-						domEvent: evt
-					}) || type !== 'move') {
+					if (callback.call(self, {
+							type: type,
+							id: t.identifier,
+							x: t.clientX,
+							y: t.clientY,
+							domEvent: evt
+						}) || type !== 'move') {
 						pointers.splice(j, 1);
 						if (!pointers.length) {
 							unwatchDocument(o);
 							break;
 						}
+					}
+				}
+			}
+		} else {
+			j = pointers.indexOf(undefined);
+			if (j >= 0) {
+				if (callback.call(self, {
+						type: type,
+						id: undefined,
+						x: evt.clientX,
+						y: evt.clientY,
+						domEvent: evt
+					}) || type !== 'move') {
+					pointers.splice(j, 1);
+					if (!pointers.length) {
+						unwatchDocument(o);
 					}
 				}
 			}
