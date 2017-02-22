@@ -70,7 +70,7 @@ define(function() {
 		}
 	};
 
-	function watchDocument(callback, pointers, self) {
+	function watchView(callback, pointers, self, win) {
 		var o = {
 			move: function(evt) {
 				process(evt, callback, pointers, 'move', o, self);
@@ -82,22 +82,22 @@ define(function() {
 				process(evt, callback, pointers, 'cancel', o, self);
 			}
 		};
-		document.addEventListener(touchEvents.move, o.move, {
+		win.addEventListener(touchEvents.move, o.move, {
 			passive: false
 		});
-		document.addEventListener(touchEvents.end, o.end);
+		win.addEventListener(touchEvents.end, o.end);
 		if (o.cancel) {
-			document.addEventListener(touchEvents.cancel, o.cancel);
+			win.addEventListener(touchEvents.cancel, o.cancel);
 		}
 	}
 
-	function unwatchDocument(o) {
-		document.removeEventListener(touchEvents.move, o.move, {
+	function unwatchView(o, win) {
+		win.removeEventListener(touchEvents.move, o.move, {
 			passive: false
 		});
-		document.removeEventListener(touchEvents.end, o.end);
+		win.removeEventListener(touchEvents.end, o.end);
 		if (o.cancel) {
-			document.removeEventListener(touchEvents.cancel, o.cancel);
+			win.removeEventListener(touchEvents.cancel, o.cancel);
 		}
 	}
 
@@ -113,7 +113,7 @@ define(function() {
 				})) {
 				pointers.push(evt.pointerId);
 				if (pointers.length === 1) {
-					watchDocument(callback, pointers, self);
+					watchView(callback, pointers, self, evt.view);
 				}
 			}
 		} else if ('changedTouches' in evt) {
@@ -128,7 +128,7 @@ define(function() {
 					})) {
 					pointers.push(t.identifier);
 					if (pointers.length === 1) {
-						watchDocument(callback, pointers, self);
+						watchView(callback, pointers, self, evt.view);
 					}
 				}
 			}
@@ -142,7 +142,7 @@ define(function() {
 				})) {
 				pointers.push(undefined);
 				if (pointers.length === 1) {
-					watchDocument(callback, pointers, self);
+					watchView(callback, pointers, self, evt.view);
 				}
 			}
 		}
@@ -162,7 +162,7 @@ define(function() {
 					}) || type !== 'move') {
 					pointers.splice(j, 1);
 					if (!pointers.length) {
-						unwatchDocument(o);
+						unwatchView(o, evt.view);
 					}
 				}
 			}
@@ -180,7 +180,7 @@ define(function() {
 						}) || type !== 'move') {
 						pointers.splice(j, 1);
 						if (!pointers.length) {
-							unwatchDocument(o);
+							unwatchView(o, evt.view);
 							break;
 						}
 					}
@@ -198,7 +198,7 @@ define(function() {
 					}) || type !== 'move') {
 					pointers.splice(j, 1);
 					if (!pointers.length) {
-						unwatchDocument(o);
+						unwatchView(o, evt.view);
 					}
 				}
 			}
