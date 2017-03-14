@@ -394,6 +394,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 		}
 		if (obj.moving) {
 			evt.domEvent.preventDefault();
+			evt.domEvent.stopPropagation();
 		}
 	}
 

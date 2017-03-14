@@ -410,18 +410,23 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		//fix ios overscrolling on viewport issue
 		//stupid ios designer
 		kernel.fixIosScrolling = function(o) {
-			var s;
+			var s, c;
 			if (browser.name === 'IOS') {
-				o.classList.add('iosScrollFix');
-				if (getComputedStyle(o).display == 'none') {
-					s = o.style.display;
-					o.style.display = 'block';
-					o.scrollTop = 1;
-					o.style.display = s;
-				} else {
-					o.scrollTop = 1;
+				o.style.webkitOverflowScrolling = 'touch';
+				o.addEventListener('touchmove', stopEvent);
+				c = getComputedStyle(o);
+				if (c.overflowY === 'auto') {
+					o.classList.add('iosScrollFix');
+					if (c.display === 'none') {
+						s = o.style.display;
+						o.style.display = 'block';
+						o.scrollTop = 1;
+						o.style.display = s;
+					} else {
+						o.scrollTop = 1;
+					}
+					o.addEventListener('scroll', onscroll);
 				}
-				o.addEventListener('scroll', onscroll, false);
 			}
 		};
 
@@ -430,16 +435,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		};
 
 		if (browser.name === 'IOS') {
-			window.addEventListener('touchmove', function(evt) {
-				var t = evt.target;
-				while (t != document.body) {
-					if (t.classList.contains('iosScrollFix') || t.classList.contains('hScroll')) {
-						return;
-					}
-					t = t.parentNode;
-				}
+			window.addEventListener('touchmove', function(evt){
 				evt.preventDefault();
-			}, false);
+			});
 		}
 
 		//禁止各种scroll
