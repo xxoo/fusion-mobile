@@ -80,6 +80,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	function mv(obj, evt, touchs) {
 		var i, j = 0;
 		evt.domEvent.preventDefault();
+		evt.domEvent.stopPropagation();
 		if (touchs.length === 1) {
 			if (evt.id === touchs[0].id) {
 				touchs[0].x = evt.x;

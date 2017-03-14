@@ -83,21 +83,31 @@ define(function() {
 			}
 		};
 		win.addEventListener(touchEvents.move, o.move, {
+			capture: true,
 			passive: false
 		});
-		win.addEventListener(touchEvents.end, o.end);
+		win.addEventListener(touchEvents.end, o.end, {
+			capture: true
+		});
 		if (o.cancel) {
-			win.addEventListener(touchEvents.cancel, o.cancel);
+			win.addEventListener(touchEvents.cancel, o.cancel, {
+				capture: true
+			});
 		}
 	}
 
 	function unwatchView(o, win) {
 		win.removeEventListener(touchEvents.move, o.move, {
+			capture: true,
 			passive: false
 		});
-		win.removeEventListener(touchEvents.end, o.end);
+		win.removeEventListener(touchEvents.end, o.end, {
+			capture: true
+		});
 		if (o.cancel) {
-			win.removeEventListener(touchEvents.cancel, o.cancel);
+			win.removeEventListener(touchEvents.cancel, o.cancel, {
+				capture: true
+			});
 		}
 	}
 
