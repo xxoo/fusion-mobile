@@ -21,6 +21,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				csslnk.href = url;
 			}
 			document.head.appendChild(csslnk);
+			return csslnk;
 		},
 		// 创建 svg dom;
 		makeSvg: function(name, square) {
@@ -34,31 +35,24 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		},
 		// 设置svg 内容
 		setSvgPath: function(svg, name, square) {
-		    var box, tmp = kernel.makeSvg();
+			var box, tmp = kernel.makeSvg();
 			tmp.style.position = 'absolute';
 			tmp.style.bottom = tmp.style.right = '100%';
 			tmp.firstChild.setAttribute('d', svgicos[name]);
 			document.body.appendChild(tmp);
-		    box = tmp.firstChild.getBBox();
+			box = tmp.firstChild.getBBox();
 			document.body.removeChild(tmp);
 			if (square) {
-			    if (box.width > box.height) {
-			        box.y -= (box.width - box.height) / 2;
-			        box.height = box.width;
-			    } else {
-			        box.x -= (box.height - box.width) / 2;
-			        box.width = box.height;
-			    }
-			}
-		    svg.firstChild.setAttribute('d', svgicos[name]);
-		    svg.setAttribute('viewBox', box.x + ' ' + (-box.y - box.height) + ' ' + box.width + ' ' + box.height);
-		},
-		extendIn: function(o, e, p) {
-			for (var i = 0; i < p.length; i++) {
-				if (p[i] in e) {
-					o[p[i]] = e[p[i]];
+				if (box.width > box.height) {
+					box.y -= (box.width - box.height) / 2;
+					box.height = box.width;
+				} else {
+					box.x -= (box.height - box.width) / 2;
+					box.width = box.height;
 				}
 			}
+			svg.firstChild.setAttribute('d', svgicos[name]);
+			svg.setAttribute('viewBox', box.x + ' ' + (-box.y - box.height) + ' ' + box.width + ' ' + box.height);
 		},
 		buildHash: function(loc) {
 			var n, hash = '#!' + encodeURIComponent(loc.id);
@@ -144,7 +138,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					return true;
 				} else if (isInBackChain(to, pages[from].alias)) {
 					return false;
-				} else if (to === homePage){
+				} else if (to === homePage) {
 					return true;
 				} else {
 					return false;
@@ -154,7 +148,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					return true;
 				} else if (isInBackChain(pages[to].alias, from)) {
 					return false;
-				} else if (pages[from] === homePage){
+				} else if (pages[from] === homePage) {
 					return true;
 				} else {
 					return false;
@@ -171,7 +165,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				return t;
 			} else {
 				t = Object.prototype.toString.call(a).replace(/^\[object |\]$/g, '').toLowerCase();
-				if (t === 'date' || t === 'array' || t === 'regexp' || t === 'error' || t === 'null'){
+				if (t === 'date' || t === 'array' || t === 'regexp' || t === 'error' || t === 'null') {
 					return t;
 				} else {
 					return 'object';
@@ -396,13 +390,15 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						}
 					}
 				}
-				function scrolling(evt){
+
+				function scrolling(evt) {
 					if (evt.target !== dom) {
 						scrolled = true;
 						end();
 					}
 				}
-				function end(){
+
+				function end() {
 					window.removeEventListener('scroll', scrolling, true);
 				}
 			});
@@ -435,7 +431,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		};
 
 		if (browser.name === 'IOS') {
-			window.addEventListener('touchmove', function(evt){
+			window.addEventListener('touchmove', function(evt) {
 				evt.preventDefault();
 			});
 		}
@@ -483,7 +479,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			helper.style.display = 'block';
 		};
 
-		function nextStep(){
+		function nextStep() {
 			if (allSteps.length > 1) {
 				allSteps.shift();
 				if (typeof allSteps[0] === 'function') {
@@ -690,6 +686,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			}
 		};
+		kernel.destoryPopup = function(id) {
+			var p = popups[id];
+			if (p) {
+				destory(p, 'popup', id);
+			}
+		};
 		// 包含onshow, onshowend, onhide, onhideend
 		kernel.popupEvents = {};
 		// 初始化窗口关闭按钮
@@ -874,7 +876,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			if (typeof cb === 'function' && btns && btns.length) {
 				for (i = 0; i < btns.length; i++) {
 					tmp = document.createElement('a');
-					tmp.href= 'javascript:;';
+					tmp.href = 'javascript:;';
 					tmp.appendChild(document.createTextNode(btns[i]));
 					tmp.addEventListener('click', cb.bind(kernel, i));
 					photoViewActions.appendChild(tmp);
@@ -888,13 +890,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		kernel.hidePhotoView = function() {
 			photoViewContent.src = 'about:blank';
 		};
-		photoViewContent.addEventListener('load', function(){
+		photoViewContent.addEventListener('load', function() {
 			photoViewCtn.style.visibility = 'visible';
 			document.body.classList.add('mask');
 			window.addEventListener('resize', syncPhotoViewSize);
 			syncPhotoViewSize();
 		});
-		photoViewContent.addEventListener('error', function(){
+		photoViewContent.addEventListener('error', function() {
 			photoViewCtn.style.visibility = '';
 			window.removeEventListener('resize', syncPhotoViewSize);
 			unmask();
@@ -1044,7 +1046,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			dialogBox.style.bottom = dialogBox.style.right = '';
 		}
 
-		function setImg(){
+		function setImg() {
 			photoViewContent.style.width = photoStatus.w + 'px';
 			photoViewContent.style.height = photoStatus.h + 'px';
 			photoViewContent.style.left = photoStatus.l + 'px';
@@ -1081,6 +1083,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 			setImg();
 		}
+
 		function zoomstart(evt) {
 			var x = evt.x,
 				y = evt.y,
@@ -1092,20 +1095,21 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				this.onzoomchange = this.zoomend = null;
 				this.onzoomstart = zoomstart;
 			};
-			function zoomchange(evt){
+
+			function zoomchange(evt) {
 				var nz = Math.max(Math.min(evt.zoom * oz, 1), photoStatus.mz);
 				if (nz !== photoStatus.z) {
 					photoStatus.w = photoStatus.ow * nz;
 					photoStatus.h = photoStatus.oh * nz;
-					photoStatus.l = photoStatus.w > photoStatus.ww ? Math.min(Math.max(x + (photoStatus.l - x) * nz / photoStatus.z, photoStatus.ww - photoStatus.w), 0) : (photoStatus.ww - photoStatus.w) /2;
-					photoStatus.t = photoStatus.h > photoStatus.wh ? Math.min(Math.max(y + (photoStatus.t - y) * nz / photoStatus.z, photoStatus.wh - photoStatus.h), 0) : (photoStatus.wh - photoStatus.h) /2;
+					photoStatus.l = photoStatus.w > photoStatus.ww ? Math.min(Math.max(x + (photoStatus.l - x) * nz / photoStatus.z, photoStatus.ww - photoStatus.w), 0) : (photoStatus.ww - photoStatus.w) / 2;
+					photoStatus.t = photoStatus.h > photoStatus.wh ? Math.min(Math.max(y + (photoStatus.t - y) * nz / photoStatus.z, photoStatus.wh - photoStatus.h), 0) : (photoStatus.wh - photoStatus.h) / 2;
 					photoStatus.z = nz;
 					setImg();
 				}
 			}
 		}
 
-		function dragstart(evt){
+		function dragstart(evt) {
 			var x = evt.x,
 				y = evt.y,
 				ol = photoStatus.l,
@@ -1117,7 +1121,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				this.ondragstart = dragstart;
 			};
 
-			function dragmove(evt){
+			function dragmove(evt) {
 				if (photoStatus.w > photoStatus.ww) {
 					photoStatus.l = Math.min(Math.max(ol + evt.x - x, photoStatus.ww - photoStatus.w), 0);
 				}
@@ -1143,7 +1147,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			sessionStorage.setItem(0, 0);
 			sessionStorage.removeItem(0);
 		} catch (e) {
-			Storage.prototype.setItem = function(){};
+			Storage.prototype.setItem = function() {};
 		}
 		//icos是导航菜单的列表
 		//home是默认页
@@ -1177,7 +1181,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 				window.addEventListener('hashchange', hashchange, false);
 				navs = {};
-				while(navCtn.childNodes.length){
+				while (navCtn.childNodes.length) {
 					navCtn.removeChild(navCtn.childNodes[0]);
 				}
 				for (n in navIcos) {
@@ -1204,7 +1208,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			}
 		};
-
 		//刷新当前页
 		kernel.reloadPage = function(id, silent) {
 			var thislocation;
@@ -1225,7 +1228,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			}
 		};
-
+		kernel.destoryPage = function(id) {
+			var p = pages[id];
+			if (p) {
+				destory(p, 'page', id);
+			}
+		};
 		backbtn.insertBefore(kernel.makeSvg('chevron-left'), backbtn.firstChild);
 		headerRightMenuBtn.addEventListener('click', function(evt) {
 			if (typeof pages[currentpage].onrightmenuclick === 'function') {
@@ -1275,7 +1283,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						pagesBox.classList.add(pageid);
 						// 重置 title
 						pagesBox.querySelector(':scope>.header>.title').firstChild.data = pages[pageid].title;
-						if (window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.getCurrentPopup === 'function' && window.frameElement.kernel.getCurrentPopup() === 'page'){
+						if (window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.getCurrentPopup === 'function' && window.frameElement.kernel.getCurrentPopup() === 'page') {
 							window.frameElement.kernel.setPopupTitle(pages[pageid].title);
 						}
 						// 重置 顶部按钮
@@ -1422,6 +1430,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				backbtn.style.display = 'none';
 			}
 		}
+
 		function hashchange() {
 			var newLocation = kernel.parseHash(location.hash);
 			// 如果url 发生改变 就执行
@@ -1448,8 +1457,36 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 	return kernel;
 
+	function destory(cfg, type, id) {
+		var n, o = document.querySelector('#' + type + '>.content>.' + id);
+		if (cfg.loaded === 2 && typeof cfg.ondestory === 'function') {
+			cfg.ondestory();
+		}
+		o.parentNode.removeChild(o);
+		if (cfg.css && typeof cfg.css !== 'string') {
+			document.head.removeChild(cfg.css);
+			if (cfg.css.type === 'stylesheet/less') {
+				less.sheets.splice(less.sheets.indexOf(cfg.css), 1);
+				less.refresh();
+			}
+			cfg.css = cfg.css.getAttribute('href').replace(RegExp('^' + require.toUrl(type + '/' + id) + '/'), '');
+		}
+		if (cfg.js) {
+			n = type + '/' + id + '/' + cfg.js;
+			if (require.defined(n)) {
+				require([n], function(o) {
+					require.undef(n);
+					if (o) {
+						cfg.__proto__ = Object.prototype;
+					}
+				});
+			}
+		}
+		cfg.loaded = 0;
+	}
+
 	function initLoad(oldcfg, id, isPage, callback) {
-		var ctn, family, exts, n, m, url, xhr;
+		var ctn, family, n, m, url, xhr;
 		if (isPage && oldcfg.alias) {
 			id = oldcfg.alias;
 			oldcfg = pages[oldcfg.alias];
@@ -1461,17 +1498,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			if (isPage) {
 				ctn = document.getElementById('page');
 				family = 'page';
-				exts = ['onload', 'onloadend', 'onunload', 'onunloadend', 'onrightmenuclick', 'onleftmenuclick', 'rightMenuDomContent', 'leftMenuDomContent'];
 			} else {
 				ctn = document.getElementById('popup');
 				family = 'popup';
-				exts = ['onload', 'onloadend', 'onunload', 'onunloadend', 'open'];
 			}
 			n = family + '/' + id + '/';
 			m = require.toUrl(n);
-			if ('css' in oldcfg) {
-				kernel.appendCss(m + oldcfg.css);
-				delete oldcfg.css;
+			if (typeof oldcfg.css === 'string') {
+				oldcfg.css = kernel.appendCss(m + oldcfg.css);
 			}
 			if ('html' in oldcfg) {
 				kernel.showLoading();
@@ -1484,7 +1518,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							delete oldcfg.html;
 							loadJs(this.responseText);
 						} else {
-							oldcfg.loaded = 0;
+							destory(oldcfg, family, id);
 							if (require.data.debug || this.status !== 404) {
 								errorOccurs(url, this.status, isPage);
 							} else {
@@ -1511,9 +1545,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					require([js], required);
 				} else {
 					require([js], required, function(error) {
-						oldcfg.loaded = 0;
+						destory(oldcfg, family, id);
 						if ((error.requireType && error.requireType !== 'scripterror' && error.requireType !== 'nodefine') || (error.xhr && error.xhr.status !== 404)) {
-							require.undef(js);
 							errorOccurs(js, error.message, isPage);
 						} else {
 							updated(isPage);
@@ -1530,7 +1563,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		function required(cfg) {
 			delete oldcfg.js;
 			if (cfg) {
-				kernel.extendIn(oldcfg, cfg, exts);
+				oldcfg.__proto__ = cfg;
 			}
 			oldcfg.loaded = 2;
 			callback(true);
@@ -1596,14 +1629,16 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	function isInBackChain(from, to) {
 		while (pages[from].back) {
 			from = pages[from].back;
-			if (from === to){
+			if (from === to) {
 				return true;
 			}
 		}
 	}
+
 	function cancelEvent(evt) {
 		evt.preventDefault();
 	}
+
 	function stopEvent(evt) {
 		evt.stopPropagation();
 	}

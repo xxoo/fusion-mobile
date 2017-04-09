@@ -1,5 +1,5 @@
-'use strict';
 var browser = (function() {
+	'use strict';
 	var M, browser = {
 		platform: 'unknown',
 		name: 'unsupported',
