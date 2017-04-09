@@ -1561,7 +1561,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		}
 
 		function required(cfg) {
-			delete oldcfg.js;
 			if (cfg) {
 				oldcfg.__proto__ = cfg;
 			}
