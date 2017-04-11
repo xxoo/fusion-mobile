@@ -1515,7 +1515,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				xhr.onreadystatechange = function() {
 					if (this.readyState === 4) {
 						if (this.status === 200) {
-							delete oldcfg.html;
 							loadJs(this.responseText);
 						} else {
 							destory(oldcfg, family, id);
