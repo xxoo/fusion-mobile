@@ -12,6 +12,7 @@
 		debug = false,
 		prefix = document.currentScript.src.replace(/^http(s)?:\/\/[^\/]+|framework\/[^\/]+$/g, ''),
 		cfg = {
+			waitSeconds: 0,
 			baseUrl: prefix + srcRoot
 		};
 	if (!debug) {
