@@ -230,7 +230,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							} else {
 								if (f) {
 									tmp = o.xEvents[e].indexOf(f);
-									if (tmp !== -1) {
+									if (tmp >= 0) {
 										o.xEvents[e].splice(tmp, 1);
 									}
 								} else {
@@ -255,7 +255,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							if (addRemoveMark) {
 								o.xEvents.removeMark = true;
 							} else {
-								o.xEvents = null;
+								delete o.xEvents;
 							}
 						}
 					}
@@ -274,11 +274,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (o.xEvents[evt.type].stack[0]) {
 					tmp = o.xEvents[evt.type].indexOf(o.xEvents[evt.type].stack[0][1]);
 					if (o.xEvents[evt.type].stack[0][0]) {
-						if (tmp !== -1) {
+						if (tmp >= 0) {
 							o.xEvents[evt.type].splice(tmp, 1);
 						}
 					} else {
-						if (tmp === -1) {
+						if (tmp < 0) {
 							o.xEvents[evt.type].push(o.xEvents[evt.type].stack[0][1]);
 						}
 					}
@@ -293,11 +293,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 			if (o.xEvents.removeMark) {
 				delete o.xEvents.removeMark;
-				for (var n in o.xEvents) {
-					delete o.xEvents[n];
-					o['on' + n] = null;
+				for (i in o.xEvents) {
+					delete o.xEvents[i];
+					o['on' + i] = null;
 				}
-				o.xEvents = null;
+				delete o.xEvents;
 			}
 		}
 	}();
