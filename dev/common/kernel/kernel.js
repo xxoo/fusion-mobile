@@ -118,13 +118,30 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			var n;
 			if (loc1.id === loc2.id && Object.keys(loc1.args).length === Object.keys(loc2.args).length) {
 				for (n in loc1.args) {
-					if (!(n in loc2.args) || loc1.args[n] !== loc2.args[n]) {
+					if (n in loc2.args) {
+						if (loc1.args[n] === undefined) {
+							if (loc1.args[n] !== loc2.args[n]) {
+								return false;
+							}
+						} else {
+							if ('' + loc1.args[n] !== '' + loc2.args[n]) {
+								return false;
+							}
+						}
+					} else {
 						return false;
 					}
 				}
 				return true;
 			} else {
 				return false;
+			}
+		},
+		replaceLocation: function(loc) {
+			if (kernel.location && kernel.isSameLocation(loc, kernel.location)) {
+				kernel.reloadPage();
+			} else {
+				location.replace(kernel.buildHash(loc));
 			}
 		},
 		// 判断是否是后退
