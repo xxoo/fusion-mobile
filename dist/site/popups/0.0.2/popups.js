@@ -1,1 +1,0 @@
-"use strict";define("site/popups/popups",{samplePopup:{js:"samplePopup",html:"samplePopup.html",css:"samplePopup.less",title:"示例弹窗"},samplePopup2:{js:"samplePopup2",html:"samplePopup2.html",title:"示例弹窗2",back:"samplePopup"}});

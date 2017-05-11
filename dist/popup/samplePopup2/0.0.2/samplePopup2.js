@@ -1,1 +1,0 @@
-"use strict";define("popup/samplePopup2/samplePopup2",["module","common/kernel/kernel"],function(t,q){var l=t.id.replace(/^[^\/]+\/|\/[^\/]+/g,"");document.querySelector("#popup>.content>."+l);return{onloadend:function(t){q.setPopupBackParam("going back to samplePopup")}}});
