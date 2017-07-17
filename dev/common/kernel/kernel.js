@@ -20,8 +20,15 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				csslnk.rel = 'stylesheet';
 				csslnk.href = url;
 			}
-			document.head.appendChild(csslnk);
-			return csslnk;
+			return document.head.appendChild(csslnk);
+		},
+		removeCss: function(lnk) {
+			document.head.removeChild(lnk);
+			if (lnk.rel === 'stylesheet/less') {
+				less.sheets.splice(less.sheets.indexOf(lnk), 1);
+				less.refresh();
+			}
+			return lnk.getAttribute('href');
 		},
 		// 创建 svg dom;
 		makeSvg: function(name, square) {
@@ -813,41 +820,37 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	// 内置特殊弹窗, 会显示在普通弹窗之上, 并且彼此独立
 	! function() {
 		var readableBox = document.getElementById('readable'),
-			readableClose = document.querySelector('#readable>.close'),
-			readableContent = document.querySelector('#readable>.content'),
+			readableClose = readableBox.querySelector(':scope>.close'),
+			readableContent = readableBox.querySelector(':scope>.content'),
 			raCallback;
 
 		kernel.fixIosScrolling(readableContent);
-		kernel.showReadable = function(html, callback) { //展示静态内容
+		kernel.showReadable = function(html, callback, className) { //展示静态内容
 			if (typeof html === 'string') {
 				readableContent.innerHTML = html;
 			} else {
 				readableContent.appendChild(html);
 			}
-			readableContent.classList.remove('foreign');
-			readableBox.className = 'in';
+			readableBox.className = className ? 'in ' + className : 'in';
 			raCallback = callback;
 		};
 		kernel.hideReadable = function() {
-			if (readableBox.className === 'in') {
-				readableBox.className = 'out';
+			if (kernel.isReadableShowing()) {
+				readableBox.classList.remove('in');
+				readableBox.classList.add('out');
 				if (typeof raCallback === 'function') {
 					raCallback();
 				}
 			}
 		};
 		kernel.isReadableShowing = function() {
-			return readableBox.className === 'in';
+			return readableBox.classList.contains('in');
 		};
 		kernel.showForeign = function(url, callback) { //展示站外内容
-			kernel.showReadable('<iframe frameborder="no" scrolling="auto" sandbox="allow-same-origin allow-forms allow-scripts" src="' + url + '"></iframe>', callback);
-			readableContent.classList.add('foreign');
+			kernel.showReadable('<iframe frameborder="no" scrolling="auto" sandbox="allow-same-origin allow-forms allow-scripts" src="' + url + '"></iframe>', callback, 'foreign');
 		};
-		// clearPopup 会检查有那些窗口正在显示, 并自动将其全部关闭, 其它关闭窗口的方法都不执行检查
 		kernel.clearPopup = function() {
-			if (kernel.isReadableShowing()) {
-				kernel.hideReadable();
-			}
+			kernel.hideReadable();
 			kernel.closePopup();
 		};
 		readableClose.appendChild(kernel.makeSvg('close'));
@@ -871,15 +874,15 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			hintCtn = document.getElementById('hint'),
 			dialogCtn = document.getElementById('dialog'),
 			dialogBox = dialogCtn.querySelector('div'),
-			dialogContent = dialogBox.querySelector('.content'),
-			dialogClose = dialogBox.querySelector('.close'),
+			dialogContent = dialogBox.querySelector(':scope>.content'),
+			dialogClose = dialogBox.querySelector(':scope>.close'),
 			sliderViewCtn = document.getElementById('sliderView'),
-			sliderViewClose = sliderViewCtn.querySelector('.close'),
-			slider = touchslider(sliderViewCtn.querySelector('.content')),
+			sliderViewClose = sliderViewCtn.querySelector(':scope>.close'),
+			slider = touchslider(sliderViewCtn.querySelector(':scope>.content')),
 			photoViewCtn = document.getElementById('photoView'),
-			photoViewClose = photoViewCtn.querySelector('.close'),
-			photoViewContent = photoViewCtn.querySelector('img'),
-			photoViewActions = photoViewCtn.querySelector('.actions'),
+			photoViewClose = photoViewCtn.querySelector(':scope>.close'),
+			photoViewContent = photoViewCtn.querySelector(':scope>img'),
+			photoViewActions = photoViewCtn.querySelector(':scope>.actions'),
 			guesture = touchguesture(photoViewCtn);
 
 		guesture.onzoomstart = zoomstart;
@@ -919,13 +922,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			unmask();
 		});
 
-		kernel.showSliderView = function(photos, idx) {
-			var i, tmp;
-			for (i = 0; i < photos.length; i++) {
-				tmp = document.createElement('div');
-				tmp.style.backgroundImage = 'url(' + photos[i] + ')';
-				tmp.className = 'item';
-				slider.add(tmp);
+		kernel.showSliderView = function(doms, idx, className) {
+			var i;
+			sliderViewCtn.className = className || '';
+			for (i = 0; i < doms.length; i++) {
+				slider.add(doms[i]);
 			}
 			if (idx) {
 				slider.slideTo(idx, true);
@@ -940,8 +941,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		kernel.confirm = function(text, callback) { //yes no对话框
 			openDialog('confirm', text, callback);
 		};
-		kernel.htmlDialog = function(html, callback) { //自定义内容的对话框
-			openDialog('htmlDialog', html, callback);
+		kernel.htmlDialog = function(html, className, callback) { //自定义内容的对话框
+			openDialog(className || '', html, callback);
 		};
 		kernel.closeDialog = function(param) { //通用对话框关闭方法
 			var a;
@@ -986,7 +987,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			return loadingRT > 0;
 		};
 		kernel.hint = function(text, t) { //底部提示, 不干扰用户操作, 默认显示5秒
-			document.querySelector('#hint>.text').firstChild.data = text;
+			hintCtn.querySelector(':scope>.text').firstChild.data = text;
 			if (hintmo) {
 				clearTimeout(hintmo);
 			} else {
@@ -1008,18 +1009,18 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						txt += (i === this.current) ? '●' : '○';
 					}
 				}
-				document.getElementById('sliderView').style.visibility = 'visible';
+				sliderViewCtn.style.visibility = 'visible';
 				document.body.classList.add('mask');
 			} else {
 				sliderViewCtn.style.visibility = '';
 				unmask();
 			}
-			document.querySelector('#sliderView>.nav').firstChild.data = txt;
+			sliderViewCtn.querySelector(':scope>.nav').firstChild.data = txt;
 		};
 		dialogClose.appendChild(kernel.makeSvg('close'));
 		dialogClose.addEventListener('click', kernel.closeDialog, false);
-		dialogBox.querySelector('.yes').addEventListener('click', kernel.closeDialog, false);
-		dialogBox.querySelector('.no').addEventListener('click', function() {
+		dialogBox.querySelector(':scope>.btns>.yes').addEventListener('click', kernel.closeDialog, false);
+		dialogBox.querySelector(':scope>.btns>.no').addEventListener('click', function() {
 			kernel.closeDialog();
 		}, false);
 		sliderViewClose.appendChild(dialogClose.firstChild.cloneNode(true));
@@ -1038,14 +1039,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				dlgStack.push([type, content, cb]);
 			} else {
 				dialogBox.className = type;
-				if (type === 'htmlDialog') {
+				if (type === 'alert' || type === 'confirm') {
+					dialogContent.textContent = content;
+				} else {
 					if (typeof content === 'string') {
 						dialogContent.innerHTML = content;
 					} else {
 						dialogContent.appendChild(content);
 					}
-				} else {
-					dialogContent.textContent = content;
 				}
 				window.addEventListener('resize', syncDialogSize, false);
 				syncDialogSize();
