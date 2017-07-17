@@ -29,6 +29,6 @@ define(['common/kernel/kernel'], function(kernel) {
 				<a style="margin:10px;vertical-align:top;" class="browserico firefox" href="https://play.google.com/store/apps/details?id=org.mozilla.firefox" target="_blank"></a>\
 				<a style="margin:10px;vertical-align:top;" class="browserico opera" href="https://play.google.com/store/apps/details?id=com.opera.browser" target="_blank"></a>\
 			</div>\
-		'.replace(/	|    /g, ''));
+		'.replace(/	|  /g, ''));
 	}
 });

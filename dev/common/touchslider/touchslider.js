@@ -103,6 +103,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 			o.style.width = '50%';
 			o.style.height = '100%';
 			o.style.display = 'inline-block';
+			o.style.verticalAlign = 'top';
 			this.children.push(o);
 			if (result) {
 				if (this.subcontainer.childNodes.length === 2) {

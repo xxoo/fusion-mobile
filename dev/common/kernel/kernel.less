@@ -237,6 +237,7 @@ a {
 	> .btns {
 		text-align: center;
 		margin-bottom: 20px;
+		display: none;
 
 		> a {
 			display: inline-block;
@@ -274,14 +275,16 @@ a {
 		margin: 26px 20px 20px 16px;
 	}
 
-	&.confirm > .content {
-		margin: 16px 20px;
-	}
-
-	&.alert > .btns,
-	&.confirm > .close,
-	&.htmlDialog > .btns {
-		display: none;
+	&.confirm {
+		> .content {
+			margin: 16px 20px;
+		}
+		> .btns {
+			display: block;
+		}
+		> .close {
+			display: none;
+		}
 	}
 }
 
@@ -491,12 +494,6 @@ a {
 		left: 0;
 		bottom: 0;
 		right: 0;
-
-		.item {
-			background-position: 50% 50%;
-			background-repeat: no-repeat;
-			background-size: contain;
-		}
 	}
 
 	> .nav {
@@ -510,6 +507,12 @@ a {
 		font-family: Serif;
 		font-size: 18px;
 		text-shadow: 0 0 1px @photoNavShadow;
+	}
+
+	&.photos > .content > div > div{
+		background-position: 50% 50%;
+		background-size: contain;
+		background-repeat: no-repeat;
 	}
 }
 
