@@ -1,0 +1,1 @@
+'use strict';define({samplePopup:{js:'samplePopup',html:'samplePopup.html',css:'samplePopup.less',title:'\u793A\u4F8B\u5F39\u7A97'},samplePopup2:{js:'samplePopup2',html:'samplePopup2.html',title:'\u793A\u4F8B\u5F39\u7A972',back:'samplePopup'}});

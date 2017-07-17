@@ -1,0 +1,1 @@
+'use strict';define(['module','common/kernel/kernel'],function(a,b){var c=a.id.replace(/^[^/]+\/|\/[^/]+/g,''),d=document.querySelector('#page>.content>.'+c);return{onload:function onload(a){a?b.alert('opening list page'):b.alert('going back to list page')},onloadend:function onloadend(){},onunload:function onunload(){},onunloadend:function onunloadend(){}}});

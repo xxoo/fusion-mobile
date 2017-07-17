@@ -1,0 +1,1 @@
+'use strict';define({home:{js:'home',html:'home.html',css:'home.less',title:'\u9996\u9875'},list:{js:'list',html:'list.html',css:'list.less',title:'\u5217\u8868'},user:{html:'user.html',css:'user.less',title:'\u7528\u6237\u4E2D\u5FC3',back:'list'},settings:{js:'settings',html:'settings.html',css:'settings.less',title:'\u8BBE\u7F6E',back:'user'}});

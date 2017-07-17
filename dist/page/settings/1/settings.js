@@ -1,0 +1,1 @@
+'use strict';define(['module','common/kernel/kernel'],function(a,b){var c=a.id.replace(/^[^/]+\/|\/[^/]+/g,''),d=document.querySelector('#page>.content>.'+c),e=0;d.querySelector('a').addEventListener('click',function(){b.openPopup('samplePopup',++e)},!1)});
