@@ -1482,12 +1482,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		}
 		o.parentNode.removeChild(o);
 		if (cfg.css && typeof cfg.css !== 'string') {
-			document.head.removeChild(cfg.css);
-			if (cfg.css.type === 'stylesheet/less') {
-				less.sheets.splice(less.sheets.indexOf(cfg.css), 1);
-				less.refresh();
-			}
-			cfg.css = cfg.css.getAttribute('href').replace(RegExp('^' + require.toUrl(type + '/' + id) + '/'), '');
+			cfg.css = kernel.removeCss(cfg.css).substr(require.toUrl(type + '/' + id).length + 1);
 		}
 		if (cfg.js) {
 			n = type + '/' + id + '/' + cfg.js;
