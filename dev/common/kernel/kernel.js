@@ -1476,16 +1476,17 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	return kernel;
 
 	function destory(cfg, type, id) {
-		var n, o = document.querySelector('#' + type + '>.content>.' + id);
+		var n = type + '/' + id + '/',
+			o = document.querySelector('#' + type + '>.content>.' + id);
 		if (cfg.loaded === 2 && typeof cfg.ondestory === 'function') {
 			cfg.ondestory();
 		}
 		o.parentNode.removeChild(o);
 		if (cfg.css && typeof cfg.css !== 'string') {
-			cfg.css = kernel.removeCss(cfg.css).substr(require.toUrl(type + '/' + id).length + 1);
+			cfg.css = kernel.removeCss(cfg.css).substr(require.toUrl(n).length);
 		}
 		if (cfg.js) {
-			n = type + '/' + id + '/' + cfg.js;
+			n += cfg.js;
 			if (require.defined(n)) {
 				o = require(n);
 				require.undef(n);
