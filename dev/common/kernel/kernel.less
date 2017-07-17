@@ -583,18 +583,18 @@ a {
 		right: 0;
 		bottom: 0;
 		overflow-y: auto;
+	}
 
-		&.foreign {
-			.flexbox(0);
+	&.foreign > .content {
+		.flexbox(0);
 
-			> iframe {
-				display: block;
-				.flexcontent(1);
-			}
+		> iframe {
+			display: block;
+			.flexcontent(1);
+		}
 
-			&.iosScrollFix > iframe {
-				margin-bottom: -2px;
-			}
+		&.iosScrollFix > iframe {
+			margin-bottom: -2px;
 		}
 	}
 }
