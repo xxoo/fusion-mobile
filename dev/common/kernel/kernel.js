@@ -1183,11 +1183,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (kernel.location.args.ui === 'clean') {
 					document.body.classList.add('clean');
 				}
-				// 最后的 URL
-				kernel.lastLocation = {
-					id: undefined,
-					args: {}
-				};
 				// 看是否有 kernelHistory
 				routerHistory = sessionStorage.getItem('kernelHistory');
 				routerHistory = routerHistory ? JSON.parse(routerHistory) : {};
@@ -1267,7 +1262,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		function manageLocation() {
 			var n, m, pageid = kernel.location.id,
 				pagecfg = pages[pageid];
-			if (kernel.lastLocation.id) {
+			if (kernel.lastLocation) {
 				n = pageid.replace(/-.*$/, '');
 				m = kernel.lastLocation.id.replace(/-.*$/, '');
 				if (n !== m) {
