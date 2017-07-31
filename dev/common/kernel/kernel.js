@@ -1155,7 +1155,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	! function() {
 		//此处不能使用kernel.lastLocation.id, 因为currentpage仅在页面加载成功才会更新
 		//而kernel.lastLocation.id在页面加载前就已经更新, 无法确保成功加载
-		var routerHistory, currentpage, animating, todo, locCallback, navIcos, navs,
+		var routerHistory, currentpage, animating, todo, navIcos, navs,
 			pagesBox = document.getElementById('page'),
 			backbtn = pagesBox.querySelector(':scope>.header>.back'),
 			headerLeftMenuBtn = pagesBox.querySelector(':scope>.header>.leftMenuBtn'),
@@ -1170,54 +1170,42 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		//icos是导航菜单的列表
 		//home是默认页
 		//callback是每次路由变化时要执行的回调
-		kernel.init = function(home, icos, callback) {
-			var n, navCtn = pagesBox.querySelector(':scope>.navMenu');
-			// 如果没有初始化就进行
-			if (!kernel.location) {
+		kernel.init = function(home, icos) {
+			var n;
+			if (home in pages) {
 				homePage = home;
-				navIcos = icos;
-				locCallback = callback;
-				// 当前URL
-				kernel.location = kernel.parseHash(location.hash);
-				// 如果带这个参数 就 隐藏头尾
-				if (kernel.location.args.ui === 'clean') {
-					document.body.classList.add('clean');
-				}
-				// 看是否有 kernelHistory
-				routerHistory = sessionStorage.getItem('kernelHistory');
-				routerHistory = routerHistory ? JSON.parse(routerHistory) : {};
-				// 解析 routerHistory
-				for (n in routerHistory) {
-					if (n in pages) {
-						pages[n].backLoc = routerHistory[n];
+				if (!kernel.location) {
+					// 当前URL
+					kernel.location = kernel.parseHash(location.hash);
+					// 如果带这个参数 就 隐藏头尾
+					if (kernel.location.args.ui === 'clean') {
+						document.body.classList.add('clean');
 					}
-				}
-				window.addEventListener('hashchange', hashchange, false);
-				navs = {};
-				while (navCtn.childNodes.length) {
-					navCtn.removeChild(navCtn.childNodes[0]);
-				}
-				for (n in navIcos) {
-					if (n in pages) {
-						navs[n] = navCtn.appendChild(document.createElement('a'));
-						navs[n].href = '#!' + n;
-						if (RegExp('^' + n + '(?:-|$)').test(kernel.location.id)) {
-							navs[n].className = 'selected';
-							navs[n].appendChild(kernel.makeSvg(typeof navIcos[n] === 'object' ? navIcos[n].selected : navIcos[n], true));
-						} else {
-							navs[n].appendChild(kernel.makeSvg(typeof navIcos[n] === 'object' ? navIcos[n].normal : navIcos[n], true));
+					// 看是否有 kernelHistory
+					routerHistory = sessionStorage.getItem('kernelHistory');
+					routerHistory = routerHistory ? JSON.parse(routerHistory) : {};
+					// 解析 routerHistory
+					for (n in routerHistory) {
+						if (n in pages) {
+							pages[n].backLoc = routerHistory[n];
 						}
-						navs[n].appendChild(document.createTextNode(pages[n].title));
 					}
-				}
-				//禁止各种 long tap 菜单
-				//ios 中需使用样式 -webkit-touch-callout: none;
-				window.addEventListener('contextmenu', browser.name === 'Firefox' ? stopEvent : cancelEvent, false);
-				window.addEventListener('dragstart', cancelEvent, false);
-				document.body.classList.remove('loading');
-				manageLocation();
-				if ('autopopup' in kernel.location.args) {
-					kernel.openPopup(kernel.location.args.autopopup, kernel.location.args.autopopuparg ? JSON.parse(kernel.location.args.autopopuparg) : undefined);
+					window.addEventListener('hashchange', hashchange, false);
+					initNavs(icos);
+					//禁止各种 long tap 菜单
+					//ios 中需使用样式 -webkit-touch-callout: none;
+					window.addEventListener('contextmenu', browser.name === 'Firefox' ? stopEvent : cancelEvent, false);
+					window.addEventListener('dragstart', cancelEvent, false);
+					document.body.classList.remove('loading');
+					manageLocation();
+					if ('autopopup' in kernel.location.args) {
+						kernel.openPopup(kernel.location.args.autopopup, kernel.location.args.autopopuparg ? JSON.parse(kernel.location.args.autopopuparg) : undefined);
+					}
+				} else {
+					if (icos) {
+						initNavs(icos);
+					}
+					hashchange();
 				}
 			}
 		};
@@ -1247,6 +1235,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				destory(p, 'page', id);
 			}
 		};
+		kernel.pageEvents = {};
 		backbtn.insertBefore(kernel.makeSvg('chevron-left'), backbtn.firstChild);
 		headerRightMenuBtn.addEventListener('click', function(evt) {
 			if (typeof pages[currentpage].onrightmenuclick === 'function') {
@@ -1258,6 +1247,29 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				pages[currentpage].onleftmenuclick();
 			}
 		}, false);
+
+		
+		function initNavs(icos) {
+			var n, navCtn = pagesBox.querySelector(':scope>.navMenu');
+			while (navCtn.childNodes.length) {
+				navCtn.removeChild(navCtn.childNodes[0]);
+			}
+			navIcos = icos;
+			navs = {};
+			for (n in navIcos) {
+				if (n in pages) {
+					navs[n] = navCtn.appendChild(document.createElement('a'));
+					navs[n].href = '#!' + n;
+					if (RegExp('^' + n + '(?:-|$)').test(kernel.location.id)) {
+						navs[n].className = 'selected';
+						navs[n].appendChild(kernel.makeSvg(typeof navIcos[n] === 'object' ? navIcos[n].selected : navIcos[n], true));
+					} else {
+						navs[n].appendChild(kernel.makeSvg(typeof navIcos[n] === 'object' ? navIcos[n].normal : navIcos[n], true));
+					}
+					navs[n].appendChild(document.createTextNode(pages[n].title));
+				}
+			}
+		}
 
 		function manageLocation() {
 			var n, m, pageid = kernel.location.id,
@@ -1281,8 +1293,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 				kernel.clearPopup();
 			}
-			if (typeof locCallback === 'function') {
-				locCallback();
+			if (typeof kernel.pageEvents.onroute === 'function') {
+				kernel.pageEvents.onroute({
+					type: 'route'
+				});
 			}
 			initLoad(pagecfg, pageid, true, function(firstLoad) {
 				if (animating) {
@@ -1393,6 +1407,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						// 相当于 刷新界面 或者是 改变了参数
 						// 不需要动画
 						noSwitchLoad(); //直接触发页面事件 onload
+					}
+					if (typeof kernel.pageEvents.onroutend === 'function') {
+						kernel.pageEvents.onroutend({
+							type: 'routend'
+						});
 					}
 				}
 			});

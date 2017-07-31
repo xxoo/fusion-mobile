@@ -9,16 +9,17 @@ define(['common/kernel/kernel'], function(kernel) {
 			['_setAutoPageview', false]
 		];
 	}
+	kernel.listeners.add(kernel.pageEvents, 'route', function(){
+		//百度统计接口
+		if (window._hmt && _hmt.push) {
+			_hmt.push(['_trackPageview', '/' + kernel.buildHash(kernel.location)]);
+		}
+	});
 	kernel.init('home', {
 		'home': 'home',
 		'list': 'bars',
 		'user': 'user',
 		'settings': 'gear'
-	}, function(){
-		//百度统计接口
-		if (window._hmt && _hmt.push) {
-			_hmt.push(['_trackPageview', '/' + kernel.buildHash(kernel.location)]);
-		}
 	});
 	if (!document.body.classList.contains('clean') && browser.platform === 'Android' && browser.name === 'unsupported' && !browser.app) {
 		kernel.htmlDialog('\
