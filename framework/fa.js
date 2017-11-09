@@ -12,7 +12,6 @@ var fs = require('fs'),
 	paths = {},
 	vars = {},
 	i, m;
-	console.log(svg[0]);
 for (i = 0; i < svg.length; i++) {
 	m = svg[i].match(/&#x([0-9a-f]+);"(?:(?:\s|\n)+horiz-adv-x="\d+")?(?:\s|\n)+d=("[^"]{6,}")/);
 	if (m) {

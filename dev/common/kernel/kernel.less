@@ -1,7 +1,6 @@
 @import "../../config.less";
-
+@import "../../vars.less";
 * {
-	font-family: @defaultfont;
 	box-sizing: border-box;
 	overflow: hidden;
 	-webkit-tap-highlight-color: transparent;
@@ -10,18 +9,24 @@
 	-webkit-text-size-adjust: none;
 	-moz-text-size-adjust: none;
 	-ms-text-size-adjust: none;
-	text-size-adjust: none;
 	line-height: inherit;
+	outline: none;
+	z-index: 0;
+	color: inherit;
+	text-decoration: inherit;
+	font-family: inherit;
 }
 
 html {
 	position: absolute;
-	width: 100%;
-	height: 100%;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
 	-ms-user-select: none;
-	-webkit-user-select: none;
 	-moz-user-select: none;
 	user-select: none;
+	font-family: var(--defaultFont);
 	font-size: 16px;
 	line-height: 1;
 }
@@ -30,84 +35,79 @@ body {
 	margin: 0;
 	width: 100%;
 	height: 100%;
-
-	&.clean {
-		#page {
-			 > .header,
-			> .navMenu {
-				display: none;
-			}
+	&.clean>#page {
+		>.header,
+		>.navMenu {
+			display: none;
 		}
 	}
-
 	&.mask {
-		 > #page,
-		 > #readable,
-		> #popup {
-			-webkit-filter: blur(4px);
+		>#page,
+		>#readable,
+		>#popup {
 			filter: blur(4px);
 		}
 	}
 }
 
-a {
-	outline: none;
-	text-decoration: none;
+#page>.header>.back,
+#page>.header>.leftMenuBtn,
+#page>.header>.rightMenuBtn,
+#popup>.header>.back,
+#popup>.header>.close {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	height: 16px;
+	font-size: 16px;
+	line-height: 1;
+	margin: auto 0;
+	color: var(--headerText);
+	overflow: visible;
+	>svg {
+		vertical-align: top;
+		height: 100%;
+		fill: var(--headerText);
+	}
 }
 
 #page,
 #popup {
-	> .header {
-		position: relative;
-		color: @headerText;
-		background-color: @headerBackground;
+	.flexbox(1);
+	height: 100%;
+	background-color: var(--appBackground);
+	>.header {
 		.flexcontent(0);
-
-		> .back {
-			display: block;
-			position: absolute;
-			top: 12px;
+		position: relative;
+		color: var(--headerText);
+		background-color: var(--headerBackground);
+		margin-bottom: var(--headerMargin);
+		box-shadow: var(--headerShadow);
+		>.back {
 			left: 0;
-			font-size: 16px;
-			line-height: 1;
-			height: 16px;
-			color: @headerText;
-
-			> svg {
-				height: 100%;
-				vertical-align: top;
-				fill: @headerText;
-				margin: 0 4px;
-			}
 		}
-
-		> .title {
+		>.title {
 			font-weight: bold;
-			font-size: 18px;
-			height: 40px;
-			line-height: 40px;
+			font-size: 16px;
+			height: var(--headerHeight);
+			line-height: var(--headerHeight);
 			text-align: center;
+			white-space: nowrap;
 		}
 	}
-
-	> .content {
+	>.content {
+		.flexcontent(1);
 		position: relative;
 		width: 100%;
-		background-color: @appBackground;
-		.flexcontent(1);
-
-		> div {
+		>div {
 			position: absolute;
 			width: 100%;
 			height: 100%;
 			right: 100%;
 			visibility: hidden;
-			color: @appText;
-			-webkit-animation-duration: 400ms;
+			color: var(--appText);
 			animation-duration: 400ms;
-			-webkit-animation-timing-function: ease-in-out;
 			animation-timing-function: ease-in-out;
-			-webkit-animation-iteration-count: 1;
 			animation-iteration-count: 1;
 		}
 	}
@@ -116,66 +116,40 @@ a {
 #page {
 	position: relative;
 	width: 100%;
-	height: 100%;
-	.flexbox(1);
-
-	> .header {
-		 > .leftMenuBtn,
-		> .rightMenuBtn {
-			display: block;
-			position: absolute;
-			top: 0;
-			bottom: 0;
-			height: 16px;
-			font-size: 16px;
-			line-height: 1;
-			margin: auto 0;
-			color: @headerText;
-
-			> svg {
-				height: 100%;
-				fill: @headerText
-			}
-		}
-
-		> .leftMenuBtn {
+	>.header {
+		>.leftMenuBtn {
 			left: 10px;
 		}
-
-		> .rightMenuBtn {
+		>.rightMenuBtn {
 			right: 10px;
 		}
 	}
-
-	> .navMenu {
-		height: 50px;
-		background-color: @footerBackground;
-		position: relative;
-		box-shadow: 0 0 4px @footerFrontground;
+	>.navMenu {
 		.flexbox(0);
 		.flexcontent(0);
-
-		> a {
+		height: var(--footerHeight);
+		background-color: var(--footerBackground);
+		position: relative;
+		margin-top: var(--footerMargin);
+		box-shadow: var(--footerShadow);
+		>a {
+			.flexcontent(1);
 			display: block;
 			height: 100%;
 			width: 100%;
 			text-align: center;
-			color: @footerFrontground;
+			color: var(--footerFrontground);
 			font-size: 12px;
-			.flexcontent(1);
-
-			> svg {
+			>svg {
 				display: block;
-				height: 20px;
+				height: var(--footerIconSize);
 				margin: 6px auto;
-				fill: @footerFrontground;
+				fill: var(--footerFrontground);
 			}
-
 			&.selected {
-				color: @footerFrontgroundHighlight;
-
-				> svg {
-					fill: @footerFrontgroundHighlight;
+				color: var(--footerFrontgroundHighlight);
+				>svg {
+					fill: var(--footerFrontgroundHighlight);
 				}
 			}
 		}
@@ -187,25 +161,9 @@ a {
 	left: 0;
 	right: 0;
 	bottom: 100%;
-	height: 100%;
 	visibility: hidden;
-	.flexbox(1);
-
-	> .header > .close {
-		display: block;
-		position: absolute;
-		width: 20px;
-		height: 20px;
-		top: 0;
-		bottom: 0;
+	>.header>.close {
 		right: 10px;
-		margin: auto 0;
-
-		> svg {
-			width: 100%;
-			height: 100%;
-			fill: @headerText;
-		}
 	}
 }
 
@@ -219,127 +177,113 @@ a {
 	bottom: 0;
 	top: 0;
 	visibility: hidden;
-	background-color: @maskFilterColor;
+	background-color: var(--maskFilterColor);
 }
 
-#dialog > div {
-	max-width: 85%;
+#dialog>div {
+	right: 10px;
+	left: 10px;
+	bottom: 10px;
+	top: 10px;
 	min-width: 240px;
-	max-height: 90%;
-
-	> .content {
-		font-size: 16px;
-		line-height: 1.5;
-		white-space: pre-wrap;
-		text-align: justify;
-	}
-
-	> .btns {
+	>.btns {
 		text-align: center;
 		margin-bottom: 20px;
 		display: none;
-
-		> a {
+		>a {
 			display: inline-block;
 			border-radius: 4px;
 			line-height: 24px;
-			width: 50px;
+			min-width: 80px;
+			padding: 0 10px;
 			margin: 0 15px;
 			vertical-align: top;
 			border-width: 1px;
 			border-style: solid;
-
+			font-size: var(--dialogButtonTextSize);
 			&.yes {
-				color: @primaryFrontground;
-				background-color: @primaryBackground;
-				border-color: @primaryBorder;
+				color: var(--primaryFrontground);
+				background-color: var(--primaryBackground);
+				border-color: var(--primaryBorder);
 			}
-
 			&.no {
-				color: @defaultFrontground;
-				background-color: @defaultBackground;
-				border-color: @defaultBorder;
+				color: var(--defaultFrontground);
+				background-color: var(--defaultBackground);
+				border-color: var(--defaultBorder);
 			}
 		}
 	}
-
-	> .close {
+	>.close {
 		position: absolute;
-		right: 5px;
-		top: 5px;
-		width: 20px;
-		height: 20px;
+		right: 4px;
+		top: 4px;
+		width: 16px;
+		height: 16px;
+		margin: auto;
+		>svg {
+			fill: var(--headerText);
+		}
 	}
-
-	&.alert > .content {
-		margin: 26px 20px 20px 16px;
-	}
-
+	&.alert,
 	&.confirm {
-		> .content {
+		>.content {
+			font-size: var(--dialogTextSize);
+			margin: 20px 20px 20px 20px;
+			line-height: 1.5;
+			white-space: pre-wrap;
+			text-align: justify;
+		}
+	}
+	&.confirm {
+		>.content {
 			margin: 16px 20px;
 		}
-		> .btns {
+		>.btns {
 			display: block;
 		}
-		> .close {
+		>.close {
 			display: none;
 		}
 	}
 }
 
-#dialog > div,
-#loading > div {
+#dialog>div,
+#loading>div {
 	position: absolute;
 	margin: auto;
+	border-radius: 8px;
+	background-color: var(--dialogBackground);
+	box-shadow: 0 0 5px var(--dialogShadow);
+	color: var(--appText);
+}
+
+#loading>div {
 	right: 0;
 	left: 0;
 	bottom: 0;
 	top: 0;
-	border-radius: 8px;
-	background-color: @dialogBackground;
-	box-shadow: 0 0 5px @dialogShadow;
-	color: @appText;
-}
-
-#loading > div {
 	width: 200px;
 	height: 90px;
 	text-align: center;
 	font-size: 16px;
 	line-height: 1;
 	white-space: pre-wrap;
-
-	> .ico {
+	>.ico {
 		margin: 15px auto;
-		border: 4px solid @loadingColor;
-		border-right-color: @loadingAltColor;
+		border: 4px solid var(--loadingColor);
+		border-right-color: var(--loadingAltColor);
 		border-radius: 100%;
 		width: 32px;
 		height: 32px;
-		-webkit-animation: loadingAni 800ms infinite linear;
 		animation: loadingAni 800ms infinite linear;
 	}
 }
-@-webkit-keyframes loadingAni {
-	from {
-		-webkit-transform: rotate(0deg);
-		transform: rotate(0deg);
-	}
 
-	to {
-		-webkit-transform: rotate(360deg);
-		transform: rotate(360deg);
-	}
-}
 @keyframes loadingAni {
 	from {
-		-webkit-transform: rotate(0deg);
 		transform: rotate(0deg);
 	}
-
 	to {
-		-webkit-transform: rotate(360deg);
 		transform: rotate(360deg);
 	}
 }
@@ -348,168 +292,90 @@ a {
 #readable.in {
 	bottom: 0;
 	visibility: visible;
-	-webkit-animation: popupin 400ms 1 ease-in-out;
 	animation: popupin 400ms 1 ease-in-out;
 }
 
 #popup.out,
 #readable.out {
 	visibility: visible;
-	-webkit-animation: popupout 400ms 1 ease-in-out;
 	animation: popupout 400ms 1 ease-in-out;
 }
-@-webkit-keyframes popupin {
-	from {
-		bottom: -100%;
-	}
 
-	to {
-		bottom: 0;
-	}
-}
 @keyframes popupin {
 	from {
 		bottom: -100%;
 	}
-
 	to {
 		bottom: 0;
 	}
 }
-@-webkit-keyframes popupout {
-	from {
-		bottom: 0;
-	}
 
-	to {
-		bottom: -100%;
-	}
-}
 @keyframes popupout {
 	from {
 		bottom: 0;
 	}
-
 	to {
 		bottom: -100%;
 	}
 }
 
-.panelTransL1 {
-	-webkit-animation-name: panelTransL1;
-	animation-name: panelTransL1;
-}
-
-.panelTransL2 {
-	-webkit-animation-name: panelTransL2;
-	animation-name: panelTransL2;
-}
-
-.panelTransR1 {
-	-webkit-animation-name: panelTransR1;
-	animation-name: panelTransR1;
-}
-
-.panelTransR2 {
-	-webkit-animation-name: panelTransR2;
-	animation-name: panelTransR2;
-}
-@-webkit-keyframes panelTransL1 {
-	from {
-		right: 0;
-	}
-
-	to {
-		right: 100%;
-	}
-}
 @keyframes panelTransL1 {
 	from {
 		right: 0;
 	}
-
 	to {
 		right: 100%;
 	}
 }
-@-webkit-keyframes panelTransR1 {
-	from {
-		right: 0;
-	}
 
-	to {
-		right: -100%;
-	}
-}
 @keyframes panelTransR1 {
 	from {
 		right: 0;
 	}
-
 	to {
 		right: -100%;
 	}
 }
-@-webkit-keyframes panelTransL2 {
-	from {
-		right: -100%;
-	}
 
-	to {
-		right: 0;
-	}
-}
 @keyframes panelTransL2 {
 	from {
 		right: -100%;
 	}
-
 	to {
 		right: 0;
 	}
 }
-@-webkit-keyframes panelTransR2 {
-	from {
-		right: 100%;
-	}
 
-	to {
-		right: 0;
-	}
-}
 @keyframes panelTransR2 {
 	from {
 		right: 100%;
 	}
-
 	to {
 		right: 0;
 	}
 }
 
 #sliderView {
-	> .content {
+	>.content {
 		position: absolute;
 		top: 0;
 		left: 0;
 		bottom: 0;
 		right: 0;
 	}
-
-	> .nav {
+	>.nav {
 		position: absolute;
 		left: 0;
 		right: 0;
 		bottom: 10px;
 		text-align: center;
 		pointer-events: none;
-		color: @photoNavColor;
+		color: var(--photoNavColor);
 		font-family: Serif;
 		font-size: 18px;
-		text-shadow: 0 0 1px @photoNavShadow;
+		text-shadow: 0 0 1px var(--photoNavShadow);
 	}
-
-	&.photos > .content > div > div{
+	&.photos>.content>div>div {
 		background-position: 50% 50%;
 		background-size: contain;
 		background-repeat: no-repeat;
@@ -517,28 +383,26 @@ a {
 }
 
 #photoView {
-	> img {
+	>img {
 		position: absolute;
 	}
-
-	> .actions {
+	>.actions {
 		position: absolute;
 		bottom: 10px;
 		left: 0;
 		right: 0;
 		text-align: center;
 		overflow: visible;
-
-		> a {
+		>a {
 			display: inline-block;
 			vertical-align: top;
-			background-color: @photoViewBtnBackground;
-			color: @photoViewBtnText;
+			background-color: var(--photoViewBtnBackground);
+			color: var(--photoViewBtnText);
 			margin: 0 4px;
 			font-size: 14px;
 			padding: 8px 16px;
 			border-radius: 4px;
-			box-shadow: 0 0 2px @photoViewBtnShadow;
+			box-shadow: 0 0 2px var(--photoViewBtnShadow);
 		}
 	}
 }
@@ -546,7 +410,7 @@ a {
 #photoView,
 #readable,
 #sliderView {
-	> .close {
+	>.close {
 		position: absolute;
 		right: 4px;
 		top: 4px;
@@ -554,14 +418,18 @@ a {
 		height: 32px;
 		border-radius: 16px;
 		display: block;
-		background-color: @roundCloseBackground;
-		box-shadow: 0 0 4px @roundCloseShadow inset;
-
-		> svg {
+		background-color: var(--roundCloseBackground);
+		box-shadow: 0 0 4px var(--roundCloseShadow) inset;
+		>svg {
+			position: absolute;
+			left: 0;
+			top: 0;
+			bottom: 0;
+			right: 0;
 			width: 16px;
 			height: 16px;
-			margin: 8px;
-			fill: @roundCloseFrontground;
+			margin: auto;
+			fill: var(--roundCloseFrontground);
 		}
 	}
 }
@@ -574,9 +442,8 @@ a {
 	height: 100%;
 	visibility: hidden;
 	overflow-y: auto;
-	background-color: @readableBackground;
-
-	> .content {
+	background-color: var(--readableBackground);
+	>.content {
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -584,16 +451,13 @@ a {
 		bottom: 0;
 		overflow-y: auto;
 	}
-
-	&.foreign > .content {
+	&.foreign>.content {
 		.flexbox(0);
-
-		> iframe {
-			display: block;
+		>iframe {
 			.flexcontent(1);
+			display: block;
 		}
-
-		&.iosScrollFix > iframe {
+		&.iosScrollFix>iframe {
 			margin-bottom: -2px;
 		}
 	}
@@ -601,27 +465,27 @@ a {
 
 #hint {
 	position: absolute;
+	bottom: 70px;
 	left: 20px;
 	right: 20px;
 	pointer-events: none;
 	text-align: center;
 	opacity: 0;
-	bottom: 70px;
 	font-size: 14px;
-	-webkit-transition: opacity 400ms ease-in-out;
+	overflow: visible;
 	transition: opacity 400ms ease-in-out;
-
-	> .text {
+	>.text {
 		display: inline-block;
-		color: @hintText;
+		vertical-align: top;
+		max-width: 100%;
+		color: var(--hintText);
 		line-height: 20px;
 		padding: 5px 12px;
-		background-color: @hintBackground;
+		background-color: var(--hintBackground);
 		border-radius: 10px;
 		line-height: 20px;
 		padding: 5px 12px;
-		box-shadow: 0 0 3px @hintShadow;
-		margin: 3px;
+		box-shadow: 0 0 3px var(--hintShadow);
 		white-space: pre-wrap;
 		vertical-align: top;
 	}
@@ -634,39 +498,26 @@ a {
 	right: 0;
 	bottom: 0;
 	display: none;
-
-	> div {
+	>div {
+		.flexbox(1);
 		width: 100%;
 		height: 100%;
-		.flexbox(1);
-
-		> div {
+		>div {
 			.flexbox(0);
-
-			> div {
+			>div {
 				height: 100%;
 			}
-
-			 > div:first-child,
-			 > div:last-child,
+			>div:first-child,
+			>div:last-child,
 			&:first-child,
 			&:last-child {
-				background-color: @helperBackground;
+				background-color: var(--helperBackground);
 			}
 		}
 	}
-
-	> img {
+	>img {
 		position: absolute;
 	}
-}
-
-.flexable {
-	.flexcontent(1);
-}
-
-.unflexable {
-	.flexcontent(0);
 }
 
 .iosScrollFix {
@@ -695,20 +546,17 @@ div.reloadHint {
 	width: 40px;
 	height: 40px;
 	opacity: 0;
-	background-color: @reloadHintBackground;
+	background-color: var(--reloadHintBackground);
 	padding: 8px;
-	box-shadow: 0 0 4px @reloadHintShadow;
+	box-shadow: 0 0 4px var(--reloadHintShadow);
 	border-radius: 20px;
-
-	> svg {
+	>svg {
 		display: block;
 		height: 100%;
-		fill: @reloadHintStartColor;
-		-webkit-transition: fill 200ms ease-in-out;
+		fill: var(--reloadHintStartColor);
 		transition: fill 200ms ease-in-out;
 	}
-
-	&.pin > svg {
-		fill: @reloadHintFinishColor;
+	&.pin>svg {
+		fill: var(--reloadHintFinishColor);
 	}
 }

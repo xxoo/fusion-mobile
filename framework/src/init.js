@@ -11,7 +11,7 @@ var browser = (function() {
 			browser.name = M[1];
 			browser.version = M[2];
 		}
-	} else if (M = navigator.userAgent.match(/(iPhone|iPad|iPod)(?: Touch)?; CPU(?: iPhone)? OS ([\d_\.]+)/)) {
+	} else if (M = navigator.userAgent.match(/(iPhone|iPad|iPod(?: Touch)?); CPU(?: iPhone)? OS ([\d_\.]+)/)) {
 		browser.platform = M[1];
 		browser.name = 'IOS';
 		browser.version = M[2].replace(/_/g, '.');
@@ -33,18 +33,20 @@ var browser = (function() {
 		browser.app = 'WeiBo';
 	}
 	if (window.top === window) {
-		var s, t, sw, ww;
+		var s, sw, ww,
+			t = document.head.appendChild(document.createElement('meta'));
+		t.name = 'format-detection';
+		t.content = 'telephone=no';
+		t = document.head.appendChild(document.createElement('meta'));
+		t.name = 'viewport';
 		if (browser.name === 'Firefox') {
 			s = calcRato(Math.min(screen.width, screen.height));
-			document.write('<meta name="viewport" content="user-scalable=no, width=' + 100 / s + '%, initial-scale=' + s + ', maximum-scale=' + s + ', minimum-scale=' + s + '"/>');
+			t.content = 'user-scalable=no, width=' + 100 / s + '%, initial-scale=' + s + ', maximum-scale=' + s + ', minimum-scale=' + s;
 		} else if (browser.name === 'Trident') {
-			document.write('<meta name="viewport" content="width=device-width, user-scalable=no"/>');
+			t.content = 'width=device-width, user-scalable=no';
 			document.documentElement.style.zoom = calcRato(Math.min(screen.width, screen.height));
 		} else {
-			t = document.createElement('meta');
-			t.name = 'viewport';
 			t.content = 'user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1';
-			document.head.appendChild(t);
 			sw = Math.min(screen.width, screen.height);
 			ww = Math.min(window.innerWidth, window.innerHeight);
 			if (sw >= ww * devicePixelRatio) {
@@ -52,6 +54,13 @@ var browser = (function() {
 			} else {
 				s = calcRato(sw);
 				t.content = 'user-scalable=no, width=' + 100 / s + '%, initial-scale=' + s + ', maximum-scale=' + s + ', minimum-scale=' + s;
+				if (browser.name === 'IOS' && CSS.supports('padding-bottom: constant(safe-area-inset-bottom)')) {
+					t.content += ', viewport-fit=cover';
+					document.documentElement.style.top = 'constant(safe-area-inset-top)';
+					document.documentElement.style.left = 'constant(safe-area-inset-left)';
+					document.documentElement.style.right = 'constant(safe-area-inset-right)';
+					document.documentElement.style.bottom = 'constant(safe-area-inset-bottom)';
+				}
 			}
 		}
 	}
@@ -68,6 +77,7 @@ var browser = (function() {
 	}
 })();
 ! function() {
+	'use strict';
 	var prefix = document.currentScript.src.replace(/^http(s)?:\/\/[^\/]+|[^\/]+$/g, ''),
 	c = document.createElement('script');
 	c.src = prefix + 'require-config.js?' + new Date().valueOf();

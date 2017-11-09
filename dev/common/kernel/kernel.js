@@ -1,10 +1,10 @@
 'use strict';
-define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 'common/pointerevents/pointerevents', 'common/svgicos/svgicos', 'site/pages/pages', 'site/popups/popups'], function(touchslider, touchguesture, pointerevents, svgicos, pages, popups) {
+define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 'common/pointerevents/pointerevents', 'common/svgicos/svgicos', 'site/pages/pages', 'site/popups/popups'], function (touchslider, touchguesture, pointerevents, svgicos, pages, popups) {
 	var homePage, kernel = {
 		// 加入css 到head中;
 		// 如果是生产环境; 加入 css
 		// 如果是开发环境 加入less
-		appendCss: function(url) { //自动根据当前环境添加css或less
+		appendCss: function (url) { //自动根据当前环境添加css或less
 			var csslnk = document.createElement('link');
 			if (/\.less$/.test(url)) {
 				if (typeof less === 'object') {
@@ -22,7 +22,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 			return document.head.appendChild(csslnk);
 		},
-		removeCss: function(lnk) {
+		removeCss: function (lnk) {
 			document.head.removeChild(lnk);
 			if (lnk.rel === 'stylesheet/less') {
 				less.sheets.splice(less.sheets.indexOf(lnk), 1);
@@ -31,7 +31,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			return lnk.getAttribute('href');
 		},
 		// 创建 svg dom;
-		makeSvg: function(name, square) {
+		makeSvg: function (name, square) {
 			var svgns = 'http://www.w3.org/2000/svg';
 			var svg = document.createElementNS(svgns, 'svg');
 			svg.appendChild(document.createElementNS(svgns, 'path')).setAttribute('transform', 'scale(1,-1)');
@@ -41,7 +41,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			return svg;
 		},
 		// 设置svg 内容
-		setSvgPath: function(svg, name, square) {
+		setSvgPath: function (svg, name, square) {
 			var box, tmp = kernel.makeSvg();
 			tmp.style.position = 'absolute';
 			tmp.style.bottom = tmp.style.right = '100%';
@@ -61,14 +61,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			svg.firstChild.setAttribute('d', svgicos[name]);
 			svg.setAttribute('viewBox', box.x + ' ' + (-box.y - box.height) + ' ' + box.width + ' ' + box.height);
 		},
-		buildHash: function(loc) {
+		buildHash: function (loc) {
 			var n, hash = '#!' + encodeURIComponent(loc.id);
 			for (n in loc.args) {
 				hash += loc.args[n] === undefined ? '&' + encodeURIComponent(n) : '&' + encodeURIComponent(n) + '=' + encodeURIComponent(loc.args[n]);
 			}
 			return hash;
 		},
-		parseHash: function(hash) {
+		parseHash: function (hash) {
 			var i, a, s, nl = {
 				id: homePage,
 				args: {}
@@ -92,7 +92,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			return nl;
 		},
 		// 后退行为
-		getDefaultBack: function(loc) {
+		getDefaultBack: function (loc) {
 			var i, o, bk;
 			if (!loc) {
 				loc = kernel.location;
@@ -121,7 +121,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		},
 		// 比较两个 location对象; 看 url 是否改变;
 		// 比较 key 和 args
-		isSameLocation: function(loc1, loc2) {
+		isSameLocation: function (loc1, loc2) {
 			var n;
 			if (loc1.id === loc2.id && Object.keys(loc1.args).length === Object.keys(loc2.args).length) {
 				for (n in loc1.args) {
@@ -144,7 +144,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				return false;
 			}
 		},
-		replaceLocation: function(loc) {
+		replaceLocation: function (loc) {
 			if (kernel.location && kernel.isSameLocation(loc, kernel.location)) {
 				kernel.reloadPage();
 			} else {
@@ -152,7 +152,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		},
 		// 判断是否是后退
-		isGoingback: function(from, to) {
+		isGoingback: function (from, to) {
 			if (isInBackChain(from, to)) {
 				return true;
 			} else if (isInBackChain(to, from)) {
@@ -183,7 +183,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				return false;
 			}
 		},
-		dataType: function(a) {
+		dataType: function (a) {
 			var t = typeof a;
 			if (t === 'string' || t === 'number' || t === 'function' || t === 'undefined') {
 				return t;
@@ -198,11 +198,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		}
 	};
 
-	! function() {
+	! function () {
 		kernel.listeners = {
-			add: function(o, e, f) {
+			add: function (o, e, f) {
 				if (!o.xEvents) {
-					o.xEvents = function(evt) { //override internal event manager
+					o.xEvents = function (evt) { //override internal event manager
 						xEventProcessor(o, evt);
 					};
 				}
@@ -220,7 +220,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					}
 				}
 			},
-			list: function(o, e) {
+			list: function (o, e) {
 				var r, n;
 				if (e) {
 					if (o.xEvents && o.xEvents[e]) {
@@ -240,7 +240,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 				return r;
 			},
-			remove: function(o, e, f) {
+			remove: function (o, e, f) {
 				var n, addRemoveMark, tmp;
 				if (o.xEvents) {
 					if (e) {
@@ -326,34 +326,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		}
 	}();
 
-	! function() {
-		kernel.names = {};
-		if ('animation' in document.documentElement.style) {
-			kernel.names.aniEvt = 'animationend';
-			kernel.names.aniStyle = 'animation';
-		} else {
-			kernel.names.aniEvt = 'webkitAnimationEnd';
-			kernel.names.aniStyle = 'webkitAnimation';
-		}
-		if ('transition' in document.documentElement.style) {
-			kernel.names.transEvt = 'transitionend';
-			kernel.names.transStyle = 'transition';
-		} else {
-			kernel.names.transEvt = 'webkitTransitionEnd';
-			kernel.names.transStyle = 'webkitTransition';
-		}
-		if ('transform' in document.documentElement.style) {
-			kernel.names.transform = 'transform';
-		} else {
-			kernel.names.transform = 'webkitTransform';
-		}
-	}();
-
-	! function() {
-		kernel.scrollReload = function(dom, func) {
+	! function () {
+		kernel.scrollReload = function (dom, func) {
 			kernel.fixIosScrolling(dom);
 			var y, st, reloadHint, scrolled;
-			var events = pointerevents(dom, function(evt) {
+			var events = pointerevents(dom, function (evt) {
 				if (evt.type === 'start') {
 					if (events.pointers.length === 0 && ((dom.classList.contains('iosScrollFix') && dom.scrollTop === 1) || (!dom.classList.contains('iosScrollFix') && dom.scrollTop === 0))) {
 						y = evt.y;
@@ -375,7 +352,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							if (!reloadHint) {
 								reloadHint = document.createElement('div');
 								reloadHint.className = 'reloadHint';
-								reloadHint.appendChild(kernel.makeSvg('refresh'));
+								reloadHint.appendChild(kernel.makeSvg('refresh', true));
 								dom.appendChild(reloadHint);
 							}
 							h = reloadHint.offsetHeight || reloadHint.clientHeight;
@@ -383,12 +360,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 								reloadHint.style.top = evt.y - y - h + 'px';
 								reloadHint.classList.remove('pin');
 								reloadHint.style.opacity = (evt.y - y) / h / 2;
-								reloadHint.style[kernel.names.transform] = 'rotate(' + 360 * reloadHint.style.opacity + 'deg)';
+								reloadHint.style.transform = 'rotate(' + 360 * reloadHint.style.opacity + 'deg)';
 							} else {
 								reloadHint.style.top = h + 'px';
 								reloadHint.style.opacity = 1;
 								reloadHint.classList.add('pin');
-								reloadHint.style[kernel.names.transform] = '';
+								reloadHint.style.transform = '';
 							}
 						} else {
 							if (evt.y < y && !st) {
@@ -427,45 +404,30 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			});
 		};
-		//fix ios overscrolling on viewport issue
-		//stupid ios designer
-		kernel.fixIosScrolling = function(o) {
-			var s, c;
+		//fix ios vertical overscrolling on viewport issue
+		kernel.fixIosScrolling = function (o, hscroll) {
 			if (browser.name === 'IOS') {
 				o.style.webkitOverflowScrolling = 'touch';
 				o.addEventListener('touchmove', stopEvent);
-				c = getComputedStyle(o);
-				if (c.overflowY === 'auto') {
+				if (!hscroll) {
 					o.classList.add('iosScrollFix');
-					if (c.display === 'none') {
-						s = o.style.display;
-						o.style.display = 'block';
-						o.scrollTop = 1;
-						o.style.display = s;
-					} else {
-						o.scrollTop = 1;
-					}
+					o.scrollTop = 1;
 					o.addEventListener('scroll', onscroll);
 				}
 			}
 		};
 
-		kernel.getScrollHeight = function(o) {
+		kernel.getScrollHeight = function (o) {
 			return o.classList.contains('iosScrollFix') ? o.scrollHeight - 1 : o.scrollHeight;
 		};
 
-		if (browser.name === 'IOS') {
-			window.addEventListener('touchmove', function(evt) {
-				evt.preventDefault();
-			});
-		}
+		kernel.setScrollTop = function (o, v) {
+			o.scrollTop = o.classList.contains('iosScrollFix') ? v + 1 : v;
+		};
 
-		//禁止各种scroll
-		window.addEventListener('scroll', noscroll, false);
-		document.documentElement.addEventListener('scroll', noscroll, false);
-		document.body.addEventListener('scroll', noscroll, false);
-		document.getElementById('page').addEventListener('scroll', noscroll, false);
-		document.getElementById('popup').addEventListener('scroll', noscroll, false);
+		if (browser.name === 'IOS') {
+			window.addEventListener('touchmove', cancelEvent);
+		}
 
 		function onscroll(evt) {
 			if (this.scrollTop === 0) {
@@ -474,26 +436,15 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				this.scrollTop -= 1;
 			}
 		}
-
-		// 重置scroll
-		function noscroll(evt) {
-			if (evt.target === this) {
-				if (this.scrollTo) {
-					this.scrollTo(0, 0);
-				} else {
-					this.scrollLeft = this.scrollTop = 0;
-				}
-			}
-		}
 	}();
 
-	! function() {
+	! function () {
 		var helper = document.getElementById('helper'),
 			tb = helper.firstChild,
 			img = helper.lastChild,
 			allSteps;
 		helper.addEventListener('click', nextStep);
-		kernel.showHelper = function(steps) {
+		kernel.showHelper = function (steps) {
 			if (kernel.dataType(steps) === 'array') {
 				allSteps = steps;
 			} else {
@@ -563,7 +514,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	}();
 
 	//弹出窗口
-	! function() {
+	! function () {
 		var activePopup, tempBack, animating, todo,
 			popupsBox = document.getElementById('popup'),
 			popupClose = popupsBox.querySelector(':scope>.header>.close'),
@@ -572,28 +523,24 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 		// 如果弹窗有自定义打开方式则直接调用该接口，否则会调用showPopup
 		// 如果定义了open请确保最终打开自己时调用的是showPopup而不是openPopup
-		kernel.openPopup = function(id, param) {
-			if (window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.openPopup === 'function') {
-				window.frameElement.kernel.openPopup(id, param);
+		kernel.openPopup = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.openPopup === 'function' ? window.frameElement.kernel.openPopup : function (id, param) {
+			var popupcfg = popups[id];
+			if (popupcfg) {
+				initLoad(popupcfg, id, false, function () {
+					if (typeof popupcfg.open === 'function') {
+						popupcfg.open(param, !activePopup || (id !== popups[activePopup].back && id !== tempBack));
+					} else {
+						kernel.showPopup(id, param);
+					}
+				});
 			} else {
-				var popupcfg = popups[id];
-				if (popupcfg) {
-					initLoad(popupcfg, id, false, function() {
-						if (typeof popupcfg.open === 'function') {
-							popupcfg.open(param);
-						} else {
-							kernel.showPopup(id, param);
-						}
-					});
-				} else {
-					kernel.hint('popup config not found: ' + id);
-				}
+				kernel.hint('popup config not found: ' + id);
 			}
 		};
 		// 普通弹窗
-		kernel.showPopup = function(id, param) { //显示弹出窗口
+		kernel.showPopup = function (id, param) { //显示弹出窗口
 			if (animating) {
-				todo = function() {
+				todo = function () {
 					kernel.showPopup(id, param);
 				};
 			} else {
@@ -621,7 +568,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				} else if (activePopup !== id) {
 					return switchToPopup(id, param);
 				} else {
-					if (typeof popups[id].onload !== 'function' || !popups[id].onload(param)) {
+					if (typeof popups[id].onload !== 'function' || !popups[id].onload(param, !activePopup || (id !== popups[activePopup].back && id !== tempBack))) {
 						if (typeof popups[id].onloadend === 'function') {
 							popups[id].onloadend();
 						}
@@ -630,10 +577,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		};
 		//关闭弹窗, 如果未指定id则会关闭任何弹窗否则只有当前弹窗匹配id时才关闭
-		kernel.closePopup = function(id) {
+		kernel.closePopup = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.closePopup === 'function' ? window.frameElement.kernel.closePopup : function (id) {
 			var p;
 			if (animating) {
-				todo = function() {
+				todo = function () {
 					kernel.closePopup(id);
 				};
 			} else {
@@ -656,13 +603,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		};
 		// 获取当前显示的 popup id
-		kernel.getCurrentPopup = function() {
+		kernel.getCurrentPopup = function () {
 			if (popupsBox.classList.contains('in')) {
 				return activePopup;
 			}
 		};
 		// 设置点击返回按钮时要传递到该窗口的参数, 不能在loadend之前使用
-		kernel.setPopupBackParam = function(param) {
+		kernel.setPopupBackParam = function (param) {
 			if (popupsBox.classList.contains('in')) {
 				popups[activePopup].backParam = param;
 			}
@@ -670,7 +617,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		// 如果未指定id则临时改变当前弹窗的后退位置, 临时修改不能在loadend之前使用
 		// 参数1 需要返回的页面id
 		// 参数2 如果提供; 就会永久修改 指定页面的 后退页面ID
-		kernel.setPopupBack = function(backid, id) {
+		kernel.setPopupBack = function (backid, id) {
 			if (id) {
 				if (id in popups) {
 					if (backid) {
@@ -696,7 +643,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		};
 		// 如果未指定id则临时改变当前弹窗的标题, 临时修改不能在loadend之前使用
-		kernel.setPopupTitle = function(newTitle, id) {
+		kernel.setPopupTitle = function (newTitle, id) {
 			if (id) {
 				if (id in popups) {
 					popups[id].title = newTitle;
@@ -710,7 +657,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			}
 		};
-		kernel.destoryPopup = function(id) {
+		kernel.destoryPopup = function (id) {
 			var p = popups[id];
 			if (p) {
 				destory(p, 'popup', id);
@@ -719,16 +666,16 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		// 包含onshow, onshowend, onhide, onhideend
 		kernel.popupEvents = {};
 		// 初始化窗口关闭按钮
-		popupClose.appendChild(kernel.makeSvg('close'));
-		popupClose.addEventListener('click', function() {
+		popupClose.appendChild(kernel.makeSvg('close', true));
+		popupClose.addEventListener('click', function () {
 			kernel.closePopup()
-		}, false);
+		});
 		// 初始化窗口返回按钮
-		back.insertBefore(kernel.makeSvg('chevron-left'), back.firstChild);
-		back.addEventListener('click', function(evt) {
+		back.insertBefore(kernel.makeSvg('angle-left', true), back.firstChild);
+		back.addEventListener('click', function (evt) {
 			kernel.openPopup(tempBack ? tempBack : popups[activePopup].back, popups[activePopup].backParam);
-		}, false);
-		popupsBox.addEventListener(kernel.names.aniEvt, function(evt) {
+		});
+		popupsBox.addEventListener('animationend', function (evt) {
 			var tohide;
 			if (evt.target === this) {
 				animating = false;
@@ -764,11 +711,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					tmp();
 				}
 			}
-		}, false);
+		});
 
 		function switchCanceled(id, param) {
 			//onunload 或 onload 返回 true 可以阻止停止事件
-			return (activePopup && typeof popups[activePopup].onunload === 'function' && popups[activePopup].onunload()) || (typeof popups[id].onload === 'function' && popups[id].onload(param));
+			return (activePopup && typeof popups[activePopup].onunload === 'function' && popups[activePopup].onunload()) || (typeof popups[id].onload === 'function' && popups[id].onload(param, !activePopup || (id !== popups[activePopup].back && id !== tempBack)));
 		}
 		// 弹窗显示后要执行的工作
 		function popupSwitched(id) {
@@ -797,7 +744,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			if (switchCanceled(id, param)) {
 				return true;
 			} else {
-				panelSwitch(popupsBox.querySelector(':scope>.content>.' + id), popupsBox.querySelector(':scope>.content>.' + activePopup), id === popups[activePopup].back || id === tempBack, function() {
+				panelSwitch(popupsBox.querySelector(':scope>.content>.' + id), popupsBox.querySelector(':scope>.content>.' + activePopup), id === popups[activePopup].back || id === tempBack, function () {
 					var tmp;
 					animating = false;
 					popupSwitched(id);
@@ -818,14 +765,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		}
 	}();
 	// 内置特殊弹窗, 会显示在普通弹窗之上, 并且彼此独立
-	! function() {
+	! function () {
 		var readableBox = document.getElementById('readable'),
 			readableClose = readableBox.querySelector(':scope>.close'),
 			readableContent = readableBox.querySelector(':scope>.content'),
 			raCallback;
 
 		kernel.fixIosScrolling(readableContent);
-		kernel.showReadable = function(html, callback, className) { //展示静态内容
+		kernel.showReadable = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.showReadable === 'function' ? window.frameElement.kernel.showReadable : function (html, callback, className) { //展示静态内容
 			if (typeof html === 'string') {
 				readableContent.innerHTML = html;
 			} else {
@@ -834,8 +781,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			readableBox.className = className ? 'in ' + className : 'in';
 			raCallback = callback;
 		};
-		kernel.hideReadable = function() {
-			if (kernel.isReadableShowing()) {
+		kernel.hideReadable = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.hideReadable === 'function' ? window.frameElement.kernel.hideReadable : function () {
+			if (readableBox.classList.contains('in')) {
 				readableBox.classList.remove('in');
 				readableBox.classList.add('out');
 				if (typeof raCallback === 'function') {
@@ -843,29 +790,22 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			}
 		};
-		kernel.isReadableShowing = function() {
-			return readableBox.classList.contains('in');
-		};
-		kernel.showForeign = function(url, callback) { //展示站外内容
+		kernel.showForeign = function (url, callback) { //展示站外内容
 			kernel.showReadable('<iframe frameborder="no" scrolling="auto" sandbox="allow-same-origin allow-forms allow-scripts" src="' + url + '"></iframe>', callback, 'foreign');
 		};
-		kernel.clearPopup = function() {
-			kernel.hideReadable();
-			kernel.closePopup();
-		};
-		readableClose.appendChild(kernel.makeSvg('close'));
-		readableClose.addEventListener('click', kernel.hideReadable, false);
-		readableBox.addEventListener(kernel.names.aniEvt, function(evt) {
+		readableClose.appendChild(kernel.makeSvg('close', true));
+		readableClose.addEventListener('click', kernel.hideReadable);
+		readableBox.addEventListener('animationend', function (evt) {
 			if (evt.target === this && this.classList.contains('out')) {
 				while (readableContent.childNodes.length > 0) {
 					readableContent.removeChild(readableContent.firstChild);
 				}
 				this.className = '';
 			}
-		}, false);
+		});
 	}();
 	//对话框及提示功能
-	! function() {
+	! function () {
 		var hintmo, callback,
 			loadingRT = 0,
 			dlgStack = [],
@@ -873,9 +813,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			loadingCtn = document.getElementById('loading'),
 			hintCtn = document.getElementById('hint'),
 			dialogCtn = document.getElementById('dialog'),
-			dialogBox = dialogCtn.querySelector('div'),
+			dialogBox = dialogCtn.querySelector(':scope>div'),
 			dialogContent = dialogBox.querySelector(':scope>.content'),
 			dialogClose = dialogBox.querySelector(':scope>.close'),
+			yesbtn = dialogBox.querySelector(':scope>.btns>.yes'),
+			nobtn = dialogBox.querySelector(':scope>.btns>.no'),
 			sliderViewCtn = document.getElementById('sliderView'),
 			sliderViewClose = sliderViewCtn.querySelector(':scope>.close'),
 			slider = touchslider(sliderViewCtn.querySelector(':scope>.content')),
@@ -887,7 +829,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 		guesture.onzoomstart = zoomstart;
 		guesture.ondragstart = dragstart;
-		kernel.showPhotoView = function(url, btns, cb) {
+		kernel.showPhotoView = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.showPhotoView === 'function' ? window.frameElement.kernel.showPhotoView : function (url, btns, cb) {
 			var i, tmp;
 			photoViewContent.src = url;
 			while (photoViewActions.childNodes.length) {
@@ -907,22 +849,22 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		};
 
-		kernel.hidePhotoView = function() {
+		kernel.hidePhotoView = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.hidePhotoView === 'function' ? window.frameElement.kernel.hidePhotoView : function () {
 			photoViewContent.src = 'about:blank';
 		};
-		photoViewContent.addEventListener('load', function() {
+		photoViewContent.addEventListener('load', function () {
 			photoViewCtn.style.visibility = 'visible';
 			document.body.classList.add('mask');
 			window.addEventListener('resize', syncPhotoViewSize);
 			syncPhotoViewSize();
 		});
-		photoViewContent.addEventListener('error', function() {
+		photoViewContent.addEventListener('error', function () {
 			photoViewCtn.style.visibility = '';
 			window.removeEventListener('resize', syncPhotoViewSize);
 			unmask();
 		});
 
-		kernel.showSliderView = function(doms, idx, className) {
+		kernel.showSliderView = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.showSliderView === 'function' ? window.frameElement.kernel.showSliderView : function (doms, idx, className) {
 			var i;
 			sliderViewCtn.className = className || '';
 			for (i = 0; i < doms.length; i++) {
@@ -932,19 +874,19 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				slider.slideTo(idx, true);
 			}
 		};
-		kernel.hideSliderView = function() {
+		kernel.hideSliderView = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.hideSliderView === 'function' ? window.frameElement.kernel.hideSliderView : function () {
 			slider.clear();
 		};
-		kernel.alert = function(text, callback) { //alert对话框
+		kernel.alert = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.alert === 'function' ? window.frameElement.kernel.alert : function (text, callback) { //alert对话框
 			openDialog('alert', text, callback);
 		};
-		kernel.confirm = function(text, callback) { //yes no对话框
+		kernel.confirm = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.confirm === 'function' ? window.frameElement.kernel.confirm : function (text, callback) { //yes no对话框
 			openDialog('confirm', text, callback);
 		};
-		kernel.htmlDialog = function(html, className, callback) { //自定义内容的对话框
+		kernel.htmlDialog = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.htmlDialog === 'function' ? window.frameElement.kernel.htmlDialog : function (html, className, callback) { //自定义内容的对话框
 			openDialog(className || '', html, callback);
 		};
-		kernel.closeDialog = function(param) { //通用对话框关闭方法
+		kernel.closeDialog = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.closeDialog === 'function' ? window.frameElement.kernel.closeDialog : function (param) { //通用对话框关闭方法
 			var a;
 			window.removeEventListener('resize', syncDialogSize, false);
 			dialogCtn.style.visibility = '';
@@ -961,15 +903,15 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				kernel[a.shift()].apply(kernel, a);
 			}
 		};
-		kernel.showLoading = function(text) { //loading提示框, 每次调用引用计数＋1所以showLoading和hideLoading必须成对使用
-			loadingCtn.querySelector('div').lastChild.data = text ? text : '加载中...';
+		kernel.showLoading = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.showLoading === 'function' ? window.frameElement.kernel.showLoading : function (text) { //loading提示框, 每次调用引用计数＋1所以showLoading和hideLoading必须成对使用
+			loadingCtn.querySelector(':scope>div').lastChild.data = text ? text : '加载中...';
 			if (loadingRT === 0) {
 				loadingCtn.style.visibility = 'visible';
 				document.body.classList.add('mask');
 			}
 			loadingRT++;
 		};
-		kernel.hideLoading = function() {
+		kernel.hideLoading = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.hideLoading === 'function' ? window.frameElement.kernel.hideLoading : function () {
 			if (loadingRT > 0) {
 				loadingRT--;
 				if (loadingRT === 0) {
@@ -983,17 +925,17 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			}
 		};
-		kernel.isLoading = function() {
+		kernel.isLoading = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.isLoading === 'function' ? window.frameElement.kernel.isLoading : function () {
 			return loadingRT > 0;
 		};
-		kernel.hint = function(text, t) { //底部提示, 不干扰用户操作, 默认显示5秒
+		kernel.hint = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.hint === 'function' ? window.frameElement.kernel.hint : function (text, t) { //底部提示, 不干扰用户操作, 默认显示5秒
 			hintCtn.querySelector(':scope>.text').firstChild.data = text;
 			if (hintmo) {
 				clearTimeout(hintmo);
 			} else {
 				hintCtn.style.opacity = 1;
 			}
-			hintmo = setTimeout(function() {
+			hintmo = setTimeout(function () {
 				hintCtn.style.opacity = '';
 				hintmo = undefined;
 			}, t ? t : 5000);
@@ -1001,7 +943,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		//目前只有loaded事件
 		kernel.dialogEvents = {};
 
-		slider.onchange = function() {
+		slider.onchange = function () {
 			var i, txt = '';
 			if (this.children.length) {
 				if (this.children.length > 1) {
@@ -1017,16 +959,16 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 			sliderViewCtn.querySelector(':scope>.nav').firstChild.data = txt;
 		};
-		dialogClose.appendChild(kernel.makeSvg('close'));
-		dialogClose.addEventListener('click', kernel.closeDialog, false);
-		dialogBox.querySelector(':scope>.btns>.yes').addEventListener('click', kernel.closeDialog, false);
-		dialogBox.querySelector(':scope>.btns>.no').addEventListener('click', function() {
+		dialogClose.appendChild(kernel.makeSvg('close', true));
+		dialogClose.addEventListener('click', kernel.closeDialog);
+		yesbtn.addEventListener('click', kernel.closeDialog);
+		nobtn.addEventListener('click', function () {
 			kernel.closeDialog();
-		}, false);
+		});
 		sliderViewClose.appendChild(dialogClose.firstChild.cloneNode(true));
 		photoViewClose.appendChild(dialogClose.firstChild.cloneNode(true));
-		sliderViewClose.addEventListener('click', kernel.hideSliderView, false);
-		photoViewClose.addEventListener('click', kernel.hidePhotoView, false);
+		sliderViewClose.addEventListener('click', kernel.hideSliderView);
+		photoViewClose.addEventListener('click', kernel.hidePhotoView);
 
 		function unmask() {
 			if (dialogCtn.style.visibility === '' && loadingCtn.style.visibility === '' && sliderViewCtn.style.visibility === '' && photoViewCtn.style.visibility === '') {
@@ -1039,8 +981,18 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				dlgStack.push([type, content, cb]);
 			} else {
 				dialogBox.className = type;
-				if (type === 'alert' || type === 'confirm') {
+				if (type === 'alert') {
 					dialogContent.textContent = content;
+				} else if (type === 'confirm') {
+					if (typeof content === 'string') {
+						dialogContent.textContent = content;
+						yesbtn.textContent = '是';
+						nobtn.textContent = '否';
+					} else {
+						dialogContent.textContent = content[0];
+						yesbtn.textContent = content[1];
+						nobtn.textContent = content[2];
+					}
 				} else {
 					if (typeof content === 'string') {
 						dialogContent.innerHTML = content;
@@ -1048,7 +1000,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						dialogContent.appendChild(content);
 					}
 				}
-				window.addEventListener('resize', syncDialogSize, false);
+				window.addEventListener('resize', syncDialogSize);
 				syncDialogSize();
 				document.body.classList.add('mask');
 				dialogCtn.style.visibility = 'visible';
@@ -1058,10 +1010,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 		function syncDialogSize() {
 			dialogBox.style.width = dialogBox.style.height = '';
+			dialogBox.style.left = dialogBox.style.top = '20px';
 			dialogBox.style.bottom = dialogBox.style.right = 'auto';
 			dialogBox.style.width = dialogBox.offsetWidth + 'px';
 			dialogBox.style.height = dialogBox.offsetHeight + 'px';
-			dialogBox.style.bottom = dialogBox.style.right = '';
+			dialogBox.style.left = dialogBox.style.top = dialogBox.style.bottom = dialogBox.style.right = '';
 		}
 
 		function setImg() {
@@ -1108,7 +1061,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				oz = photoStatus.z;
 			this.onzoomstart = null;
 			this.onzoomchange = zoomchange;
-			this.onzoomend = function(evt) {
+			this.onzoomend = function (evt) {
 				zoomchange.call(this, evt);
 				this.onzoomchange = this.zoomend = null;
 				this.onzoomstart = zoomstart;
@@ -1133,7 +1086,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				ol = photoStatus.l,
 				ot = photoStatus.t;
 			guesture.ondragmove = dragmove;
-			guesture.ondragend = function(evt) {
+			guesture.ondragend = function (evt) {
 				dragmove.call(this, evt);
 				this.ondragmove = this.ondragend = null;
 				this.ondragstart = dragstart;
@@ -1152,7 +1105,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	}();
 
 	//页面加载相关功能
-	! function() {
+	! function () {
 		//此处不能使用kernel.lastLocation.id, 因为currentpage仅在页面加载成功才会更新
 		//而kernel.lastLocation.id在页面加载前就已经更新, 无法确保成功加载
 		var routerHistory, currentpage, animating, todo, navIcos, navs,
@@ -1165,12 +1118,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			sessionStorage.setItem(0, 0);
 			sessionStorage.removeItem(0);
 		} catch (e) {
-			Storage.prototype.setItem = function() {};
+			Storage.prototype.setItem = function () {};
 		}
 		//icos是导航菜单的列表
 		//home是默认页
 		//callback是每次路由变化时要执行的回调
-		kernel.init = function(home, icos) {
+		kernel.init = function (home, icos) {
 			var n;
 			if (home in pages) {
 				homePage = home;
@@ -1190,13 +1143,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							pages[n].backLoc = routerHistory[n];
 						}
 					}
-					window.addEventListener('hashchange', hashchange, false);
+					window.addEventListener('hashchange', hashchange);
 					initNavs(icos);
 					//禁止各种 long tap 菜单
 					//ios 中需使用样式 -webkit-touch-callout: none;
-					window.addEventListener('contextmenu', browser.name === 'Firefox' ? stopEvent : cancelEvent, false);
-					window.addEventListener('dragstart', cancelEvent, false);
-					document.body.classList.remove('loading');
+					window.addEventListener('contextmenu', browser.name === 'Firefox' ? stopEvent : cancelEvent);
+					window.addEventListener('dragstart', cancelEvent);
+					document.documentElement.classList.remove('loading');
 					manageLocation();
 					if ('autopopup' in kernel.location.args) {
 						kernel.openPopup(kernel.location.args.autopopup, kernel.location.args.autopopuparg ? JSON.parse(kernel.location.args.autopopuparg) : undefined);
@@ -1210,7 +1163,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		};
 		//刷新当前页
-		kernel.reloadPage = function(id, silent) {
+		kernel.reloadPage = function (id, silent) {
 			var thislocation;
 			// 是否有数据正在加载
 			if (kernel.isLoading()) {
@@ -1229,26 +1182,25 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			}
 		};
-		kernel.destoryPage = function(id) {
+		kernel.destoryPage = function (id) {
 			var p = pages[id];
 			if (p) {
 				destory(p, 'page', id);
 			}
 		};
 		kernel.pageEvents = {};
-		backbtn.insertBefore(kernel.makeSvg('chevron-left'), backbtn.firstChild);
-		headerRightMenuBtn.addEventListener('click', function(evt) {
+		backbtn.insertBefore(kernel.makeSvg('angle-left', true), backbtn.firstChild);
+		headerRightMenuBtn.addEventListener('click', function (evt) {
 			if (typeof pages[currentpage].onrightmenuclick === 'function') {
 				pages[currentpage].onrightmenuclick();
 			}
-		}, false);
-		headerLeftMenuBtn.addEventListener('click', function(evt) {
+		});
+		headerLeftMenuBtn.addEventListener('click', function (evt) {
 			if (typeof pages[currentpage].onleftmenuclick === 'function') {
 				pages[currentpage].onleftmenuclick();
 			}
-		}, false);
+		});
 
-		
 		function initNavs(icos) {
 			var n, navCtn = pagesBox.querySelector(':scope>.navMenu');
 			while (navCtn.childNodes.length) {
@@ -1291,14 +1243,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						}
 					}
 				}
-				kernel.clearPopup();
+				clearWindow();
 			}
 			if (typeof kernel.pageEvents.onroute === 'function') {
 				kernel.pageEvents.onroute({
 					type: 'route'
 				});
 			}
-			initLoad(pagecfg, pageid, true, function(firstLoad) {
+			initLoad(pagecfg, pageid, true, function (firstLoad) {
 				if (animating) {
 					todo = true;
 				} else {
@@ -1367,7 +1319,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 								goingback = kernel.isGoingback(oldpageid, pageid);
 								animating = true;
 								// panelSwitch 动画
-								panelSwitch(toshow, pagesBox.querySelector(':scope>.content>.' + oldid), goingback, function() {
+								panelSwitch(toshow, pagesBox.querySelector(':scope>.content>.' + oldid), goingback, function () {
 									animating = false;
 									// 切换完成后 就执行 对呀的方法;
 									if (typeof pages[oldid].onunloadend === 'function') {
@@ -1421,7 +1373,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			var cfg = pages[currentpage].alias ? pages[pages[currentpage].alias] : pages[currentpage];
 			if (!id || (typeof id === 'string' && id === kernel.location.id) || id.indexOf(kernel.location.id) >= 0) {
 				if (!silent) {
-					kernel.clearPopup();
+					clearWindow();
 				}
 				if (typeof cfg.onunload === 'function') {
 					cfg.onunload(true);
@@ -1539,7 +1491,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				url = m + oldcfg.html;
 				xhr = new XMLHttpRequest();
 				xhr.open('get', url, true);
-				xhr.onreadystatechange = function() {
+				xhr.onreadystatechange = function () {
 					if (this.readyState === 4) {
 						if (this.status === 200) {
 							loadJs(this.responseText);
@@ -1570,7 +1522,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (require.data.debug) {
 					require([js], required);
 				} else {
-					require([js], required, function(error) {
+					require([js], required, function (error) {
 						destory(oldcfg, family, id);
 						if ((error.requireType && error.requireType !== 'scripterror' && error.requireType !== 'nodefine') || (error.xhr && error.xhr.status !== 404)) {
 							errorOccurs(js, error.message, isPage);
@@ -1597,7 +1549,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	}
 
 	function errorOccurs(res, msg, isPage) {
-		kernel.alert('加载' + res + '时发生了一个错误: ' + msg, isPage ? function() {
+		kernel.alert('加载' + res + '时发生了一个错误: ' + msg, isPage ? function () {
 			history.back();
 		} : undefined);
 	}
@@ -1606,7 +1558,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		if (isPage) {
 			location.reload();
 		} else {
-			kernel.confirm('网站已经更新, 使用该功能需要先重新加载. 是否立即刷新本页?', function(sure) {
+			kernel.confirm('网站已经更新, 使用该功能需要先重新加载. 是否立即刷新本页?', function (sure) {
 				if (sure) {
 					location.reload();
 				}
@@ -1617,11 +1569,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	function panelSwitch(toshow, tohide, goingback, callback) {
 		toshow.style.visibility = 'visible';
 		if (goingback) {
-			tohide.classList.add('panelTransR1');
-			toshow.classList.add('panelTransR2');
+			tohide.style.animationName = 'panelTransR1';
+			toshow.style.animationName = 'panelTransR2';
 		} else {
-			tohide.classList.add('panelTransL1');
-			toshow.classList.add('panelTransL2');
+			tohide.style.animationName = 'panelTransL1';
+			toshow.style.animationName = 'panelTransL2';
 		}
 		if (typeof callback === 'function') {
 			addPanelAnimationListener(toshow, listener);
@@ -1637,17 +1589,17 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		if (typeof listener !== 'function') {
 			listener = panelAnimationEnd;
 		}
-		emt.addEventListener(kernel.names.aniEvt, listener, false);
+		emt.addEventListener('animationend', listener);
 	}
 	//左右滑动的动画完成后要执行的操作
 	function panelAnimationEnd(evt) {
 		if (evt.target === this) { //ios中this的子节点也会触发该事件
-			if (this.className.match(/ panelTrans[LR]1/)) {
+			if (this.style.animationName.substr(this.style.animationName.length - 1) === '1') {
 				this.style.right = this.style.visibility = '';
 			} else {
 				this.style.right = 0;
 			}
-			this.className = this.className.replace(/ panelTrans[LR][12]/, '');
+			this.style.animationName = '';
 		}
 	}
 
@@ -1658,6 +1610,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				return true;
 			}
 		}
+	}
+
+	function clearWindow() {
+		kernel.hideReadable();
+		kernel.closePopup();
 	}
 
 	function cancelEvent(evt) {

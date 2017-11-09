@@ -1,28 +1,33 @@
 <!DOCTYPE HTML>
-<html>
+<html class="loading">
 	<head>
-		<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
 		<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+		<meta charset="utf-8"/>
+		<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 		<meta name="apple-mobile-web-app-capable" content="yes">
-		<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
-		<meta name="format-detection" content="telephone=no"/>
 		<meta name="mobile-web-app-capable" content="yes">
 		<meta name="msapplication-tap-highlight" content="no"/>
-		<meta name="fragment" content="!"/>
 		<title>fusion mobile</title>
 		<style>
-		body.loading > div{
+		html.loading{
+			height: 100%;
+			background-image: url(/fusion-mobile/loading.svg);
+			background-size: 50% auto;
+			background-repeat: no-repeat;
+			background-position: 50% 50%;
+		}
+		html.loading > body{
 			visibility: hidden;
 		}
 		</style>
 		<script src="/fusion-mobile/framework/all.js"></script>
 	</head>
-	<body class="loading">
+	<body>
 		<!--页面框架-->
 		<div id="page">
 			<div class="header">
-				<div class="title"> </div>
-				<a class="back"> </a>
+				<div class="title">_</div>
+				<a class="back">_</a>
 				<a class="leftMenuBtn"></a>
 				<a class="rightMenuBtn"></a>
 			</div>
@@ -32,7 +37,7 @@
 		<!--弹出窗口框架-->
 		<div id="popup">
 			<div class="header">
-				<div class="title"> </div>
+				<div class="title">_</div>
 				<a class="back" href="javascript:;">_</a>
 				<a class="close" href="javascript:;"></a>
 			</div>
@@ -61,7 +66,7 @@
 		<div id="dialog">
 			<div>
 				<div class="content"></div>
-				<div class="btns"><a class="yes" href="javascript:;">是</a><a class="no" href="javascript:;">否</a></div>
+				<div class="btns"><a class="yes" href="javascript:;">_</a><a class="no" href="javascript:;">_</a></div>
 				<a class="close" href="javascript:;"></a>
 			</div>
 		</div>
