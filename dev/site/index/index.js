@@ -16,8 +16,7 @@ define(['common/kernel/kernel'], function(kernel) {
 		}
 	});
 	kernel.init('home', {
-		'home': 'home',
-		'list': 'bars',
+		'list': 'home',
 		'user': 'user',
 		'settings': 'gear'
 	});

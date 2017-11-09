@@ -1,7 +1,89 @@
 @import "../../config.less";
-#page.list>.header>.back {
-    display: none;
-}
 #page>.content>.list{
-    //add styles here
+	overflow-y: auto;
+	>.sld{
+		height: 100px;
+		background-color: white;
+		.item{
+			white-space: pre-wrap;
+			font-size: 12px;
+			line-height: 1.5;
+			padding: 2px 10px 18px 10px;
+			>div{
+				font-size: 16px;
+			}
+		}
+	}
+	>.nav {
+			position: relative;
+			width: 100%;
+			text-align: center;
+			pointer-events: none;
+			font-family: Serif;
+			font-size: 16px;
+			line-height: 18px;
+			margin-top: -18px;
+			color: black;
+			text-shadow: 0 0 1px silver;
+	}
+	>.tabs{
+		.flexbox(0);
+		background-color: white;
+		margin-top: 10px;
+		>a{
+			.flexcontent(1);
+			display: block;
+			color: #333333;
+			line-height: 40px;
+			font-size: 16px;
+			text-align: center;
+			width: 100%;
+			&.active{
+				height: 40px;
+				border-bottom: 2px solid darkgoldenrod;
+			}
+		}
+	}
+	>.content>div{
+		background-color: white;
+		margin-top: 1px;
+		padding: 12px 15px;
+		>a{
+			display: block;
+			font-family: monospace;
+			word-break: break-all;
+			font-size: 14px;
+			line-height: 20px;
+			color: darkgoldenrod;
+		}
+		>div{
+			display: none;
+		}
+		&.active{
+			padding: 12px 15px 0 15px;
+			>a{
+				margin-bottom: 12px;
+			}
+			>.desc{
+				display: block;
+				font-size: 14px;
+				line-height: 20px;
+				border-top: 1px solid #f6f6f6;
+				padding: 12px 0;
+			}
+			>.code{
+				display: block;
+				font-size: 12px;
+				line-height: 1.5;
+				background-color: #f8f8f8;
+				font-family: monospace;
+				white-space: pre-wrap;
+				word-break: break-all;
+				tab-size: 2;
+				margin-bottom: 15px;
+				padding: 10px;
+				border-radius: 4px;
+			}
+		}
+	}
 }

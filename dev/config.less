@@ -1,105 +1,11 @@
-.flexbox(@vertical){
-    .vertical(@vertical) when(@vertical = 1){
-        -webkit-box-orient: vertical;
-        -ms-flex-direction: column;
-        -webkit-flex-direction: column;
-        flex-direction: column;
-    }
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: -webkit-flex;
-    display: flex;
-    .vertical(@vertical)
-}
-.flexcontent(@flexable){
-    -webkit-box-flex: @flexable;
-    -ms-flex: @flexable @flexable auto;
-    -webkit-flex: @flexable @flexable auto;
-    flex: @flexable @flexable auto;
+.flexbox(@vertical) {
+	.vertical(@vertical) when(@vertical=1) {
+		flex-direction: column;
+	}
+	display: flex;
+	.vertical(@vertical)
 }
 
-@defaultfont: PingFang SC, Heiti SC, Droid Sans, Microsoft YaHei UI;
-
-@appBackground: #eaeaea;
-@appText: #666666;
-
-@hintText: #eaeaea;
-@hintBackground: rgba(0,0,0,0.6);
-@hintShadow: silver;
-
-@helperBackground: rgba(0,0,0,0.7);
-
-@maskFilterColor: rgba(0,0,0,0.2);
-
-@reloadHintBackground: white;
-@reloadHintShadow: silver;
-@reloadHintStartColor: #FF6C12;
-@reloadHintFinishColor: #5cb85c;
-
-@headerBackground : black;
-@headerText : white;
-
-@footerBackground : #FAFAFA;
-@footerFrontground : #979797;
-@footerFrontgroundHighlight: #0087F6;
-
-@photoNavColor: white;
-@photoNavShadow: gray;
-
-@dialogBackground: rgba(255,255,255,0.9);
-@dialogShadow: gray;
-
-@photoViewBtnBackground: #FF6C12;
-@photoViewBtnText: white;
-@photoViewBtnShadow: silver;
-
-@loadingColor: silver;
-@loadingAltColor: gray;
-
-@roundCloseBackground: white;
-@roundCloseFrontground: gray;
-@roundCloseShadow: gray;
-
-@readableBackground: white;
-
-@primaryBackground: #FF6C12;
-@primaryActiveBackground: #FF6D0A;
-@primaryBorder: #FF6C12;
-@primaryActiveBorder: #FF6D0A;
-@primaryFrontground: white;
-@primaryActiveFrontground: @primaryFrontground;
-
-@defaultBackground: white;
-@defaultActiveBackground: #e6e6e6;
-@defaultBorder: #BABABA;
-@defaultActiveBorder: #adadad;
-@defaultFrontground: #3E3E3E;
-@defaultActiveFrontground: #333333;
-
-@successBackground: #5cb85c;
-@successActiveBackground: #449d44;
-@successBorder:#4cae4c;
-@successActiveBorder:#398439;
-@successFrontground:white;
-@successActiveFrontground:@successFrontground;
-
-@infoBackground: #5bc0de;
-@infoActiveBackground: #31b0d5;
-@infoBorder:#46b8da;
-@infoActiveBorder:#269abc;
-@infoFrontground:white;
-@infoActiveFrontground:@infoFrontground;
-
-@warningBackground:#f0ad4e;
-@warningActiveBackground:#ec971f;
-@warningBorder:#eea236;
-@warningActiveBorder:#d58512;
-@warningFrontground:white;
-@warningActiveFrontground:@warningFrontground;
-
-@dangerBackground:#d9534f;
-@dangerActiveBackground:#c9302c;
-@dangerBorder:#d43f3a;
-@dangerActiveBorder:#ac2925;
-@dangerFrontground:white;
-@dangerActiveFrontground:@dangerFrontground;
+.flexcontent(@flexable) {
+	flex: @flexable @flexable auto;
+}

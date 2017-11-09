@@ -21,7 +21,7 @@
 'use strict';
 define(function() {
 	var touchEvents, touchActionStyle;
-	if ('ontouchstart' in window) {
+	if (window.TouchEvent) {
 		touchEvents = {
 			start: 'touchstart',
 			move: 'touchmove',

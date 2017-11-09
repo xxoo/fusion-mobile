@@ -12,5 +12,9 @@ define({
 		html: 'samplePopup2.html',
 		title: '示例弹窗2',
 		back: 'samplePopup'
+	},
+	'page': {
+		js: 'page',
+		title: ''
 	}
 });

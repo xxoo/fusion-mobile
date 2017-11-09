@@ -217,32 +217,29 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 			}
 		}
 	};
-	touchslider.prototype.slideTo = function(i, silent) {
+	touchslider.prototype.slideTo = function(i, direction) {
 		var result;
-		if (this.subcontainer.childNodes.length === 1 && this.children.length > 1) {
-			i = getPos(i, this.children.length);
-			if (i !== this.current) {
-				if (silent) {
-					this.invisible.appendChild(this.children[this.current]);
-					this.subcontainer.appendChild(this.children[i]);
-				} else {
-					if ((i === 0 && this.current === this.children.length - 1) || i > this.current) {
-						this.subcontainer.appendChild(this.children[i]);
-						beginSlide(this, false);
-					} else {
-						this.subcontainer.insertBefore(this.children[i], this.children[this.current]);
-						this.subcontainer.style.left = '-100%';
-						beginSlide(this, true);
-					}
-				}
-				this.current = i;
-				fireEvent(this, 'change', {
-					current: true
-				});
+		if (typeof i !== 'number') {
+			i = this.children.indexOf(i);
+		}
+		i = getPos(i, this.children.length);
+		result = !this.sliding && i !== this.current;
+		if (result) {
+			if (direction > 0) {
+				this.subcontainer.appendChild(this.children[i]);
+				beginSlide(this, false);
+			} else if (direction < 0) {
+				this.subcontainer.insertBefore(this.children[i], this.children[this.current]);
+				this.subcontainer.style.left = '-100%';
+				beginSlide(this, true);
+			} else {
+				this.invisible.appendChild(this.children[this.current]);
+				this.subcontainer.appendChild(this.children[i]);
 			}
-			result = true;
-		} else {
-			result = false;
+			this.current = i;
+			fireEvent(this, 'change', {
+				current: true
+			});
 		}
 		return result;
 	};
@@ -252,16 +249,13 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 		restartTimer(this);
 	};
 	touchslider.prototype.stopPlay = function() {
-		var result;
-		if (this.delay) {
+		var result = this.delay;
+		if (result) {
 			delete this.delay;
 			if (this.timer) {
 				clearTimeout(this.timer);
 				delete this.timer;
 			}
-			result = true;
-		} else {
-			result = false;
 		}
 		return result;
 	};
@@ -478,7 +472,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 		if (obj.delay) {
 			obj.timer = setTimeout(function() {
 				delete obj.timer;
-				obj.slideTo(obj.current + 1);
+				obj.slideTo(obj.current + 1, 1);
 			}, obj.delay);
 		}
 	}
