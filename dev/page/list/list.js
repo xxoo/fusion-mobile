@@ -3,7 +3,7 @@ define(['module', 'common/kernel/kernel', 'common/touchslider/touchslider'], fun
 	var thispage = module.id.replace(/^[^/]+\/|\/[^/]+/g, ''),
 		dom = document.querySelector('#page>.content>.' + thispage),
 		tree = {
-			'common/kernel': {
+			'common/kernel/kernel': {
 				desc: '核心模块，包含框架中的主要接口',
 				methods: {
 					'appendCss(url:String):HTMLLinkElement': {
@@ -299,7 +299,7 @@ function loaded(evt){
 					}
 				}
 			},
-			'common/pointerevents': {
+			'common/pointerevents/pointerevents': {
 				desc: '整合PointerEvent, TouchEvent, MouseEvent的监听方法, 用法请见源代码中的注释',
 				methods: {
 					'var events = pointerevents(dom:HTMLElement, callback:Function):Object': {
@@ -315,7 +315,7 @@ function loaded(evt){
 					}
 				}
 			},
-			'common/touchguesture': {
+			'common/touchguesture/touchguesture': {
 				desc: '对平移和缩放的手势监听方法, 用法请见源代码中的注释',
 				methods: {
 					'var guesture = touchguesture(dom:HTMLElement):Object': {
@@ -340,7 +340,7 @@ function loaded(evt){
 					}
 				}
 			},
-			'common/touchslider': {
+			'common/touchslider/touchslider': {
 				desc: '支持触摸的滚动轮播',
 				methods: {
 					'var slider = touchslider(container:HTMLElement, contents?:Array, idx?:Number):touchslider': {
