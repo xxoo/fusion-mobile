@@ -15,7 +15,7 @@ define(['common/kernel/kernel'], function(kernel) {
 			_hmt.push(['_trackPageview', '/' + kernel.buildHash(kernel.location)]);
 		}
 	});
-	kernel.init('home', {
+	kernel.init('list', {
 		'list': 'home',
 		'user': 'user',
 		'settings': 'gear'
