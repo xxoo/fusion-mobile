@@ -45,7 +45,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			var box, tmp = kernel.makeSvg();
 			tmp.style.position = 'absolute';
 			tmp.style.bottom = tmp.style.right = '100%';
-			tmp.firstChild.setAttribute('d', svgicos[name]);
+			tmp.firstChild.setAttribute('d', svgicos[name] || name);
 			document.body.appendChild(tmp);
 			box = tmp.firstChild.getBBox();
 			document.body.removeChild(tmp);
@@ -58,7 +58,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					box.width = box.height;
 				}
 			}
-			svg.firstChild.setAttribute('d', svgicos[name]);
+			svg.firstChild.setAttribute('d', svgicos[name] || name);
 			svg.setAttribute('viewBox', box.x + ' ' + (-box.y - box.height) + ' ' + box.width + ' ' + box.height);
 		},
 		buildHash: function (loc) {
@@ -185,7 +185,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		},
 		dataType: function (a) {
 			var t = typeof a;
-			if (t === 'string' || t === 'number' || t === 'function' || t === 'undefined') {
+			if (t === 'boolean' || t === 'string' || t === 'symbol' || t === 'number' || t === 'function' || t === 'undefined') {
 				return t;
 			} else {
 				t = Object.prototype.toString.call(a).replace(/^\[object |\]$/g, '').toLowerCase();
