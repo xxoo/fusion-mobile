@@ -34,7 +34,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		makeSvg: function (name, square) {
 			var svgns = 'http://www.w3.org/2000/svg';
 			var svg = document.createElementNS(svgns, 'svg');
-			svg.appendChild(document.createElementNS(svgns, 'path')).setAttribute('transform', 'scale(1,-1)');
+			svg.appendChild(document.createElementNS(svgns, 'path'));
 			if (name) {
 				kernel.setSvgPath(svg, name, square);
 			}
@@ -42,10 +42,18 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		},
 		// 设置svg 内容
 		setSvgPath: function (svg, name, square) {
-			var box, tmp = kernel.makeSvg();
+			var box, isInternal, tmp = kernel.makeSvg();
+			if (svgicos.hasOwnProperty(name)) {
+				name = svgicos[name];
+				isInternal = true;
+				svg.firstChild.setAttribute('transform', 'scale(1,-1)');
+			} else {
+				svg.firstChild.removeAttribute('transform');
+			}
+			svg.firstChild.setAttribute('d', name);
 			tmp.style.position = 'absolute';
 			tmp.style.bottom = tmp.style.right = '100%';
-			tmp.firstChild.setAttribute('d', svgicos[name] || name);
+			tmp.firstChild.setAttribute('d', name);
 			document.body.appendChild(tmp);
 			box = tmp.firstChild.getBBox();
 			document.body.removeChild(tmp);
@@ -58,8 +66,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					box.width = box.height;
 				}
 			}
-			svg.firstChild.setAttribute('d', svgicos[name] || name);
-			svg.setAttribute('viewBox', box.x + ' ' + (-box.y - box.height) + ' ' + box.width + ' ' + box.height);
+			svg.setAttribute('viewBox', box.x + ' ' + (isInternal ? -box.y - box.height : box.y) + ' ' + box.width + ' ' + box.height);
 		},
 		buildHash: function (loc) {
 			var n, hash = '#!' + encodeURIComponent(loc.id);
