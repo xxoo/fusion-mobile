@@ -100,31 +100,35 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		},
 		// 后退行为
 		getDefaultBack: function (loc) {
-			var i, o, bk;
+			var i, o, bk1, bk2;
 			if (!loc) {
 				loc = kernel.location;
 			}
-			if (pages[loc.id]) {
-				if (kernel.dataType(pages[loc.id].backLoc) === 'object') {
-					bk = pages[loc.id].backLoc;
-				} else {
-					if (pages[loc.id].back && pages[pages[loc.id].back]) {
-						bk = {
-							id: pages[loc.id].back,
-							args: {}
-						};
-						o = pages[pages[loc.id].back].alias ? pages[pages[pages[loc.id].back].alias] : pages[pages[loc.id].back];
-						if (o.args) {
-							for (i = 0; i < o.args.length; i++) {
-								if (o.args[i] in loc.args) {
-									bk.args[o.args[i]] = loc.args[o.args[i]];
-								}
-							}
+			bk1 = pages[loc.id].backLoc;
+			if (pages[loc.id].back && pages[pages[loc.id].back]) {
+				bk2 = {
+					id: pages[loc.id].back,
+					args: {}
+				};
+				o = pages[pages[loc.id].back].alias ? pages[pages[pages[loc.id].back].alias] : pages[pages[loc.id].back];
+				if (o.args) {
+					for (i = 0; i < o.args.length; i++) {
+						if (o.args[i] in loc.args) {
+							bk2.args[o.args[i]] = loc.args[o.args[i]];
 						}
 					}
 				}
 			}
-			return bk;
+			if (bk1 && bk2) {
+				for (i in bk2.args) {
+					if (bk2.args[i] !== bk1.args[i]) {
+						return bk2;
+					}
+				}
+				return bk1;
+			} else {
+				return bk1 || bk2;
+			}
 		},
 		// 比较两个 location对象; 看 url 是否改变;
 		// 比较 key 和 args
