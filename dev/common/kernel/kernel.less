@@ -15,6 +15,7 @@
 	color: inherit;
 	text-decoration: inherit;
 	font-family: inherit;
+	visibility: inherit;
 }
 
 html {
@@ -296,13 +297,13 @@ body {
 #popup.in,
 #readable.in {
 	bottom: 0;
-	visibility: visible;
+	visibility: inherit;
 	animation: popupin 400ms 1 ease-in-out;
 }
 
 #popup.out,
 #readable.out {
-	visibility: visible;
+	visibility: inherit;
 	animation: popupout 400ms 1 ease-in-out;
 }
 
@@ -539,7 +540,6 @@ body {
 	height: 1px;
 	width: 1px;
 	visibility: hidden;
-	overflow: hidden;
 	pointer-events: none;
 }
 
