@@ -544,6 +544,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						kernel.showPopup(id, param);
 					}
 				});
+				return true;
 			} else {
 				kernel.hint('popup config not found: ' + id);
 			}
@@ -564,7 +565,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					} else {
 						toshow = popupsBox.querySelector(':scope>.content>.' + id);
 						toshow.style.right = 0;
-						toshow.style.visibility = 'visible';
+						toshow.style.visibility = 'inherit';
 						popupsBox.classList.add('in');
 						animating = id;
 						if (typeof kernel.popupEvents.onshow === 'function') {
@@ -638,7 +639,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						}
 					} else {
 						delete popups[id].back;
-						back.style.visibility = 'hidden';
+						back.style.display = 'none';
 					}
 				}
 			} else {
@@ -646,9 +647,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					if (backid) {
 						back.lastChild.data = popups[backid].title;
 						tempBack = backid;
-						back.style.visibility = '';
+						back.style.display = '';
 					} else {
-						back.style.visibility = 'hidden';
+						back.style.display = 'none';
 					}
 				}
 			}
@@ -744,9 +745,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			title.data = popups[id].title;
 			if (popups[id].back) {
 				back.lastChild.data = popups[popups[id].back].title;
-				back.style.visibility = 'visible';
+				back.style.display = '';
 			} else {
-				back.style.visibility = 'hidden';
+				back.style.display = 'none';
 			}
 		}
 
@@ -864,7 +865,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			photoViewContent.src = 'about:blank';
 		};
 		photoViewContent.addEventListener('load', function () {
-			photoViewCtn.style.visibility = 'visible';
+			photoViewCtn.style.visibility = 'inherit';
 			document.body.classList.add('mask');
 			window.addEventListener('resize', syncPhotoViewSize);
 			syncPhotoViewSize();
@@ -917,7 +918,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		kernel.showLoading = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.showLoading === 'function' ? window.frameElement.kernel.showLoading : function (text) { //loading提示框, 每次调用引用计数＋1所以showLoading和hideLoading必须成对使用
 			loadingCtn.querySelector(':scope>div').lastChild.data = text ? text : '加载中...';
 			if (loadingRT === 0) {
-				loadingCtn.style.visibility = 'visible';
+				loadingCtn.style.visibility = 'inherit';
 				document.body.classList.add('mask');
 			}
 			loadingRT++;
@@ -962,7 +963,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						txt += (i === this.current) ? '●' : '○';
 					}
 				}
-				sliderViewCtn.style.visibility = 'visible';
+				sliderViewCtn.style.visibility = 'inherit';
 				document.body.classList.add('mask');
 			} else {
 				sliderViewCtn.style.visibility = '';
@@ -988,7 +989,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		}
 
 		function openDialog(type, content, cb) {
-			if (dialogCtn.style.visibility === 'visible') {
+			if (dialogCtn.style.visibility === 'inherit') {
 				dlgStack.push([type, content, cb]);
 			} else {
 				dialogBox.className = type;
@@ -1014,7 +1015,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				window.addEventListener('resize', syncDialogSize);
 				syncDialogSize();
 				document.body.classList.add('mask');
-				dialogCtn.style.visibility = 'visible';
+				dialogCtn.style.visibility = 'inherit';
 				callback = cb;
 			}
 		}
@@ -1160,10 +1161,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					//ios 中需使用样式 -webkit-touch-callout: none;
 					window.addEventListener('contextmenu', browser.name === 'Firefox' ? stopEvent : cancelEvent);
 					window.addEventListener('dragstart', cancelEvent);
-					document.documentElement.classList.remove('loading');
 					manageLocation();
-					if ('autopopup' in kernel.location.args) {
-						kernel.openPopup(kernel.location.args.autopopup, kernel.location.args.autopopuparg ? JSON.parse(kernel.location.args.autopopuparg) : undefined);
+					if (kernel.location.args.hasOwnProperty('autopopup') && kernel.openPopup(kernel.location.args.autopopup, kernel.location.args.autopopuparg ? JSON.parse(kernel.location.args.autopopuparg) : undefined)) {
+						document.querySelector('#popup').style.animationDuration = '0s';
+						kernel.listeners.add(kernel.popupEvents, 'showend', removeLoading);
+					} else {
+						removeLoading();
 					}
 				} else {
 					if (icos) {
@@ -1273,6 +1276,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						pagesBox.classList.add(pageid);
 						// 重置 title
 						pagesBox.querySelector(':scope>.header>.title').firstChild.data = pages[pageid].title;
+						if (document.body.classList.contains('clean')) {
+							document.title = pages[pageid].title;
+						}
 						if (window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.getCurrentPopup === 'function' && window.frameElement.kernel.getCurrentPopup() === 'page') {
 							window.frameElement.kernel.setPopupTitle(pages[pageid].title);
 						}
@@ -1344,7 +1350,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 									if (todo) {
 										todo = false;
 										//toshow可能已被隐藏
-										toshow.style.visibility = 'visible';
+										toshow.style.visibility = 'inherit';
 										manageLocation();
 									}
 								});
@@ -1363,7 +1369,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						} else { //初次加载不显示动画
 							currentpage = pageid; // 记录当前显示中的页面
 							toshow.style.right = 0;
-							toshow.style.visibility = 'visible';
+							toshow.style.visibility = 'inherit';
 							noSwitchLoad(true); // 触发当前页的 加载事件
 						}
 					} else { //未发生转向, 但url有变化
@@ -1578,7 +1584,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	}
 	//启动左右滑动的动画
 	function panelSwitch(toshow, tohide, goingback, callback) {
-		toshow.style.visibility = 'visible';
+		toshow.style.visibility = 'inherit';
 		if (goingback) {
 			tohide.style.animationName = 'panelTransR1';
 			toshow.style.animationName = 'panelTransR2';
@@ -1634,5 +1640,20 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 	function stopEvent(evt) {
 		evt.stopPropagation();
+	}
+
+	function removeLoading(evt) {
+		if (evt) {
+			kernel.listeners.remove(this, evt.type, removeLoading);
+			setTimeout(function () {
+				document.querySelector('#popup').style.animationDuration = '';
+			}, 400);
+		}
+		document.body.addEventListener('transitionend', function (evt) {
+			if (evt.target === this) {
+				document.body.style.transition = '';
+			}
+		});
+		document.documentElement.classList.remove('loading');
 	}
 });

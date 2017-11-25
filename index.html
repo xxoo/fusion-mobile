@@ -4,25 +4,29 @@
 		<meta http-equiv="x-ua-compatible" content="IE=edge"/>
 		<meta charset="utf-8"/>
 		<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
-		<meta name="apple-mobile-web-app-capable" content="yes">
-		<meta name="mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-capable" content="yes"/>
+		<meta name="mobile-web-app-capable" content="yes"/>
 		<meta name="msapplication-tap-highlight" content="no"/>
 		<title>fusion mobile</title>
 		<style>
-		html.loading{
-			height: 100%;
-			background-image: url(/fusion-mobile/loading.svg);
-			background-size: 50% auto;
-			background-repeat: no-repeat;
-			background-position: 50% 50%;
-		}
-		html.loading > body{
-			visibility: hidden;
-		}
+			html.loading{
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background-image: url(/fusion-mobile/loading.svg);
+				background-size: 50% auto;
+				background-repeat: no-repeat;
+				background-position: 50% 50%;
+			}
+			html.loading>body{
+				opacity: 0;
+			}
 		</style>
 		<script src="/fusion-mobile/framework/all.js"></script>
 	</head>
-	<body>
+	<body style="transition: opacity 200ms ease-in-out;">
 		<!--页面框架-->
 		<div id="page">
 			<div class="header">
