@@ -10,7 +10,7 @@
 		siteVersion = "1.0.273",
 		//请确保debug第五个被赋值
 		debug = false,
-		prefix = document.currentScript.src.replace(/^http(s)?:\/\/[^\/]+|framework\/[^\/]+$/g, ''),
+		prefix = document.currentScript.getAttribute('src').replace(/framework\/[^\/]+$/, ''),
 		cfg = {
 			waitSeconds: 0,
 			baseUrl: prefix + srcRoot

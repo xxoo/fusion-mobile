@@ -78,7 +78,7 @@ var browser = (function() {
 })();
 ! function() {
 	'use strict';
-	var prefix = document.currentScript.src.replace(/^http(s)?:\/\/[^\/]+|[^\/]+$/g, ''),
+	var prefix = document.currentScript.getAttribute('src').replace(/[^\/]+$/, ''),
 	c = document.createElement('script');
 	c.src = prefix + 'require-config.js?' + new Date().valueOf();
 	c.addEventListener('load', cfgLoad, false);
