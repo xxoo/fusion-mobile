@@ -1,4 +1,4 @@
-var browser = (function() {
+var browser = (function () {
 	'use strict';
 	var M, browser = {
 		platform: 'unknown',
@@ -76,36 +76,40 @@ var browser = (function() {
 		return zoom;
 	}
 })();
-! function() {
+! function () {
 	'use strict';
-	var prefix = document.currentScript.getAttribute('src').replace(/[^\/]+$/, ''),
-	c = document.createElement('script');
-	c.src = prefix + 'require-config.js?' + new Date().valueOf();
-	c.addEventListener('load', cfgLoad, false);
-	document.head.appendChild(c);
-
-	function cfgLoad(evt) {
-		this.removeEventListener('load', cfgLoad, false);
-		var l = document.createElement('link');
-		var m = document.createElement('link');
-		if (require.data.debug) { //全局debug标志在require-config.js中
-			l.rel = m.rel = 'stylesheet/less';
-			l.href = require.toUrl('site/index/index.less');
-			m.href = require.toUrl('common/kernel/kernel.less');
-			require([prefix + 'less.js'], function(){
-				less.pageLoadFinished.then(function(){
-					require(['site/index/index']);
-				});
-			});
-		} else {
-			l.rel = m.rel = 'stylesheet';
-			l.href = require.toUrl('site/index/index.css');
-			m.href = require.toUrl('common/kernel/kernel.css');
-			window.addEventListener('load', function() {
+	var prefix = document.currentScript.getAttribute('src').replace(/framework\/[^\/]+$/, ''),
+		cfg = {
+			waitSeconds: 0,
+			baseUrl: prefix + 'dev/'
+		},
+		l = document.createElement('link'),
+		m = document.createElement('link'),
+		n;
+	if (VERSION !== 'dev') {
+		for (n in MODULES) {
+			MODULES[n] = prefix + 'dist/' + n + '/' + MODULES[n];
+		}
+		cfg.paths = MODULES;
+	}
+	require.config(cfg);
+	if (VERSION === 'dev') {
+		l.rel = m.rel = 'stylesheet/less';
+		l.href = require.toUrl('site/index/index.less');
+		m.href = require.toUrl('common/kernel/kernel.less');
+		require([prefix + 'framework/less.js'], function () {
+			less.pageLoadFinished.then(function () {
 				require(['site/index/index']);
 			});
-		}
-		document.head.appendChild(m);
-		document.head.appendChild(l);
+		});
+	} else {
+		l.rel = m.rel = 'stylesheet';
+		l.href = require.toUrl('site/index/index.css');
+		m.href = require.toUrl('common/kernel/kernel.css');
+		window.addEventListener('load', function () {
+			require(['site/index/index']);
+		});
 	}
+	document.head.appendChild(m);
+	document.head.appendChild(l);
 }();
