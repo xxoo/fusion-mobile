@@ -1514,7 +1514,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							loadJs(this.responseText);
 						} else {
 							destory(oldcfg, family, id);
-							if (require.data.debug || this.status !== 404) {
+							if (VERSION === 'dev' || this.status !== 404) {
 								errorOccurs(url, this.status, isPage);
 							} else {
 								updated(isPage);
@@ -1536,7 +1536,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			if ('js' in oldcfg) {
 				kernel.showLoading();
 				js = n + oldcfg.js;
-				if (require.data.debug) {
+				if (VERSION === 'dev') {
 					require([js], required);
 				} else {
 					require([js], required, function (error) {
