@@ -42,13 +42,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		},
 		// 设置svg 内容
 		setSvgPath: function (svg, name, square) {
-			var box, isInternal, tmp = kernel.makeSvg();
+			var box, tmp = kernel.makeSvg();
 			if (svgicos.hasOwnProperty(name)) {
 				name = svgicos[name];
-				isInternal = true;
-				svg.firstChild.setAttribute('transform', 'scale(1,-1)');
-			} else {
-				svg.firstChild.removeAttribute('transform');
 			}
 			svg.firstChild.setAttribute('d', name);
 			tmp.style.position = 'absolute';
@@ -66,7 +62,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					box.width = box.height;
 				}
 			}
-			svg.setAttribute('viewBox', box.x + ' ' + (isInternal ? -box.y - box.height : box.y) + ' ' + box.width + ' ' + box.height);
+			svg.setAttribute('viewBox', box.x + ' ' + box.y + ' ' + box.width + ' ' + box.height);
 		},
 		buildHash: function (loc) {
 			var n, hash = '#!' + encodeURIComponent(loc.id);
@@ -363,7 +359,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							if (!reloadHint) {
 								reloadHint = document.createElement('div');
 								reloadHint.className = 'reloadHint';
-								reloadHint.appendChild(kernel.makeSvg('refresh', true));
+								reloadHint.appendChild(kernel.makeSvg('sync-regular', true));
 								dom.appendChild(reloadHint);
 							}
 							h = reloadHint.offsetHeight || reloadHint.clientHeight;
@@ -678,12 +674,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		// 包含onshow, onshowend, onhide, onhideend
 		kernel.popupEvents = {};
 		// 初始化窗口关闭按钮
-		popupClose.appendChild(kernel.makeSvg('close', true));
+		popupClose.appendChild(kernel.makeSvg('times-regular', true));
 		popupClose.addEventListener('click', function () {
 			kernel.closePopup()
 		});
 		// 初始化窗口返回按钮
-		back.insertBefore(kernel.makeSvg('angle-left', true), back.firstChild);
+		back.insertBefore(kernel.makeSvg('angle-left-regular', true), back.firstChild);
 		back.addEventListener('click', function (evt) {
 			kernel.openPopup(tempBack ? tempBack : popups[activePopup].back, popups[activePopup].backParam);
 		});
@@ -805,7 +801,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		kernel.showForeign = function (url, callback) { //展示站外内容
 			kernel.showReadable('<iframe frameborder="no" scrolling="auto" sandbox="allow-same-origin allow-forms allow-scripts" src="' + url + '"></iframe>', callback, 'foreign');
 		};
-		readableClose.appendChild(kernel.makeSvg('close', true));
+		readableClose.appendChild(kernel.makeSvg('times-regular', true));
 		readableClose.addEventListener('click', kernel.hideReadable);
 		readableBox.addEventListener('animationend', function (evt) {
 			if (evt.target === this && this.classList.contains('out')) {
@@ -971,7 +967,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 			sliderViewCtn.querySelector(':scope>.nav').firstChild.data = txt;
 		};
-		dialogClose.appendChild(kernel.makeSvg('close', true));
+		dialogClose.appendChild(kernel.makeSvg('times-regular', true));
 		dialogClose.addEventListener('click', kernel.closeDialog);
 		yesbtn.addEventListener('click', kernel.closeDialog);
 		nobtn.addEventListener('click', function () {
@@ -1203,7 +1199,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		};
 		kernel.pageEvents = {};
-		backbtn.insertBefore(kernel.makeSvg('angle-left', true), backbtn.firstChild);
+		backbtn.insertBefore(kernel.makeSvg('angle-left-regular', true), backbtn.firstChild);
 		headerRightMenuBtn.addEventListener('click', function (evt) {
 			if (typeof pages[currentpage].onrightmenuclick === 'function') {
 				pages[currentpage].onrightmenuclick();

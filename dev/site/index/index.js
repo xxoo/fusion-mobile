@@ -16,9 +16,18 @@ define(['common/kernel/kernel'], function(kernel) {
 		}
 	});
 	kernel.init('list', {
-		'list': 'home',
-		'user': 'user',
-		'settings': 'gear'
+		'list': {
+			normal: 'home-regular',
+			selected: 'home-solid'
+		},
+		'user': {
+			normal: 'user-regular',
+			selected: 'user-solid'
+		},
+		'settings': {
+			normal: 'cog-regular',
+			selected: 'cog-solid'
+		}
 	});
 	if (!document.body.classList.contains('clean') && browser.platform === 'Android' && browser.name === 'unsupported' && !browser.app) {
 		kernel.htmlDialog('\
