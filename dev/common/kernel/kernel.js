@@ -31,17 +31,17 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			return lnk.getAttribute('href');
 		},
 		// 创建 svg dom;
-		makeSvg: function (name, square) {
+		makeSvg: function (name, type) {
 			var svgns = 'http://www.w3.org/2000/svg';
 			var svg = document.createElementNS(svgns, 'svg');
 			svg.appendChild(document.createElementNS(svgns, 'path'));
 			if (name) {
-				kernel.setSvgPath(svg, name, square);
+				kernel.setSvgPath(svg, name, type);
 			}
 			return svg;
 		},
 		// 设置svg 内容
-		setSvgPath: function (svg, name, square) {
+		setSvgPath: function (svg, name, type) {
 			var box, tmp = kernel.makeSvg();
 			if (svgicos.hasOwnProperty(name)) {
 				name = svgicos[name];
@@ -53,7 +53,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			document.body.appendChild(tmp);
 			box = tmp.firstChild.getBBox();
 			document.body.removeChild(tmp);
-			if (square) {
+			if (type == 2) {
+				box.width += box.x * 2;
+				box.x = 0;
+				box.height += box.y * 2;
+				box.y = 0;
+			} else if (type) {
 				if (box.width > box.height) {
 					box.y -= (box.width - box.height) / 2;
 					box.height = box.width;
@@ -359,7 +364,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							if (!reloadHint) {
 								reloadHint = document.createElement('div');
 								reloadHint.className = 'reloadHint';
-								reloadHint.appendChild(kernel.makeSvg('sync-regular', true));
+								reloadHint.appendChild(kernel.makeSvg('sync-alt-solid', 1));
 								dom.appendChild(reloadHint);
 							}
 							h = reloadHint.offsetHeight || reloadHint.clientHeight;
@@ -674,12 +679,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		// 包含onshow, onshowend, onhide, onhideend
 		kernel.popupEvents = {};
 		// 初始化窗口关闭按钮
-		popupClose.appendChild(kernel.makeSvg('times-regular', true));
+		popupClose.appendChild(kernel.makeSvg('times-light', 1));
 		popupClose.addEventListener('click', function () {
 			kernel.closePopup()
 		});
 		// 初始化窗口返回按钮
-		back.insertBefore(kernel.makeSvg('angle-left-regular', true), back.firstChild);
+		back.insertBefore(kernel.makeSvg('angle-left-light', 1), back.firstChild);
 		back.addEventListener('click', function (evt) {
 			kernel.openPopup(tempBack ? tempBack : popups[activePopup].back, popups[activePopup].backParam);
 		});
@@ -801,7 +806,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		kernel.showForeign = function (url, callback) { //展示站外内容
 			kernel.showReadable('<iframe frameborder="no" scrolling="auto" sandbox="allow-same-origin allow-forms allow-scripts" src="' + url + '"></iframe>', callback, 'foreign');
 		};
-		readableClose.appendChild(kernel.makeSvg('times-regular', true));
+		readableClose.appendChild(kernel.makeSvg('times-solid', 1));
 		readableClose.addEventListener('click', kernel.hideReadable);
 		readableBox.addEventListener('animationend', function (evt) {
 			if (evt.target === this && this.classList.contains('out')) {
@@ -967,7 +972,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 			sliderViewCtn.querySelector(':scope>.nav').firstChild.data = txt;
 		};
-		dialogClose.appendChild(kernel.makeSvg('times-regular', true));
+		dialogClose.appendChild(kernel.makeSvg('times-circle-solid', 1));
 		dialogClose.addEventListener('click', kernel.closeDialog);
 		yesbtn.addEventListener('click', kernel.closeDialog);
 		nobtn.addEventListener('click', function () {
@@ -1199,15 +1204,17 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		};
 		kernel.pageEvents = {};
-		backbtn.insertBefore(kernel.makeSvg('angle-left-regular', true), backbtn.firstChild);
+		backbtn.insertBefore(kernel.makeSvg('angle-left-light', 1), backbtn.firstChild);
 		headerRightMenuBtn.addEventListener('click', function (evt) {
-			if (typeof pages[currentpage].onrightmenuclick === 'function') {
-				pages[currentpage].onrightmenuclick();
+			var page = pages[pages[currentpage].alias ? pages[currentpage].alias : currentpage];
+			if (typeof page.onrightmenuclick === 'function') {
+				page.onrightmenuclick();
 			}
 		});
 		headerLeftMenuBtn.addEventListener('click', function (evt) {
-			if (typeof pages[currentpage].onleftmenuclick === 'function') {
-				pages[currentpage].onleftmenuclick();
+			var page = pages[pages[currentpage].alias ? pages[currentpage].alias : currentpage];
+			if (typeof page.onleftmenuclick === 'function') {
+				page.onleftmenuclick();
 			}
 		});
 
@@ -1224,11 +1231,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					navs[n].href = '#!' + n;
 					if (RegExp('^' + n + '(?:-|$)').test(kernel.location.id)) {
 						navs[n].className = 'selected';
-						navs[n].appendChild(kernel.makeSvg(typeof navIcos[n] === 'object' ? navIcos[n].selected : navIcos[n], true));
+						navs[n].appendChild(kernel.makeSvg(typeof navIcos[n] === 'object' ? navIcos[n].selected : navIcos[n], 1));
 					} else {
-						navs[n].appendChild(kernel.makeSvg(typeof navIcos[n] === 'object' ? navIcos[n].normal : navIcos[n], true));
+						navs[n].appendChild(kernel.makeSvg(typeof navIcos[n] === 'object' ? navIcos[n].normal : navIcos[n], 1));
 					}
-					navs[n].appendChild(document.createTextNode(pages[n].title));
+					navs[n].appendChild(document.createTextNode(pages[n].alias ? pages[n].title || pages[pages[n].alias].title : pages[n].title));
 				}
 			}
 		}
@@ -1264,53 +1271,59 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (animating) {
 					todo = true;
 				} else {
-					var toshow, ctn, oldpageid, oldid, goingback,
+					var toshow, ctn, oldpageid, oldid, goingback, title,
 						id = pages[pageid].alias ? pages[pageid].alias : pageid;
 
 					// 只有返回或未发生转向时允许页面缓存
 					if (pageid !== currentpage) {
 						pagesBox.classList.add(pageid);
 						// 重置 title
-						pagesBox.querySelector(':scope>.header>.title').firstChild.data = pages[pageid].title;
+						title = pages[pageid].title || pages[id].title;
+						pagesBox.querySelector(':scope>.header>.title').firstChild.data = title;
 						if (document.body.classList.contains('clean')) {
-							document.title = pages[pageid].title;
+							document.title = title;
 						}
 						if (window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.getCurrentPopup === 'function' && window.frameElement.kernel.getCurrentPopup() === 'page') {
-							window.frameElement.kernel.setPopupTitle(pages[pageid].title);
+							window.frameElement.kernel.setPopupTitle(title);
 						}
 						// 重置 顶部按钮
 						while (headerRightMenuBtn.childNodes.length) {
 							headerRightMenuBtn.removeChild(headerRightMenuBtn.firstChild);
 						}
+						headerRightMenuBtn.removeAttribute('href');
 						while (headerLeftMenuBtn.childNodes.length) {
 							headerLeftMenuBtn.removeChild(headerLeftMenuBtn.firstChild);
 						}
+						headerLeftMenuBtn.removeAttribute('href');
 						// init 顶部按钮事件 和 元素
 						// 如果没有 就隐藏
-						if (pages[pageid].onrightmenuclick) {
-							if (typeof pages[pageid].onrightmenuclick === 'function') {
-								headerRightMenuBtn.href = 'javascript:;';
-							} else {
-								headerRightMenuBtn.href = pages[pageid].onrightmenuclick;
+						if (pages[id].rightMenuContent || pages[id].onrightmenuclick) {
+							if (typeof pages[id].rightMenuContent === 'string') {
+								headerRightMenuBtn.innerHTML = pages[id].rightMenuContent;
+							} else if (pages[id].rightMenuContent) {
+								headerRightMenuBtn.appendChild(pages[id].rightMenuContent);
 							}
-							if (pages[pageid].rightMenuDomContent) {
-								headerRightMenuBtn.appendChild(pages[pageid].rightMenuDomContent);
+							if (typeof pages[id].onrightmenuclick === 'function') {
+								headerRightMenuBtn.href = 'javascript:;';
+							} else if (pages[id].onrightmenuclick) {
+								headerRightMenuBtn.href = pages[id].onrightmenuclick;
 							}
 							headerRightMenuBtn.style.display = '';
 						} else {
 							headerRightMenuBtn.style.display = 'none';
 						}
-						if (pages[pageid].onleftmenuclick) {
-							if (typeof pages[pageid].onleftmenuclick === 'function') {
-								headerLeftMenuBtn.href = 'javascript:;';
-							} else {
-								headerLeftMenuBtn.href = pages[pageid].onleftmenuclick;
+						if (pages[id].leftMenuContent || pages[id].onleftmenuclick) {
+							if (typeof pages[id].leftMenuContent === 'string') {
+								headerLeftMenuBtn.innerHTML = pages[id].leftMenuContent;
+							} else if (pages[id].leftMenuContent) {
+								headerLeftMenuBtn.appendChild(pages[id].leftMenuContent);
 							}
-							if (pages[pageid].leftMenuDomContent) {
-								headerLeftMenuBtn.appendChild(pages[pageid].leftMenuDomContent);
+							if (typeof pages[id].onleftmenuclick === 'function') {
+								headerLeftMenuBtn.href = 'javascript:;';
+							} else if (pages[id].onleftmenuclick) {
+								headerLeftMenuBtn.href = pages[id].onleftmenuclick;
 							}
 							headerLeftMenuBtn.style.display = '';
-							backbtn.style.display = 'none';
 						} else {
 							headerLeftMenuBtn.style.display = 'none';
 						}
