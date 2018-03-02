@@ -1164,7 +1164,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					window.addEventListener('dragstart', cancelEvent);
 					manageLocation();
 					if (kernel.location.args.hasOwnProperty('autopopup') && kernel.openPopup(kernel.location.args.autopopup, kernel.location.args.autopopuparg ? JSON.parse(kernel.location.args.autopopuparg) : undefined)) {
-						document.querySelector('#popup').style.animationDuration = '0s';
+						document.querySelector('#popup').style.animationDuration = '1ms';
 						kernel.listeners.add(kernel.popupEvents, 'showend', removeLoading);
 					} else {
 						removeLoading();
