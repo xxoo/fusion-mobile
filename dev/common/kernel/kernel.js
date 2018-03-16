@@ -1483,7 +1483,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				o = require(n);
 				require.undef(n);
 				if (o) {
-					Reflect.setPrototypeOf(cfg, Object.prototype);
+					cfg.__proto__ = Object.prototype;
+					//Reflect.setPrototypeOf(cfg, Object.prototype);
 				}
 			}
 		}
@@ -1566,7 +1567,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 		function required(cfg) {
 			if (cfg) {
-				Reflect.setPrototypeOf(oldcfg, cfg);
+				oldcfg.__proto__ = cfg;
+				//Reflect.setPrototypeOf(oldcfg, cfg);
 			}
 			oldcfg.loaded = 2;
 			callback(true);
