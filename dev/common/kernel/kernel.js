@@ -165,35 +165,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		},
 		// 判断是否是后退
 		isGoingback: function (from, to) {
-			if (isInBackChain(from, to)) {
-				return true;
-			} else if (isInBackChain(to, from)) {
-				return false;
-			} else if (pages[from].alias) {
-				if (isInBackChain(pages[from].alias, to)) {
-					return true;
-				} else if (isInBackChain(to, pages[from].alias)) {
-					return false;
-				} else if (to === homePage) {
-					return true;
-				} else {
-					return false;
-				}
-			} else if (pages[to].alias) {
-				if (isInBackChain(from, pages[to].alias)) {
-					return true;
-				} else if (isInBackChain(pages[to].alias, from)) {
-					return false;
-				} else if (pages[from] === homePage) {
-					return true;
-				} else {
-					return false;
-				}
-			} else if (to === homePage) {
-				return true;
-			} else {
-				return false;
-			}
+			return to === homePage || isInBackChain(from, to);
 		},
 		dataType: function (a) {
 			var t = typeof a;
@@ -1430,7 +1402,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			if (loc && loc.id) {
 				var txt = pages[loc.id].title;
 				if (!txt) {
-					txt = '返回';
+					if (pages[loc.id].alias) {
+						txt = pages[pages[loc.id].alias].title;
+						if (!txt) {
+							txt = '返回';
+						}
+					}
 				}
 				backbtn.lastChild.data = txt;
 				backbtn.href = kernel.buildHash(loc);
@@ -1483,8 +1460,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				o = require(n);
 				require.undef(n);
 				if (o) {
-					cfg.__proto__ = Object.prototype;
-					//Reflect.setPrototypeOf(cfg, Object.prototype);
+					if (window.Reflect) {
+						Reflect.setPrototypeOf(cfg, Object.prototype);
+					} else {
+						cfg.__proto__ = Object.prototype;
+					}
 				}
 			}
 		}
@@ -1567,8 +1547,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 		function required(cfg) {
 			if (cfg) {
-				oldcfg.__proto__ = cfg;
-				//Reflect.setPrototypeOf(oldcfg, cfg);
+				if (window.Reflect) {
+					Reflect.setPrototypeOf(oldcfg, cfg);
+				} else {
+					oldcfg.__proto__ = cfg;
+				}
 			}
 			oldcfg.loaded = 2;
 			callback(true);
