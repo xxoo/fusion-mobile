@@ -507,14 +507,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 		// 如果弹窗有自定义打开方式则直接调用该接口，否则会调用showPopup
 		// 如果定义了open请确保最终打开自己时调用的是showPopup而不是openPopup
-		kernel.openPopup = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.openPopup === 'function' ? window.frameElement.kernel.openPopup : function (id, param) {
+		kernel.openPopup = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.openPopup === 'function' ? window.frameElement.kernel.openPopup : function (id, param, forceBack) {
 			var popupcfg = popups[id];
 			if (popupcfg) {
 				initLoad(popupcfg, id, false, function () {
 					if (typeof popupcfg.open === 'function') {
-						popupcfg.open(param, !activePopup || (id !== popups[activePopup].back && id !== tempBack));
+						popupcfg.open(param, !forceBack && (!activePopup || (id !== popups[activePopup].back && id !== tempBack)));
 					} else {
-						kernel.showPopup(id, param);
+						kernel.showPopup(id, param, forceBack);
 					}
 				});
 				return true;
@@ -523,10 +523,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		};
 		// 普通弹窗
-		kernel.showPopup = function (id, param) { //显示弹出窗口
+		kernel.showPopup = function (id, param, forceBack) { //显示弹出窗口
 			if (animating) {
 				todo = function () {
-					kernel.showPopup(id, param);
+					kernel.showPopup(id, param, forceBack);
 				};
 			} else {
 				var toshow;
@@ -551,9 +551,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						kernel.hideReadable();
 					}
 				} else if (activePopup !== id) {
-					return switchToPopup(id, param);
+					return switchToPopup(id, param, forceBack);
 				} else {
-					if (typeof popups[id].onload !== 'function' || !popups[id].onload(param, !activePopup || (id !== popups[activePopup].back && id !== tempBack))) {
+					if (typeof popups[id].onload !== 'function' || !popups[id].onload(param, !forceBack && (!activePopup || (id !== popups[activePopup].back && id !== tempBack)))) {
 						if (typeof popups[id].onloadend === 'function') {
 							popups[id].onloadend();
 						}
@@ -608,7 +608,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					if (backid) {
 						popups[id].back = backid;
 						if (activePopup === id) {
-							back.lastChild.data = popups[backid].title;
+							back.lastChild.data = typeof backid === 'function' ? '返回' : popups[backid].title;
 						}
 					} else {
 						delete popups[id].back;
@@ -618,7 +618,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			} else {
 				if (popupsBox.classList.contains('in')) {
 					if (backid) {
-						back.lastChild.data = popups[backid].title;
+						back.lastChild.data = typeof backid === 'function' ? '返回' : popups[backid].title;
 						tempBack = backid;
 						back.style.display = '';
 					} else {
@@ -634,11 +634,17 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					popups[id].title = newTitle;
 					if (activePopup === id) {
 						title.data = newTitle;
+						if (document.body.classList.contains('hidePopupHeader')) {
+							document.title = title.data;
+						}
 					}
 				}
 			} else {
 				if (popupsBox.classList.contains('in')) {
 					title.data = newTitle;
+					if (document.body.classList.contains('hidePopupHeader')) {
+						document.title = title.data;
+					}
 				}
 			}
 		};
@@ -658,7 +664,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		// 初始化窗口返回按钮
 		back.insertBefore(kernel.makeSvg('angle-left-light', 1), back.firstChild);
 		back.addEventListener('click', function (evt) {
-			kernel.openPopup(tempBack ? tempBack : popups[activePopup].back, popups[activePopup].backParam);
+			if (typeof tempBack === 'function') {
+				tempBack(popups[activePopup].backParam);
+			} else {
+				kernel.openPopup(tempBack ? tempBack : popups[activePopup].back, popups[activePopup].backParam);
+			}
 		});
 		popupsBox.addEventListener('animationend', function (evt) {
 			var tohide;
@@ -676,6 +686,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					tohide.style.right = tohide.style.visibility = '';
 					if (typeof popups[activePopup].onunloadend === 'function') {
 						popups[activePopup].onunloadend();
+					}
+					if (document.activeElement && tohide.contains(document.activeElement)) {
+						document.activeElement.blur();
 					}
 					popupsBox.classList.remove(activePopup);
 					activePopup = undefined;
@@ -716,6 +729,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			popupsBox.classList.add(activePopup);
 			// 给 title 节点设值
 			title.data = popups[id].title;
+			if (document.body.classList.contains('hidePopupHeader')) {
+				document.title = title.data;
+			}
 			if (popups[id].back) {
 				back.lastChild.data = popups[popups[id].back].title;
 				back.style.display = '';
@@ -724,17 +740,21 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		}
 
-		function switchToPopup(id, param) {
-			var oldPopup = activePopup;
+		function switchToPopup(id, param, forceBack) {
+			var tohide, oldPopup = activePopup;
 			if (switchCanceled(id, param)) {
 				return true;
 			} else {
-				panelSwitch(popupsBox.querySelector(':scope>.content>.' + id), popupsBox.querySelector(':scope>.content>.' + activePopup), id === popups[activePopup].back || id === tempBack, function () {
+				tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
+				panelSwitch(popupsBox.querySelector(':scope>.content>.' + id), tohide, forceBack || id === popups[activePopup].back || id === tempBack, function () {
 					var tmp;
 					animating = false;
 					popupSwitched(id);
 					if (typeof popups[oldPopup].onunloadend === 'function') {
 						popups[oldPopup].onunloadend();
+					}
+					if (document.activeElement && tohide.contains(document.activeElement)) {
+						document.activeElement.blur();
 					}
 					if (typeof popups[activePopup].onloadend === 'function') {
 						popups[activePopup].onloadend();
@@ -888,7 +908,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				kernel[a.shift()].apply(kernel, a);
 			}
 		};
-		kernel.showLoading = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.showLoading === 'function' ? window.frameElement.kernel.showLoading : function (text) { //loading提示框, 每次调用引用计数＋1所以showLoading和hideLoading必须成对使用
+		kernel.showLoading = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.showLoading === 'function' ? window.frameElement.kernel.showLoading : function (text) { //loading提示框, 每次调用引用计数+1所以showLoading和hideLoading必须成对使用
 			loadingCtn.querySelector(':scope>div').lastChild.data = text ? text : '加载中...';
 			if (loadingRT === 0) {
 				loadingCtn.style.visibility = 'inherit';
@@ -950,8 +970,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		nobtn.addEventListener('click', function () {
 			kernel.closeDialog();
 		});
-		sliderViewClose.appendChild(dialogClose.firstChild.cloneNode(true));
-		photoViewClose.appendChild(dialogClose.firstChild.cloneNode(true));
+		sliderViewClose.appendChild(kernel.makeSvg('times-solid', 1));
+		photoViewClose.appendChild(sliderViewClose.firstChild.cloneNode(true));
 		sliderViewClose.addEventListener('click', kernel.hideSliderView);
 		photoViewClose.addEventListener('click', kernel.hidePhotoView);
 
@@ -1115,9 +1135,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (!kernel.location) {
 					// 当前URL
 					kernel.location = kernel.parseHash(location.hash);
-					// 如果带这个参数 就 隐藏头尾
-					if (kernel.location.args.ui === 'clean') {
-						document.body.classList.add('clean');
+					// 如果带ui参数就把参数中样式加入body
+					if (kernel.location.args.ui) {
+						kernel.location.args.ui.split(',').forEach(function (item) {
+							document.body.classList.add(item);
+						});
 					}
 					// 看是否有 kernelHistory
 					routerHistory = sessionStorage.getItem('kernelHistory');
@@ -1243,7 +1265,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (animating) {
 					todo = true;
 				} else {
-					var toshow, ctn, oldpageid, oldid, goingback, title,
+					var toshow, tohide, oldpageid, oldid, goingback, title,
 						id = pages[pageid].alias ? pages[pageid].alias : pageid;
 
 					// 只有返回或未发生转向时允许页面缓存
@@ -1252,7 +1274,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						// 重置 title
 						title = pages[pageid].title || pages[id].title;
 						pagesBox.querySelector(':scope>.header>.title').firstChild.data = title;
-						if (document.body.classList.contains('clean')) {
+						if (document.body.classList.contains('clean') || document.body.classList.contains('hidePageHeader')) {
 							document.title = title;
 						}
 						if (window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.getCurrentPopup === 'function' && window.frameElement.kernel.getCurrentPopup() === 'page') {
@@ -1316,13 +1338,17 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 								// kernel 判断是否是 返回操作; 处理不一样的动画
 								goingback = kernel.isGoingback(oldpageid, pageid);
 								animating = true;
+								tohide = pagesBox.querySelector(':scope>.content>.' + oldid);
 								// panelSwitch 动画
-								panelSwitch(toshow, pagesBox.querySelector(':scope>.content>.' + oldid), goingback, function () {
+								panelSwitch(toshow, tohide, goingback, function () {
 									animating = false;
 									// 切换完成后 就执行 对呀的方法;
 									if (typeof pages[oldid].onunloadend === 'function') {
 										// 如果是回退 就不强制刷新
 										pages[oldid].onunloadend(!goingback);
+									}
+									if (document.activeElement && tohide.contains(document.activeElement)) {
+										document.activeElement.blur();
 									}
 									// 当前页的加载
 									if (typeof pages[id].onloadend === 'function') {
