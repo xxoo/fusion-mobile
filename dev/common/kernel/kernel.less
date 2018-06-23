@@ -36,16 +36,24 @@ body {
 	margin: 0;
 	width: 100%;
 	height: 100%;
+	&.hidePageHeader>#page>.header,
+	&.clean>#page>.header {
+		display: none;
+	}
+	&.hideNavMenu,
 	&.clean {
-		>#page {
-			>.header,
-			>.navMenu {
-				display: none;
-			}
+		>#page>.navMenu {
+			display: none;
 		}
 		>#hint {
 			bottom: 20px;
 		}
+	}
+	&.hidePopupHeader>#popup>.header {
+		display: none;
+	}
+	&.hidePopupClose>#popup>.header>.close {
+		display: none;
 	}
 	&.mask {
 		>#page,
@@ -221,10 +229,10 @@ body {
 	}
 	>.close {
 		position: absolute;
-		right: 2px;
-		top: 2px;
-		width: 16px;
-		height: 16px;
+		right: 1px;
+		top: 1px;
+		width: 18px;
+		height: 18px;
 		>svg {
 			display: block;
 			fill: var(--roundCloseFrontground);
