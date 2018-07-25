@@ -7,7 +7,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		appendCss: function (url) { //自动根据当前环境添加css或less
 			var csslnk = document.createElement('link');
 			if (/\.less$/.test(url)) {
-				if (typeof less === 'object') {
+				if (window.less) {
 					csslnk.rel = 'stylesheet/less';
 					csslnk.href = url;
 					less.sheets.push(csslnk);
@@ -608,7 +608,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					if (backid) {
 						popups[id].back = backid;
 						if (activePopup === id) {
-							back.lastChild.data = typeof backid === 'function' ? '返回' : popups[backid].title;
+							back.lastChild.data = typeof backid === 'function' || !popups[backid].title ? '返回' : popups[backid].title;
 						}
 					} else {
 						delete popups[id].back;
@@ -618,7 +618,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			} else {
 				if (popupsBox.classList.contains('in')) {
 					if (backid) {
-						back.lastChild.data = typeof backid === 'function' ? '返回' : popups[backid].title;
+						back.lastChild.data = typeof backid === 'function' || !popups[backid].title ? '返回' : popups[backid].title;
 						tempBack = backid;
 						back.style.display = '';
 					} else {
@@ -965,11 +965,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			sliderViewCtn.querySelector(':scope>.nav').firstChild.data = txt;
 		};
 		dialogClose.appendChild(kernel.makeSvg('times-circle-solid', 1));
-		dialogClose.addEventListener('click', kernel.closeDialog);
+		dialogClose.addEventListener('click', closeDialog);
+		nobtn.addEventListener('click', closeDialog);
 		yesbtn.addEventListener('click', kernel.closeDialog);
-		nobtn.addEventListener('click', function () {
-			kernel.closeDialog();
-		});
 		sliderViewClose.appendChild(kernel.makeSvg('times-solid', 1));
 		photoViewClose.appendChild(sliderViewClose.firstChild.cloneNode(true));
 		sliderViewClose.addEventListener('click', kernel.hideSliderView);
@@ -979,6 +977,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			if (dialogCtn.style.visibility === '' && loadingCtn.style.visibility === '' && sliderViewCtn.style.visibility === '' && photoViewCtn.style.visibility === '') {
 				document.body.classList.remove('mask');
 			}
+		}
+
+		function closeDialog() {
+			kernel.closeDialog();
 		}
 
 		function openDialog(type, content, cb) {
@@ -1127,7 +1129,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		}
 		//icos是导航菜单的列表
 		//home是默认页
-		//callback是每次路由变化时要执行的回调
 		kernel.init = function (home, icos) {
 			var n;
 			if (home in pages) {
@@ -1225,9 +1226,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					navs[n].href = '#!' + n;
 					if (RegExp('^' + n + '(?:-|$)').test(kernel.location.id)) {
 						navs[n].className = 'selected';
-						navs[n].appendChild(kernel.makeSvg(typeof navIcos[n] === 'object' ? navIcos[n].selected : navIcos[n], 1));
+						navs[n].appendChild(kernel.makeSvg(typeof navIcos[n] === 'string' ? navIcos[n] : navIcos[n].selected, 1));
 					} else {
-						navs[n].appendChild(kernel.makeSvg(typeof navIcos[n] === 'object' ? navIcos[n].normal : navIcos[n], 1));
+						navs[n].appendChild(kernel.makeSvg(typeof navIcos[n] === 'string' ? navIcos[n] : navIcos[n].normal, 1));
 					}
 					navs[n].appendChild(document.createTextNode(pages[n].alias ? pages[n].title || pages[pages[n].alias].title : pages[n].title));
 				}
@@ -1243,13 +1244,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (n !== m) {
 					if (n in navs) {
 						navs[n].className = 'selected';
-						if (typeof navIcos[n] === 'object') {
+						if (typeof navIcos[n] !== 'string') {
 							kernel.setSvgPath(navs[n].firstChild, navIcos[n].selected, true);
 						}
 					}
 					if (m in navs) {
 						navs[m].className = '';
-						if (typeof navIcos[m] === 'object') {
+						if (typeof navIcos[m] !== 'string') {
 							kernel.setSvgPath(navs[m].firstChild, navIcos[m].normal, true);
 						}
 					}

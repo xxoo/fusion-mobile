@@ -78,7 +78,8 @@ var browser = (function () {
 })();
 ! function () {
 	'use strict';
-	var prefix = document.currentScript.getAttribute('src').replace(/framework\/[^\/]+$/, ''),
+	var src = document.currentScript.getAttribute('src'),
+		prefix = src.replace(/framework\/[^\/]+$/, ''),
 		cfg = {
 			waitSeconds: 0,
 			baseUrl: prefix + 'dev/'
@@ -93,6 +94,23 @@ var browser = (function () {
 		cfg.paths = MODULES;
 	}
 	require.config(cfg);
+	if (navigator.serviceWorker) {
+		navigator.serviceWorker.register(prefix + 'sw.js', {
+			scope: './'
+		}).then(function (registration) {
+			var controller = registration.installing || registration.waiting || registration.active;
+			if (!window.RES_TO_CACHE) {
+				window.RES_TO_CACHE = [];
+			}
+			RES_TO_CACHE.push(location.origin + src);
+			controller.postMessage({
+				framework: RES_TO_CACHE,
+				modules: Object.values(MODULES)
+			});
+		}, function (err) {
+			console.log('unable to register ServiceWorker: ' + err);
+		});
+	}
 	if (VERSION === 'dev') {
 		l.rel = m.rel = 'stylesheet/less';
 		l.href = require.toUrl('site/index/index.less');
