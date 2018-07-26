@@ -95,13 +95,10 @@ var browser = (function () {
 	}
 	require.config(cfg);
 	if (navigator.serviceWorker) {
-		navigator.serviceWorker.register(prefix + 'sw.js', {
+		navigator.serviceWorker.register('sw-mobile.js', {
 			scope: './'
 		}).then(function (registration) {
 			var controller = registration.installing || registration.waiting || registration.active;
-			if (!window.RES_TO_CACHE) {
-				window.RES_TO_CACHE = [];
-			}
 			RES_TO_CACHE.push(location.origin + src);
 			controller.postMessage({
 				framework: RES_TO_CACHE,
