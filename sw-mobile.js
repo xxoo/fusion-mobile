@@ -9,7 +9,7 @@ self.addEventListener('message', function (event) {
 	if (event.data && event.data.framework && event.data.modules) {
 		data = event.data;
 		for (let i = 0; i < data.modules.length; i++) {
-			data.modules[i] = this.origin + data.modules[i] + '/';
+			data.modules[i] = data.modules[i] + '/';
 		}
 		caches.open('fusion-mobile-modules').then(function (cache) {
 			return cache.keys().then(function (keys) {
