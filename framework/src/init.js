@@ -78,7 +78,7 @@ var browser = (function () {
 })();
 ! function () {
 	'use strict';
-	var src = document.currentScript.src,
+	var src = document.currentScript.getAttribute('src'),
 		prefix = src.replace(/framework\/[^\/]+$/, ''),
 		cfg = {
 			waitSeconds: 0,

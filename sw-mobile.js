@@ -7,10 +7,10 @@ self.addEventListener('message', function (event) {
 	if (event.data && event.data.framework && event.data.modules) {
 		data = event.data;
 		for (let i = 0; i < data.framework.length; i++) {
-			data.framework[i] = new URL(data.framework[i], location.href).href;
+			data.framework[i] = new URL(data.framework[i], event.source.url).href;
 		}
 		for (let i = 0; i < data.modules.length; i++) {
-			data.modules[i] = new URL(data.modules[i] + '/', location.href).href;
+			data.modules[i] = new URL(data.modules[i] + '/', event.source.url).href;
 		}
 		caches.open('fusion-mobile-modules').then(function (cache) {
 			return cache.keys().then(function (keys) {
