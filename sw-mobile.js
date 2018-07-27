@@ -1,15 +1,16 @@
 'use strict';
 let data;
 
-self.addEventListener('install', function(event) {
-  this.skipWaiting();
-});
+self.addEventListener('install', skipWaiting);
 
 self.addEventListener('message', function (event) {
 	if (event.data && event.data.framework && event.data.modules) {
 		data = event.data;
+		for (let i = 0; i < data.framework.length; i++) {
+			data.framework[i] = new URL(data.framework[i], location.href).href;
+		}
 		for (let i = 0; i < data.modules.length; i++) {
-			data.modules[i] = data.modules[i] + '/';
+			data.modules[i] = new URL(data.modules[i] + '/', location.href).href;
 		}
 		caches.open('fusion-mobile-modules').then(function (cache) {
 			return cache.keys().then(function (keys) {
