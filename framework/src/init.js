@@ -78,7 +78,7 @@ var browser = (function () {
 })();
 ! function () {
 	'use strict';
-	var src = document.currentScript.getAttribute('src'),
+	var src = document.currentScript.src,
 		prefix = src.replace(/framework\/[^\/]+$/, ''),
 		cfg = {
 			waitSeconds: 0,
@@ -99,7 +99,7 @@ var browser = (function () {
 			scope: './'
 		}).then(function (registration) {
 			var controller = registration.installing || registration.waiting || registration.active;
-			RES_TO_CACHE.push(location.origin + src);
+			RES_TO_CACHE.push(src);
 			controller.postMessage({
 				framework: RES_TO_CACHE,
 				modules: Object.values(MODULES)
