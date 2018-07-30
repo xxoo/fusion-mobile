@@ -81,14 +81,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				id: homePage,
 				args: {}
 			};
-			hash = hash.substr(1).replace(/[#\?].*$/, '');
+			hash = hash.substr(1).replace(/[#?].*$/, '');
 			s = hash.match(/[^=&]+(=[^&]*)?/g);
-			if (s) {
-				if (s[0].charAt(0) === '!') {
-					a = s[0].substr(1);
-					if (a in pages) {
-						nl.id = decodeURIComponent(a);
-					}
+			if (s && s[0].charAt(0) === '!') {
+				a = decodeURIComponent(s[0].substr(1));
+				if (pages.hasOwnProperty(a)) {
+					nl.id = a;
 				}
 				for (i = 1; i < s.length; i++) {
 					a = s[i].match(/^([^=]+)(=)?(.+)?$/);
@@ -114,7 +112,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				o = pages[pages[loc.id].back].alias ? pages[pages[pages[loc.id].back].alias] : pages[pages[loc.id].back];
 				if (o.args) {
 					for (i = 0; i < o.args.length; i++) {
-						if (o.args[i] in loc.args) {
+						if (loc.args.hasOwnProperty(o.args[i])) {
 							bk2.args[o.args[i]] = loc.args[o.args[i]];
 						}
 					}
@@ -137,7 +135,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			var n;
 			if (loc1.id === loc2.id && Object.keys(loc1.args).length === Object.keys(loc2.args).length) {
 				for (n in loc1.args) {
-					if (n in loc2.args) {
+					if (loc2.args.hasOwnProperty(n)) {
 						if (loc1.args[n] === undefined) {
 							if (loc1.args[n] !== loc2.args[n]) {
 								return false;
@@ -604,7 +602,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		// 参数2 如果提供; 就会永久修改 指定页面的 后退页面ID
 		kernel.setPopupBack = function (backid, id) {
 			if (id) {
-				if (id in popups) {
+				if (popups.hasOwnProperty(id)) {
 					if (backid) {
 						popups[id].back = backid;
 						if (activePopup === id) {
@@ -630,7 +628,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		// 如果未指定id则临时改变当前弹窗的标题, 临时修改不能在loadend之前使用
 		kernel.setPopupTitle = function (newTitle, id) {
 			if (id) {
-				if (id in popups) {
+				if (popups.hasOwnProperty(id)) {
 					popups[id].title = newTitle;
 					if (activePopup === id) {
 						title.data = newTitle;
@@ -1116,6 +1114,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		//此处不能使用kernel.lastLocation.id, 因为currentpage仅在页面加载成功才会更新
 		//而kernel.lastLocation.id在页面加载前就已经更新, 无法确保成功加载
 		var routerHistory, currentpage, animating, todo, navIcos, navs,
+			historyName = location.pathname,
 			pagesBox = document.getElementById('page'),
 			backbtn = pagesBox.querySelector(':scope>.header>.back'),
 			headerLeftMenuBtn = pagesBox.querySelector(':scope>.header>.leftMenuBtn'),
@@ -1131,7 +1130,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		//home是默认页
 		kernel.init = function (home, icos) {
 			var n;
-			if (home in pages) {
+			if (pages.hasOwnProperty(home)) {
 				homePage = home;
 				if (!kernel.location) {
 					// 当前URL
@@ -1142,12 +1141,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							document.body.classList.add(item);
 						});
 					}
-					// 看是否有 kernelHistory
-					routerHistory = sessionStorage.getItem('kernelHistory');
+					// 看是否有history
+					routerHistory = sessionStorage.getItem(historyName);
 					routerHistory = routerHistory ? JSON.parse(routerHistory) : {};
 					// 解析 routerHistory
 					for (n in routerHistory) {
-						if (n in pages) {
+						if (pages.hasOwnProperty(n)) {
 							pages[n].backLoc = routerHistory[n];
 						}
 					}
@@ -1221,7 +1220,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			navIcos = icos;
 			navs = {};
 			for (n in navIcos) {
-				if (n in pages) {
+				if (pages.hasOwnProperty(n)) {
 					navs[n] = navCtn.appendChild(document.createElement('a'));
 					navs[n].href = '#!' + n;
 					if (RegExp('^' + n + '(?:-|$)').test(kernel.location.id)) {
@@ -1456,13 +1455,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					// 把上一页赋值给他的后退页
 					routerHistory[kernel.location.id] = pages[kernel.location.id].backLoc = kernel.lastLocation;
 					// 记录到 sessionStorage
-					sessionStorage.setItem('kernelHistory', JSON.stringify(routerHistory));
+					sessionStorage.setItem(historyName, JSON.stringify(routerHistory));
 				} // 如果是 后退操作
 				else if (pages[kernel.lastLocation.id].backLoc && (kernel.location.id === pages[kernel.lastLocation.id].back || (pages[kernel.location.id].alias && pages[kernel.location.id].alias === pages[kernel.lastLocation.id].back))) {
 					// 剔除最后一次 back 对象
 					delete pages[kernel.lastLocation.id].backLoc;
 					delete routerHistory[kernel.lastLocation.id];
-					sessionStorage.setItem('kernelHistory', JSON.stringify(routerHistory));
+					sessionStorage.setItem(historyName, JSON.stringify(routerHistory));
 				}
 				manageLocation();
 			}
