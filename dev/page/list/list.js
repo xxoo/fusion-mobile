@@ -127,7 +127,7 @@ function func(evt){
 						desc: '显示遮罩帮助指引',
 						code: ``
 					},
-					'openPopup(id:String, param:any):void': {
+					'openPopup(id:String, param:any, back:Boolean):void': {
 						desc: '打开弹窗',
 						code: `kernel.listeners.add(kernel.popupEvents, 'show', func);
 kernel.listeners.add(kernel.popupEvents, 'hide', func);
@@ -138,11 +138,11 @@ function func(evt){
 	console.log(evt);
 }`
 					},
-					'showPopup(id:String, param:any):void': {
+					'showPopup(id:String, back:Boolean):void': {
 						desc: '显示弹窗，只有在指定弹窗已经加载后才可使用',
-						code: `kernel.showPopup('samplePopup', 'doc');`
+						code: `kernel.showPopup('samplePopup');`
 					},
-					'closePopup(id:String):void': {
+					'closePopup(id:String|Array):void': {
 						desc: '关闭弹窗',
 						code: `kernel.listeners.add(kernel.popupEvents, 'show', func);
 kernel.listeners.add(kernel.popupEvents, 'hide', func);
@@ -161,11 +161,8 @@ function func(evt){
 						desc: '销毁已加载的指定弹窗, 不可销毁当前弹窗',
 						code: `kernel.destoryPopup('samplePopup');`
 					},
-					'setPopupBackParam(param:any):void': {
-						desc: '设置点击返回按钮时要传递到该窗口的参数, 不能在loadend之前使用, 需要示例请查看samplePopup2源码'
-					},
-					'setPopupBack(backid:String, id?:String):void': {
-						desc: '设置弹窗的后退位置, 若未指定id则会修改当前显示的弹窗, 并且为临时修改, 临时修改不能在loadend之前使用, 需要示例请查看samplePopup2源码'
+					'setPopupBack(backid:String|Function, param:any):void': {
+						desc: '设置弹窗上的后退按钮点击行为，调用后会显示后退按钮。不能在loadend之前使用, 需要示例请查看samplePopup2源码'
 					},
 					'setPopupTitle(newTitle:String, id?:String):void': {
 						desc: '设置弹窗的标题, 若未指定id则会修改当前显示的弹窗, 并且为临时修改, 临时修改不能在loadend之前使用, 需要示例请查看samplePopup2源码'
