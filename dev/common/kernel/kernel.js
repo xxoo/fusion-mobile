@@ -497,7 +497,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 	//弹出窗口
 	! function () {
-		var activePopup, tempBack, animating, todo,
+		var activePopup, tempBack, tempBackParam, animating, todo,
 			popupsBox = document.getElementById('popup'),
 			popupClose = popupsBox.querySelector(':scope>.header>.close'),
 			title = popupsBox.querySelector(':scope>.header>.title').firstChild,
@@ -510,9 +510,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			if (popupcfg) {
 				initLoad(popupcfg, id, false, function () {
 					if (typeof popupcfg.open === 'function') {
-						popupcfg.open(param, !forceBack && (!activePopup || (id !== popups[activePopup].back && id !== tempBack)));
+						popupcfg.open(param, !forceBack || !activePopup);
 					} else {
-						kernel.showPopup(id, param, forceBack);
+						kernel.showPopup(id, forceBack);
 					}
 				});
 				return true;
@@ -521,17 +521,18 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		};
 		// 普通弹窗
-		kernel.showPopup = function (id, param, forceBack) { //显示弹出窗口
+		kernel.showPopup = function (id, forceBack) { //显示弹出窗口
 			if (animating) {
 				todo = function () {
-					kernel.showPopup(id, param, forceBack);
+					kernel.showPopup(id, forceBack);
 				};
 			} else {
-				var toshow;
+				var toshow,
+					force = !forceBack || !activePopup;
 				// 有 .in 表示正在显示中
 				// 如果没有 in class 就需要打开
 				if (!popupsBox.classList.contains('in')) {
-					if (switchCanceled(id, param)) {
+					if (switchCanceled(id, force)) {
 						return true;
 					} else {
 						toshow = popupsBox.querySelector(':scope>.content>.' + id);
@@ -549,9 +550,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						kernel.hideReadable();
 					}
 				} else if (activePopup !== id) {
-					return switchToPopup(id, param, forceBack);
+					return switchToPopup(id, forceBack);
 				} else {
-					if (typeof popups[id].onload !== 'function' || !popups[id].onload(param, !forceBack && (!activePopup || (id !== popups[activePopup].back && id !== tempBack)))) {
+					if (typeof popups[id].onload !== 'function' || !popups[id].onload(force)) {
 						if (typeof popups[id].onloadend === 'function') {
 							popups[id].onloadend();
 						}
@@ -574,7 +575,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						popupsBox.classList.remove('in');
 						popupsBox.classList.add('out');
 						animating = true;
-						delete popups[p].backParam;
 						if (typeof kernel.popupEvents.onhide === 'function') {
 							kernel.popupEvents.onhide({
 								type: 'hide',
@@ -591,37 +591,18 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				return activePopup;
 			}
 		};
-		// 设置点击返回按钮时要传递到该窗口的参数, 不能在loadend之前使用
-		kernel.setPopupBackParam = function (param) {
-			if (popupsBox.classList.contains('in')) {
-				popups[activePopup].backParam = param;
-			}
-		};
 		// 如果未指定id则临时改变当前弹窗的后退位置, 临时修改不能在loadend之前使用
 		// 参数1 需要返回的页面id
 		// 参数2 如果提供; 就会永久修改 指定页面的 后退页面ID
-		kernel.setPopupBack = function (backid, id) {
-			if (id) {
-				if (popups.hasOwnProperty(id)) {
-					if (backid) {
-						popups[id].back = backid;
-						if (activePopup === id) {
-							back.lastChild.data = typeof backid === 'function' || !popups[backid].title ? '返回' : popups[backid].title;
-						}
-					} else {
-						delete popups[id].back;
-						back.style.display = 'none';
-					}
-				}
-			} else {
-				if (popupsBox.classList.contains('in')) {
-					if (backid) {
-						back.lastChild.data = typeof backid === 'function' || !popups[backid].title ? '返回' : popups[backid].title;
-						tempBack = backid;
-						back.style.display = '';
-					} else {
-						back.style.display = 'none';
-					}
+		kernel.setPopupBack = function (backid, param) {
+			if (popupsBox.classList.contains('in')) {
+				if (backid) {
+					back.lastChild.data = typeof backid === 'function' || !popups[backid].title ? '返回' : popups[backid].title;
+					tempBack = backid;
+					back.style.display = '';
+					tempBackParam = param;
+				} else {
+					back.style.display = 'none';
 				}
 			}
 		};
@@ -663,9 +644,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		back.insertBefore(kernel.makeSvg('angle-left-light', 1), back.firstChild);
 		back.addEventListener('click', function (evt) {
 			if (typeof tempBack === 'function') {
-				tempBack(popups[activePopup].backParam);
+				tempBack(tempBackParam);
 			} else {
-				kernel.openPopup(tempBack ? tempBack : popups[activePopup].back, popups[activePopup].backParam);
+				kernel.openPopup(tempBack, tempBackParam, true);
 			}
 		});
 		popupsBox.addEventListener('animationend', function (evt) {
@@ -709,9 +690,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		});
 
-		function switchCanceled(id, param) {
+		function switchCanceled(id, force) {
 			//onunload 或 onload 返回 true 可以阻止停止事件
-			return (activePopup && typeof popups[activePopup].onunload === 'function' && popups[activePopup].onunload()) || (typeof popups[id].onload === 'function' && popups[id].onload(param, !activePopup || (id !== popups[activePopup].back && id !== tempBack)));
+			return (activePopup && typeof popups[activePopup].onunload === 'function' && popups[activePopup].onunload()) || (typeof popups[id].onload === 'function' && popups[id].onload(force));
 		}
 		// 弹窗显示后要执行的工作
 		function popupSwitched(id) {
@@ -719,10 +700,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			// 只有在弹窗切换的时候 会有 activePopup
 			if (activePopup) {
 				popupsBox.classList.remove(activePopup);
-				// 删除上一个窗体的数据
-				delete popups[activePopup].backParam;
 			}
-			tempBack = undefined;
+			tempBack = tempBackParam = undefined;
 			activePopup = id;
 			popupsBox.classList.add(activePopup);
 			// 给 title 节点设值
@@ -730,21 +709,16 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			if (document.body.classList.contains('hidePopupHeader')) {
 				document.title = title.data;
 			}
-			if (popups[id].back) {
-				back.lastChild.data = popups[popups[id].back].title;
-				back.style.display = '';
-			} else {
-				back.style.display = 'none';
-			}
+			back.style.display = 'none';
 		}
 
-		function switchToPopup(id, param, forceBack) {
+		function switchToPopup(id, forceBack) {
 			var tohide, oldPopup = activePopup;
-			if (switchCanceled(id, param)) {
+			if (switchCanceled(id, !forceBack)) {
 				return true;
 			} else {
 				tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
-				panelSwitch(popupsBox.querySelector(':scope>.content>.' + id), tohide, forceBack || id === popups[activePopup].back || id === tempBack, function () {
+				panelSwitch(popupsBox.querySelector(':scope>.content>.' + id), tohide, forceBack, function () {
 					var tmp;
 					animating = false;
 					popupSwitched(id);
