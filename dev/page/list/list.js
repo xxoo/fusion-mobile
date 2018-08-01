@@ -22,11 +22,11 @@ setTimeout(function(){
 	console.log(kernel.removeCss(a));
 }, 1000);`
 					},
-					'makeSvg(name:String, square?:Bollean):SVGSVGElement': {
+					'makeSvg(name:String, type?:0:1:2):SVGSVGElement': {
 						desc: '使用common/svgicos模块中name索引的内容作为path创建一个svg图标',
 						code: `console.log(kernel.makeSvg('home'));`
 					},
-					'setSvgPath(svg:SVGSVGElement, name:String, square?:Bollean):void': {
+					'setSvgPath(svg:SVGSVGElement, name:String, type?:0|1|2):void': {
 						desc: '修改由makeSvg创建的图标',
 						code: `var svg = kernel.makeSvg('home');
 kernel.setSvgPath(svg, 'list', true);
