@@ -17,8 +17,6 @@ define(['module', 'common/kernel/kernel', 'site/pages/pages'], function (module,
 					loc.args.ui = 'clean';
 				}
 				frame.src = kernel.buildHash(loc);
-			} else if (frame.src === 'about:blank') {
-				return true;
 			}
 			kernel.openPopup(thisPopup, !force);
 		},
