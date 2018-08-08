@@ -163,7 +163,36 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		},
 		// 判断是否是后退
 		isGoingback: function (from, to) {
-			return to === homePage || isInBackChain(from, to);
+			var i, j, t, f = from;
+			if (f !== to) {
+				if (to === homePage || (f.length > to.length + 1 && f.substr(0, to.length + 1) === to + '-')) {
+					return true;
+				} else {
+					while (pages[f].back) {
+						f = pages[f].back;
+						if (f === to) {
+							return true;
+						}
+					}
+					f = from.split('-');
+					t = to.split('-');
+					j = Math.min(f.length, t.length);
+					for (i = 0; i < j; i++) {
+						if (f[i] !== t[i]) {
+							break;
+						}
+					}
+					if (i < Math.max(f.length, t.length) - 1) {
+						if (i < f.length - 1) {
+							f.splice(i + 1);
+						}
+						if (i < t.length - 1) {
+							t.splice(i + 1);
+						}
+						return kernel.isGoingback(f.join('-'), t.join('-'));
+					}
+				}
+			}
 		},
 		dataType: function (a) {
 			var t = typeof a;
@@ -1611,15 +1640,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				this.style.right = 0;
 			}
 			this.style.animationName = '';
-		}
-	}
-
-	function isInBackChain(from, to) {
-		while (pages[from].back) {
-			from = pages[from].back;
-			if (from === to) {
-				return true;
-			}
 		}
 	}
 
