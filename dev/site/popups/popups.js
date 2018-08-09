@@ -10,8 +10,7 @@ define({
 	'samplePopup2': {
 		js: 'samplePopup2',
 		html: 'samplePopup2.html',
-		title: '示例弹窗2',
-		back: 'samplePopup'
+		title: '示例弹窗2'
 	},
 	'page': {
 		js: 'page',
