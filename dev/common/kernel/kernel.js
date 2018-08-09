@@ -32,8 +32,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		},
 		// 创建 svg dom;
 		makeSvg: function (name, type) {
-			var svgns = 'http://www.w3.org/2000/svg';
-			var svg = document.createElementNS(svgns, 'svg');
+			var svgns = 'http://www.w3.org/2000/svg',
+				svg = document.createElementNS(svgns, 'svg');
 			svg.appendChild(document.createElementNS(svgns, 'path'));
 			if (name) {
 				kernel.setSvgPath(svg, name, type);
@@ -340,80 +340,80 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	! function () {
 		kernel.scrollReload = function (dom, func) {
 			kernel.fixIosScrolling(dom);
-			var y, st, reloadHint, scrolled;
-			var events = pointerevents(dom, function (evt) {
-				if (evt.type === 'start') {
-					if (events.pointers.length === 0 && ((dom.classList.contains('iosScrollFix') && dom.scrollTop === 1) || (!dom.classList.contains('iosScrollFix') && dom.scrollTop === 0))) {
-						y = evt.y;
-						window.addEventListener('scroll', scrolling, true);
-						return true;
-					}
-				} else {
-					if (scrolled) {
-						scrolled = false;
-						return true;
+			var y, st, reloadHint, scrolled,
+				events = pointerevents(dom, function (evt) {
+					if (evt.type === 'start') {
+						if (events.pointers.length === 0 && ((dom.classList.contains('iosScrollFix') && dom.scrollTop === 1) || (!dom.classList.contains('iosScrollFix') && dom.scrollTop === 0))) {
+							y = evt.y;
+							window.addEventListener('scroll', scrolling, true);
+							return true;
+						}
 					} else {
-						var h;
-						if (evt.y > y + 5) {
-							if (!st) {
-								st = true;
-								end();
-							}
-							evt.domEvent.preventDefault();
-							if (!reloadHint) {
-								reloadHint = document.createElement('div');
-								reloadHint.className = 'reloadHint';
-								reloadHint.appendChild(kernel.makeSvg('sync-alt-solid', 1));
-								dom.appendChild(reloadHint);
-							}
-							h = reloadHint.offsetHeight || reloadHint.clientHeight;
-							if (evt.y - y < h * 2) {
-								reloadHint.style.top = evt.y - y - h + 'px';
-								reloadHint.classList.remove('pin');
-								reloadHint.style.opacity = (evt.y - y) / h / 2;
-								reloadHint.style.transform = 'rotate(' + 360 * reloadHint.style.opacity + 'deg)';
-							} else {
-								reloadHint.style.top = h + 'px';
-								reloadHint.style.opacity = 1;
-								reloadHint.classList.add('pin');
-								reloadHint.style.transform = '';
-							}
+						if (scrolled) {
+							scrolled = false;
+							return true;
 						} else {
-							if (evt.y < y && !st) {
-								return true;
-							} else if (reloadHint) {
-								dom.removeChild(reloadHint);
-								reloadHint = undefined;
-							}
-						}
-						if (evt.type === 'end' || evt.type === 'cancel') {
-							if (reloadHint) {
-								dom.removeChild(reloadHint);
-								if (reloadHint.classList.contains('pin')) {
-									if (typeof func === 'function') {
-										func();
-									} else {
-										kernel.reloadPage();
-									}
+							var h;
+							if (evt.y > y + 5) {
+								if (!st) {
+									st = true;
+									end();
 								}
-								reloadHint = undefined;
+								evt.domEvent.preventDefault();
+								if (!reloadHint) {
+									reloadHint = document.createElement('div');
+									reloadHint.className = 'reloadHint';
+									reloadHint.appendChild(kernel.makeSvg('sync-alt-solid', 1));
+									dom.appendChild(reloadHint);
+								}
+								h = reloadHint.offsetHeight || reloadHint.clientHeight;
+								if (evt.y - y < h * 2) {
+									reloadHint.style.top = evt.y - y - h + 'px';
+									reloadHint.classList.remove('pin');
+									reloadHint.style.opacity = (evt.y - y) / h / 2;
+									reloadHint.style.transform = 'rotate(' + 360 * reloadHint.style.opacity + 'deg)';
+								} else {
+									reloadHint.style.top = h + 'px';
+									reloadHint.style.opacity = 1;
+									reloadHint.classList.add('pin');
+									reloadHint.style.transform = '';
+								}
+							} else {
+								if (evt.y < y && !st) {
+									return true;
+								} else if (reloadHint) {
+									dom.removeChild(reloadHint);
+									reloadHint = undefined;
+								}
 							}
-							st = false;
+							if (evt.type === 'end' || evt.type === 'cancel') {
+								if (reloadHint) {
+									dom.removeChild(reloadHint);
+									if (reloadHint.classList.contains('pin')) {
+										if (typeof func === 'function') {
+											func();
+										} else {
+											kernel.reloadPage();
+										}
+									}
+									reloadHint = undefined;
+								}
+								st = false;
+							}
 						}
 					}
-				}
 
-				function scrolling(evt) {
-					if (evt.target !== dom) {
-						scrolled = true;
-						end();
+					function scrolling(evt) {
+						if (evt.target !== dom) {
+							scrolled = true;
+							end();
+						}
 					}
-				}
 
-				function end() {
-					window.removeEventListener('scroll', scrolling, true);
-				}
-			});
+					function end() {
+						window.removeEventListener('scroll', scrolling, true);
+					}
+				});
 		};
 		//fix ios vertical overscrolling on viewport issue
 		kernel.fixIosScrolling = function (o, hscroll) {
@@ -534,14 +534,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 		// 如果弹窗有自定义打开方式则直接调用该接口，否则会调用showPopup
 		// 如果定义了open请确保最终打开自己时调用的是showPopup而不是openPopup
-		kernel.openPopup = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.openPopup === 'function' ? window.frameElement.kernel.openPopup : function (id, param, forceBack) {
+		kernel.openPopup = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.openPopup === 'function' ? window.frameElement.kernel.openPopup : function (id, param, goBack) {
 			var popupcfg = popups[id];
 			if (popupcfg) {
-				initLoad(popupcfg, id, false, function () {
+				initLoad(popupcfg, id, false, function (firstLoad) {
 					if (typeof popupcfg.open === 'function') {
-						popupcfg.open(param, !forceBack || !activePopup);
+						popupcfg.open(param, activePopup && goBack);
 					} else {
-						kernel.showPopup(id, forceBack);
+						kernel.showPopup(id, goBack);
 					}
 				});
 				return true;
@@ -550,21 +550,20 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		};
 		// 普通弹窗
-		kernel.showPopup = function (id, forceBack) { //显示弹出窗口
+		kernel.showPopup = function (id, goBack) { //显示弹出窗口
+			var toshow, tohide, oldPopup;
 			if (animating) {
 				todo = function () {
-					kernel.showPopup(id, forceBack);
+					kernel.showPopup(id, goBack);
 				};
 			} else {
-				var toshow,
-					force = !forceBack || !activePopup;
+				toshow = popupsBox.querySelector(':scope>.content>.' + id);
 				// 有 .in 表示正在显示中
 				// 如果没有 in class 就需要打开
 				if (!popupsBox.classList.contains('in')) {
-					if (switchCanceled(id, force)) {
+					if (switchCanceled(id, goBack)) {
 						return true;
 					} else {
-						toshow = popupsBox.querySelector(':scope>.content>.' + id);
 						toshow.style.right = 0;
 						toshow.style.visibility = 'inherit';
 						popupsBox.classList.add('in');
@@ -579,11 +578,37 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						kernel.hideReadable();
 					}
 				} else if (activePopup !== id) {
-					return switchToPopup(id, forceBack);
+					if (switchCanceled(id, goBack)) {
+						return true;
+					} else {
+						oldPopup = activePopup;
+						tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
+						panelSwitch(toshow, tohide, goBack, function () {
+							var tmp;
+							animating = false;
+							popupSwitched(id);
+							if (typeof popups[oldPopup].onunloadend === 'function') {
+								popups[oldPopup].onunloadend();
+							}
+							if (document.activeElement && tohide.contains(document.activeElement)) {
+								document.activeElement.blur();
+							}
+							if (typeof popups[activePopup].onloadend === 'function') {
+								popups[activePopup].onloadend(goBack);
+							}
+							if (typeof todo === 'function') {
+								tmp = todo;
+								todo = undefined;
+								tmp();
+							}
+						});
+						animating = id;
+						return false;
+					}
 				} else {
-					if (typeof popups[id].onload !== 'function' || !popups[id].onload(force)) {
+					if (typeof popups[id].onload !== 'function' || !popups[id].onload(goBack)) {
 						if (typeof popups[id].onloadend === 'function') {
-							popups[id].onloadend();
+							popups[id].onloadend(goBack);
 						}
 					}
 				}
@@ -679,7 +704,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		});
 		popupsBox.addEventListener('animationend', function (evt) {
-			var tohide;
+			var tohide, tmp;
 			if (evt.target === this) {
 				animating = false;
 				if (this.classList.contains('out')) {
@@ -702,7 +727,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					activePopup = undefined;
 				} else {
 					if (typeof popups[activePopup].onloadend === 'function') {
-						popups[activePopup].onloadend();
+						popups[activePopup].onloadend(true);
 					}
 					if (typeof kernel.popupEvents.onshowend === 'function') {
 						kernel.popupEvents.onshowend({
@@ -712,16 +737,16 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					}
 				}
 				if (typeof todo === 'function') {
-					var tmp = todo;
+					tmp = todo;
 					todo = undefined;
 					tmp();
 				}
 			}
 		});
 
-		function switchCanceled(id, force) {
+		function switchCanceled(id, goBack) {
 			//onunload 或 onload 返回 true 可以阻止停止事件
-			return (activePopup && typeof popups[activePopup].onunload === 'function' && popups[activePopup].onunload()) || (typeof popups[id].onload === 'function' && popups[id].onload(force));
+			return (activePopup && typeof popups[activePopup].onunload === 'function' && popups[activePopup].onunload()) || (typeof popups[id].onload === 'function' && popups[id].onload(goBack));
 		}
 		// 弹窗显示后要执行的工作
 		function popupSwitched(id) {
@@ -739,35 +764,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				document.title = title.data;
 			}
 			back.style.display = 'none';
-		}
-
-		function switchToPopup(id, forceBack) {
-			var tohide, oldPopup = activePopup;
-			if (switchCanceled(id, !forceBack)) {
-				return true;
-			} else {
-				tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
-				panelSwitch(popupsBox.querySelector(':scope>.content>.' + id), tohide, forceBack, function () {
-					var tmp;
-					animating = false;
-					popupSwitched(id);
-					if (typeof popups[oldPopup].onunloadend === 'function') {
-						popups[oldPopup].onunloadend();
-					}
-					if (document.activeElement && tohide.contains(document.activeElement)) {
-						document.activeElement.blur();
-					}
-					if (typeof popups[activePopup].onloadend === 'function') {
-						popups[activePopup].onloadend();
-					}
-					if (typeof todo === 'function') {
-						tmp = todo;
-						todo = undefined;
-						tmp();
-					}
-				});
-				animating = id;
-			}
 		}
 	}();
 	// 内置特殊弹窗, 会显示在普通弹窗之上, 并且彼此独立
@@ -1265,14 +1261,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				});
 			}
 			initLoad(pagecfg, pageid, true, function (firstLoad) {
+				var toshow, tohide, oldpageid, oldid, goingback, title, id, force;
 				if (animating) {
 					todo = true;
 				} else {
-					var toshow, tohide, oldpageid, oldid, goingback, title,
-						id = pages[pageid].alias ? pages[pageid].alias : pageid;
-
 					// 只有返回或未发生转向时允许页面缓存
 					if (pageid !== currentpage) {
+						id = pages[pageid].alias ? pages[pageid].alias : pageid;
+
 						pagesBox.classList.add(pageid);
 						// 重置 title
 						title = pages[pageid].title || pages[id].title;
@@ -1332,6 +1328,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						// 如果没有 就直接显示
 						if (currentpage) {
 							pagesBox.classList.remove(currentpage);
+							force = !goingback || firstLoad;
 							oldpageid = currentpage;
 							oldid = pages[oldpageid].alias ? pages[oldpageid].alias : oldpageid;
 							currentpage = pageid;
@@ -1348,14 +1345,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 									// 切换完成后 就执行 对呀的方法;
 									if (typeof pages[oldid].onunloadend === 'function') {
 										// 如果是回退 就不强制刷新
-										pages[oldid].onunloadend(!goingback);
+										pages[oldid].onunloadend();
 									}
 									if (document.activeElement && tohide.contains(document.activeElement)) {
 										document.activeElement.blur();
 									}
 									// 当前页的加载
 									if (typeof pages[id].onloadend === 'function') {
-										pages[pageid].onloadend(!goingback);
+										pages[pageid].onloadend(force);
 									}
 									if (todo) {
 										todo = false;
@@ -1366,14 +1363,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 								});
 
 								// 加载页面的时候
-
 								// 触发上一个页面的卸载事件
 								if (typeof pages[oldid].onunload === 'function') {
 									pages[oldid].onunload();
 								}
 								// 触发当前页面的加载事件
 								if (typeof pages[id].onload === 'function') {
-									pages[id].onload(!goingback || firstLoad);
+									pages[id].onload(force);
 								}
 							}
 						} else { //初次加载不显示动画
@@ -1403,10 +1399,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					clearWindow();
 				}
 				if (typeof cfg.onunload === 'function') {
-					cfg.onunload(true);
+					cfg.onunload();
 				}
 				if (typeof cfg.onunloadend === 'function') {
-					cfg.onunloadend(true);
+					cfg.onunloadend();
 				}
 				if (typeof cfg.onload === 'function') {
 					cfg.onload(true);
@@ -1423,13 +1419,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				cfg.onload(force);
 			}
 			if (typeof cfg.onloadend === 'function') {
-				cfg.onloadend();
+				cfg.onloadend(force);
 			}
 		}
 
 		function setBackButton(loc) {
+			var txt;
 			if (loc && loc.id) {
-				var txt = pages[loc.id].title;
+				txt = pages[loc.id].title;
 				if (!txt) {
 					if (pages[loc.id].alias) {
 						txt = pages[pages[loc.id].alias].title;
@@ -1555,36 +1552,30 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			if ('js' in oldcfg) {
 				kernel.showLoading();
 				js = n + oldcfg.js;
-				if (VERSION === 'dev') {
-					require([js], required);
-				} else {
-					require([js], required, function (error) {
-						destory(oldcfg, family, id);
-						if ((error.requireType && error.requireType !== 'scripterror' && error.requireType !== 'nodefine') || (error.xhr && error.xhr.status !== 404)) {
-							errorOccurs(js, error.message, isPage);
+				require([js], function (cfg) {
+					if (cfg) {
+						if (window.Reflect) {
+							Reflect.setPrototypeOf(oldcfg, cfg);
 						} else {
-							updated(isPage);
+							oldcfg.__proto__ = cfg;
 						}
-						kernel.hideLoading();
-					});
-				}
+					}
+					oldcfg.loaded = 2;
+					callback(true);
+					kernel.hideLoading();
+				}, VERSION === 'dev' ? undefined : function (error) {
+					destory(oldcfg, family, id);
+					if ((error.requireType && error.requireType !== 'scripterror' && error.requireType !== 'nodefine') || (error.xhr && error.xhr.status !== 404)) {
+						errorOccurs(js, error.message, isPage);
+					} else {
+						updated(isPage);
+					}
+					kernel.hideLoading();
+				});
 			} else {
 				oldcfg.loaded = 2;
 				callback(true);
 			}
-		}
-
-		function required(cfg) {
-			if (cfg) {
-				if (window.Reflect) {
-					Reflect.setPrototypeOf(oldcfg, cfg);
-				} else {
-					oldcfg.__proto__ = cfg;
-				}
-			}
-			oldcfg.loaded = 2;
-			callback(true);
-			kernel.hideLoading();
 		}
 	}
 

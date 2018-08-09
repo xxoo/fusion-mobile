@@ -7,16 +7,16 @@ define(['module', 'common/kernel/kernel'], function(module, kernel) {
 	});
 	return {
 		//如果指定了这个方法则需要在其中调用kernel.showPopup(thispopup)来显示此弹窗
-		open: function(param, force) {
+		open: function(param, back) {
 			kernel.alert('the param is: ' + param);
-			kernel.showPopup(thispopup, !force);
+			kernel.showPopup(thispopup, back);
 		},
-		onload: function(force) {
+		onload: function(back) {
 			//opening this popup
 			//return true can stop opening this popup
 			//return true;
 		},
-		onloadend: function() {
+		onloadend: function(baxk) {
 			//this popup is open
 		},
 		onunload: function() {

@@ -9,7 +9,7 @@ define(['module', 'common/kernel/kernel', 'site/pages/pages'], function (module,
 	frame.kernel = kernel;
 
 	return {
-		open: function (loc, force) {
+		open: function (loc, back) {
 			if (loc) {
 				pageLoc = loc;
 				if (frame.src === 'about:blank') {
@@ -18,7 +18,7 @@ define(['module', 'common/kernel/kernel', 'site/pages/pages'], function (module,
 				}
 				frame.src = kernel.buildHash(loc);
 			}
-			kernel.openPopup(thisPopup, !force);
+			kernel.openPopup(thisPopup, back);
 		},
 		onloadend: function () {
 			kernel.setPopupTitle(pages[pageLoc.id].title);
