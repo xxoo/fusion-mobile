@@ -16,7 +16,7 @@ define(['module', 'common/kernel/kernel'], function(module, kernel) {
 			//return true can stop opening this popup
 			//return true;
 		},
-		onloadend: function(baxk) {
+		onloadend: function(back) {
 			//this popup is open
 		},
 		onunload: function() {
