@@ -557,6 +557,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					kernel.showPopup(id, goBack);
 				};
 			} else {
+				goBack = activePopup && goBack;
 				toshow = popupsBox.querySelector(':scope>.content>.' + id);
 				// 有 .in 表示正在显示中
 				// 如果没有 in class 就需要打开
