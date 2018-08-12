@@ -115,6 +115,10 @@ function func(evt){
 					'scrollReload(dom:HTMLElement, func?:Function):void': {
 						desc: '在dom元素上启用下拉刷新, 当未指定刷新时调用的func时会调用reloadPage, 此方法会调用fixIosScrolling, 需要示例请查看本页源码'
 					},
+					'getScrollTop(dom:HTMLElement):Number': {
+						desc: '当对dom元素使用过fixIosScrolling后需要用这个方法来获取其scrollTop',
+						code: `console.log(kernel.getScrollTop(document.querySelector('#page>.content>.list')))`
+					},
 					'getScrollHeight(dom:HTMLElement):Number': {
 						desc: '当对dom元素使用过fixIosScrolling后需要用这个方法来获取其scrollHeight',
 						code: `console.log(kernel.getScrollHeight(document.querySelector('#page>.content>.list')))`
