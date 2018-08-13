@@ -1266,10 +1266,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (animating) {
 					todo = true;
 				} else {
-					// 只有返回或未发生转向时允许页面缓存
-					if (pageid !== currentpage) {
+					if (pageid === currentpage) { // 未发生转向, 但url有变化
+						// 相当于 刷新界面 或者是 改变了参数
+						// 不需要动画
+						noSwitchLoad(); // 直接触发页面事件 onload
+					} else { // 只有返回或未发生转向时允许页面缓存
 						id = pages[pageid].alias ? pages[pageid].alias : pageid;
-
 						pagesBox.classList.add(pageid);
 						// 重置 title
 						title = pages[pageid].title || pages[id].title;
@@ -1329,17 +1331,18 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						// 如果没有 就直接显示
 						if (currentpage) {
 							pagesBox.classList.remove(currentpage);
-							force = !goingback || firstLoad;
 							oldpageid = currentpage;
 							oldid = pages[oldpageid].alias ? pages[oldpageid].alias : oldpageid;
 							currentpage = pageid;
 							if (id === oldid) {
-								noSwitchLoad(true);
+								force = true;
+								noSwitchLoad(force);
 							} else {
-								// kernel 判断是否是 返回操作; 处理不一样的动画
-								goingback = kernel.isGoingback(oldpageid, pageid);
 								animating = true;
 								tohide = pagesBox.querySelector(':scope>.content>.' + oldid);
+								// kernel 判断是否是 返回操作; 处理不一样的动画
+								goingback = kernel.isGoingback(oldpageid, pageid);
+								force = !goingback || firstLoad;
 								// panelSwitch 动画
 								panelSwitch(toshow, tohide, goingback, function () {
 									animating = false;
@@ -1357,7 +1360,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 									}
 									if (todo) {
 										todo = false;
-										//toshow可能已被隐藏
+										// toshow可能已被隐藏
 										toshow.style.visibility = 'inherit';
 										manageLocation();
 									}
@@ -1373,16 +1376,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 									pages[id].onload(force);
 								}
 							}
-						} else { //初次加载不显示动画
+						} else { // 初次加载不显示动画
+							force = true;
 							currentpage = pageid; // 记录当前显示中的页面
 							toshow.style.right = 0;
 							toshow.style.visibility = 'inherit';
-							noSwitchLoad(true); // 触发当前页的 加载事件
+							noSwitchLoad(force); // 触发当前页的 加载事件
 						}
-					} else { //未发生转向, 但url有变化
-						// 相当于 刷新界面 或者是 改变了参数
-						// 不需要动画
-						noSwitchLoad(); //直接触发页面事件 onload
 					}
 					if (typeof kernel.pageEvents.onroutend === 'function') {
 						kernel.pageEvents.onroutend({
