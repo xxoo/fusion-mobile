@@ -1380,7 +1380,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 									}
 									// 当前页的加载
 									if (typeof pages[id].onloadend === 'function') {
-										pages[pageid].onloadend(force);
+										pages[id].onloadend(force);
 									}
 									if (todo) {
 										todo = false;
