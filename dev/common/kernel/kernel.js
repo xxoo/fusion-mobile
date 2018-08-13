@@ -428,8 +428,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		};
 
+		kernel.getScrollTop = function (o) {
+			return o.classList.contains('iosScrollFix') ? o.scrollTop - 1 : o.scrollTop;
+		};
+
 		kernel.getScrollHeight = function (o) {
-			return o.classList.contains('iosScrollFix') ? o.scrollHeight - 1 : o.scrollHeight;
+			return o.classList.contains('iosScrollFix') ? o.scrollHeight - 2 : o.scrollHeight;
 		};
 
 		kernel.setScrollTop = function (o, v) {
@@ -1186,7 +1190,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			function listener(evt) {
 				kernel.listeners.remove(this, evt.type, listener);
 				// url 是否改变
-				if (kernel.isSameLocation(thislocation, kernel.location)) {
+				if (thislocation === kernel.location) {
 					reloadPage(id, silent);
 				}
 			}
@@ -1234,6 +1238,29 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		}
 
+		function hashchange() {
+			var newLocation = kernel.parseHash(location.hash);
+			// 如果url 发生改变 就执行
+			if (!kernel.isSameLocation(newLocation, kernel.location)) {
+				kernel.lastLocation = kernel.location;
+				kernel.location = newLocation;
+				// 如果是前进操作
+				if ((pages[kernel.location.id].back && (kernel.lastLocation.id === pages[kernel.location.id].back || pages[kernel.lastLocation.id].alias === pages[kernel.location.id].back))) {
+					// 把上一页赋值给他的后退页
+					routerHistory[kernel.location.id] = pages[kernel.location.id].backLoc = kernel.lastLocation;
+					// 记录到 sessionStorage
+					sessionStorage.setItem(historyName, JSON.stringify(routerHistory));
+				} // 如果是 后退操作
+				else if (pages[kernel.lastLocation.id].backLoc && (kernel.location.id === pages[kernel.lastLocation.id].back || (pages[kernel.location.id].alias && pages[kernel.location.id].alias === pages[kernel.lastLocation.id].back))) {
+					// 剔除最后一次 back 对象
+					delete pages[kernel.lastLocation.id].backLoc;
+					delete routerHistory[kernel.lastLocation.id];
+					sessionStorage.setItem(historyName, JSON.stringify(routerHistory));
+				}
+				manageLocation();
+			}
+		}
+
 		function manageLocation() {
 			var n, m, pageid = kernel.location.id,
 				pagecfg = pages[pageid];
@@ -1266,10 +1293,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (animating) {
 					todo = true;
 				} else {
-					// 只有返回或未发生转向时允许页面缓存
-					if (pageid !== currentpage) {
+					if (pageid === currentpage) { // 未发生转向, 但url有变化
+						// 相当于 刷新界面 或者是 改变了参数
+						// 不需要动画
+						noSwitchLoad(); // 直接触发页面事件 onload
+					} else { // 只有返回或未发生转向时允许页面缓存
 						id = pages[pageid].alias ? pages[pageid].alias : pageid;
-
 						pagesBox.classList.add(pageid);
 						// 重置 title
 						title = pages[pageid].title || pages[id].title;
@@ -1329,17 +1358,18 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						// 如果没有 就直接显示
 						if (currentpage) {
 							pagesBox.classList.remove(currentpage);
-							force = !goingback || firstLoad;
 							oldpageid = currentpage;
 							oldid = pages[oldpageid].alias ? pages[oldpageid].alias : oldpageid;
 							currentpage = pageid;
 							if (id === oldid) {
-								noSwitchLoad(true);
+								force = true;
+								noSwitchLoad(force);
 							} else {
-								// kernel 判断是否是 返回操作; 处理不一样的动画
-								goingback = kernel.isGoingback(oldpageid, pageid);
 								animating = true;
 								tohide = pagesBox.querySelector(':scope>.content>.' + oldid);
+								// kernel 判断是否是 返回操作; 处理不一样的动画
+								goingback = kernel.isGoingback(oldpageid, pageid);
+								force = !goingback || firstLoad;
 								// panelSwitch 动画
 								panelSwitch(toshow, tohide, goingback, function () {
 									animating = false;
@@ -1353,11 +1383,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 									}
 									// 当前页的加载
 									if (typeof pages[id].onloadend === 'function') {
-										pages[pageid].onloadend(force);
+										pages[id].onloadend(force);
 									}
 									if (todo) {
 										todo = false;
-										//toshow可能已被隐藏
+										// toshow可能已被隐藏
 										toshow.style.visibility = 'inherit';
 										manageLocation();
 									}
@@ -1373,20 +1403,18 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 									pages[id].onload(force);
 								}
 							}
-						} else { //初次加载不显示动画
+						} else { // 初次加载不显示动画
+							force = true;
 							currentpage = pageid; // 记录当前显示中的页面
 							toshow.style.right = 0;
 							toshow.style.visibility = 'inherit';
-							noSwitchLoad(true); // 触发当前页的 加载事件
+							noSwitchLoad(force); // 触发当前页的 加载事件
 						}
-					} else { //未发生转向, 但url有变化
-						// 相当于 刷新界面 或者是 改变了参数
-						// 不需要动画
-						noSwitchLoad(); //直接触发页面事件 onload
 					}
 					if (typeof kernel.pageEvents.onroutend === 'function') {
 						kernel.pageEvents.onroutend({
-							type: 'routend'
+							type: 'routend',
+							force: force
 						});
 					}
 				}
@@ -1428,43 +1456,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			var txt;
 			if (loc && loc.id) {
 				txt = pages[loc.id].title;
-				if (!txt) {
-					if (pages[loc.id].alias) {
-						txt = pages[pages[loc.id].alias].title;
-						if (!txt) {
-							txt = '返回';
-						}
-					}
+				if (!txt && pages[loc.id].alias) {
+					txt = pages[pages[loc.id].alias].title;
 				}
-				backbtn.lastChild.data = txt;
+				backbtn.lastChild.data = txt || '返回';
 				backbtn.href = kernel.buildHash(loc);
 				backbtn.style.display = '';
 			} else {
-				backbtn.href = '#!';
 				backbtn.style.display = 'none';
-			}
-		}
-
-		function hashchange() {
-			var newLocation = kernel.parseHash(location.hash);
-			// 如果url 发生改变 就执行
-			if (!kernel.isSameLocation(newLocation, kernel.location)) {
-				kernel.lastLocation = kernel.location;
-				kernel.location = newLocation;
-				// 如果是前进操作
-				if ((pages[kernel.location.id].back && (kernel.lastLocation.id === pages[kernel.location.id].back || pages[kernel.lastLocation.id].alias === pages[kernel.location.id].back))) {
-					// 把上一页赋值给他的后退页
-					routerHistory[kernel.location.id] = pages[kernel.location.id].backLoc = kernel.lastLocation;
-					// 记录到 sessionStorage
-					sessionStorage.setItem(historyName, JSON.stringify(routerHistory));
-				} // 如果是 后退操作
-				else if (pages[kernel.lastLocation.id].backLoc && (kernel.location.id === pages[kernel.lastLocation.id].back || (pages[kernel.location.id].alias && pages[kernel.location.id].alias === pages[kernel.lastLocation.id].back))) {
-					// 剔除最后一次 back 对象
-					delete pages[kernel.lastLocation.id].backLoc;
-					delete routerHistory[kernel.lastLocation.id];
-					sessionStorage.setItem(historyName, JSON.stringify(routerHistory));
-				}
-				manageLocation();
 			}
 		}
 	}();
