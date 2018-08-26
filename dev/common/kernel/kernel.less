@@ -19,11 +19,7 @@
 }
 
 html {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
+	height: 100%;
 	-ms-user-select: none;
 	-moz-user-select: none;
 	user-select: none;
@@ -34,7 +30,6 @@ html {
 
 body {
 	margin: 0;
-	width: 100%;
 	height: 100%;
 	&.hidePageHeader>#page>.header,
 	&.clean>#page>.header {
@@ -63,6 +58,7 @@ body {
 		}
 	}
 }
+
 #page,
 #readable,
 #popup {
@@ -295,15 +291,14 @@ body {
 		width: 32px;
 		height: 32px;
 		animation: loadingAni 800ms infinite linear;
-	}
-}
-
-@keyframes loadingAni {
-	from {
-		transform: rotate(0deg);
-	}
-	to {
-		transform: rotate(360deg);
+		@keyframes loadingAni {
+			from {
+				transform: rotate(0deg);
+			}
+			to {
+				transform: rotate(360deg);
+			}
+		}
 	}
 }
 
@@ -312,65 +307,27 @@ body {
 	bottom: 0;
 	visibility: inherit;
 	animation: popupin 400ms 1 ease-in-out;
+	@keyframes popupin {
+		from {
+			bottom: -100%;
+		}
+		to {
+			bottom: 0;
+		}
+	}
 }
 
 #popup.out,
 #readable.out {
 	visibility: inherit;
 	animation: popupout 400ms 1 ease-in-out;
-}
-
-@keyframes popupin {
-	from {
-		bottom: -100%;
-	}
-	to {
-		bottom: 0;
-	}
-}
-
-@keyframes popupout {
-	from {
-		bottom: 0;
-	}
-	to {
-		bottom: -100%;
-	}
-}
-
-@keyframes panelTransL1 {
-	from {
-		right: 0;
-	}
-	to {
-		right: 100%;
-	}
-}
-
-@keyframes panelTransR1 {
-	from {
-		right: 0;
-	}
-	to {
-		right: -100%;
-	}
-}
-
-@keyframes panelTransL2 {
-	from {
-		right: -100%;
-	}
-	to {
-		right: 0;
-	}
-}
-
-@keyframes panelTransR2 {
-	from {
-		right: 100%;
-	}
-	to {
-		right: 0;
+	@keyframes popupout {
+		from {
+			bottom: 0;
+		}
+		to {
+			bottom: -100%;
+		}
 	}
 }
 
@@ -568,5 +525,41 @@ div.reloadHint {
 	}
 	&.pin>svg {
 		fill: var(--reloadHintFinishColor);
+	}
+}
+
+@keyframes panelTransL1 {
+	from {
+		right: 0;
+	}
+	to {
+		right: 100%;
+	}
+}
+
+@keyframes panelTransR1 {
+	from {
+		right: 0;
+	}
+	to {
+		right: -100%;
+	}
+}
+
+@keyframes panelTransL2 {
+	from {
+		right: -100%;
+	}
+	to {
+		right: 0;
+	}
+}
+
+@keyframes panelTransR2 {
+	from {
+		right: 100%;
+	}
+	to {
+		right: 0;
 	}
 }
