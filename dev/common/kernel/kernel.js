@@ -339,11 +339,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 	! function () {
 		kernel.scrollReload = function (dom, func) {
-			kernel.fixIosScrolling(dom);
 			var y, st, reloadHint, scrolled,
 				events = pointerevents(dom, function (evt) {
 					if (evt.type === 'start') {
-						if (events.pointers.length === 0 && ((dom.classList.contains('iosScrollFix') && dom.scrollTop === 1) || (!dom.classList.contains('iosScrollFix') && dom.scrollTop === 0))) {
+						if (events.pointers.length === 0 && kernel.getScrollTop(dom) === 0) {
 							y = evt.y;
 							window.addEventListener('scroll', scrolling, true);
 							return true;
@@ -357,7 +356,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							if (evt.y > y + 5) {
 								if (!st) {
 									st = true;
-									end();
+									window.removeEventListener('scroll', scrolling, true);
 								}
 								evt.domEvent.preventDefault();
 								if (!reloadHint) {
@@ -402,18 +401,15 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							}
 						}
 					}
-
-					function scrolling(evt) {
-						if (evt.target !== dom) {
-							scrolled = true;
-							end();
-						}
-					}
-
-					function end() {
-						window.removeEventListener('scroll', scrolling, true);
-					}
 				});
+			kernel.fixIosScrolling(dom);
+
+			function scrolling(evt) {
+				if (evt.target !== dom) {
+					scrolled = true;
+					window.removeEventListener('scroll', scrolling, true);
+				}
+			}
 		};
 		//fix ios vertical overscrolling on viewport issue
 		kernel.fixIosScrolling = function (o, hscroll) {
