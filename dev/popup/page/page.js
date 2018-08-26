@@ -18,7 +18,7 @@ define(['module', 'common/kernel/kernel', 'site/pages/pages'], function (module,
 				}
 				frame.src = kernel.buildHash(loc);
 			}
-			kernel.openPopup(thisPopup, back);
+			kernel.showPopup(thisPopup, back);
 		},
 		onloadend: function () {
 			kernel.setPopupTitle(pages[pageLoc.id].title);

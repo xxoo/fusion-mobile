@@ -1635,8 +1635,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	}
 
 	function clearWindow() {
-		kernel.hideReadable();
-		kernel.closePopup();
+		if (!window.frameElement || !window.frameElement.kernel) {
+			kernel.hideReadable();
+			kernel.closePopup();
+		}
 	}
 
 	function cancelEvent(evt) {
