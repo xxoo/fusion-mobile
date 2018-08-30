@@ -69,13 +69,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 			svg.setAttribute('viewBox', box.x + ' ' + box.y + ' ' + box.width + ' ' + box.height);
 		},
-		buildHash: function (loc) {
-			var n, hash = '#!' + encodeURIComponent(loc.id);
-			for (n in loc.args) {
-				hash += loc.args[n] === undefined ? '&' + encodeURIComponent(n) : '&' + encodeURIComponent(n) + '=' + encodeURIComponent(loc.args[n]);
-			}
-			return hash;
-		},
 		parseHash: function (hash) {
 			var i, a, s, nl = {
 				id: homePage,
@@ -129,38 +122,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				return bk1 || bk2;
 			}
 		},
-		// 比较两个 location对象; 看 url 是否改变;
-		// 比较 key 和 args
-		isSameLocation: function (loc1, loc2) {
-			var n;
-			if (loc1.id === loc2.id && Object.keys(loc1.args).length === Object.keys(loc2.args).length) {
-				for (n in loc1.args) {
-					if (loc2.args.hasOwnProperty(n)) {
-						if (loc1.args[n] === undefined) {
-							if (loc1.args[n] !== loc2.args[n]) {
-								return false;
-							}
-						} else {
-							if ('' + loc1.args[n] !== '' + loc2.args[n]) {
-								return false;
-							}
-						}
-					} else {
-						return false;
-					}
-				}
-				return true;
-			} else {
-				return false;
-			}
-		},
-		replaceLocation: function (loc) {
-			if (kernel.location && kernel.isSameLocation(loc, kernel.location)) {
-				kernel.reloadPage();
-			} else {
-				location.replace(kernel.buildHash(loc));
-			}
-		},
 		// 判断是否是后退
 		isGoingback: function (from, to) {
 			var i, j, t, f = from;
@@ -194,921 +155,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			}
 		},
-		dataType: function (a) {
-			var t = typeof a;
-			if (t === 'boolean' || t === 'string' || t === 'symbol' || t === 'number' || t === 'function' || t === 'undefined') {
-				return t;
+		replaceLocation: function (loc) {
+			if (kernel.location && kernel.isSameLocation(loc, kernel.location)) {
+				kernel.reloadPage();
 			} else {
-				t = Object.prototype.toString.call(a).replace(/^\[object |\]$/g, '').toLowerCase();
-				if (t === 'date' || t === 'array' || t === 'regexp' || t === 'error' || t === 'null') {
-					return t;
-				} else {
-					return 'object';
-				}
+				location.replace(kernel.buildHash(loc));
 			}
 		}
 	};
-
-	! function () {
-		kernel.listeners = {
-			add: function (o, e, f) {
-				if (!o.xEvents) {
-					o.xEvents = function (evt) { //override internal event manager
-						xEventProcessor(o, evt);
-					};
-				}
-				if (!o.xEvents[e]) {
-					o.xEvents[e] = [];
-					o.xEvents[e].stack = [];
-					o.xEvents[e].locked = false;
-					o['on' + e] = o.xEvents;
-				}
-				if (o.xEvents[e].locked) {
-					o.xEvents[e].stack.push([false, f]);
-				} else {
-					if (o.xEvents[e].indexOf(f) < 0) {
-						o.xEvents[e].push(f);
-					}
-				}
-			},
-			list: function (o, e) {
-				var r, n;
-				if (e) {
-					if (o.xEvents && o.xEvents[e]) {
-						r = o.xEvents[e].slice(0);
-					} else {
-						r = [];
-					}
-				} else {
-					r = {};
-					if (o.xEvents) {
-						for (n in o.xEvents) {
-							if (kernel.dataType(o.xEvents[n]) === 'array' && o.xEvents[n].length) {
-								r[n] = o.xEvents[n].slice(0);
-							}
-						}
-					}
-				}
-				return r;
-			},
-			remove: function (o, e, f) {
-				var n, addRemoveMark, tmp;
-				if (o.xEvents) {
-					if (e) {
-						if (o.xEvents[e]) {
-							if (o.xEvents[e].locked) {
-								if (f) {
-									o.xEvents[e].stack.push([true, f]);
-								} else {
-									o.xEvents[e].stack.push(null);
-								}
-							} else {
-								if (f) {
-									tmp = o.xEvents[e].indexOf(f);
-									if (tmp >= 0) {
-										o.xEvents[e].splice(tmp, 1);
-									}
-								} else {
-									o.xEvents[e].splice(0, o.xEvents[e].length);
-								}
-							}
-							if (o.xEvents[e].length === 0) {
-								delete o.xEvents[e];
-								o['on' + e] = null;
-							}
-						}
-					} else {
-						if (!o.xEvents.removeMark) {
-							for (n in o.xEvents) {
-								if (!o.xEvents[n].locked) {
-									delete o.xEvents[n];
-									o['on' + n] = null;
-								} else {
-									addRemoveMark = true;
-								}
-							}
-							if (addRemoveMark) {
-								o.xEvents.removeMark = true;
-							} else {
-								delete o.xEvents;
-							}
-						}
-					}
-				}
-			}
-		};
-
-		function xEventProcessor(o, evt) {
-			var i, tmp;
-			o.xEvents[evt.type].locked = true;
-			for (i = 0; i < o.xEvents[evt.type].length; i++) {
-				o.xEvents[evt.type][i].call(o, evt);
-			}
-			o.xEvents[evt.type].locked = false;
-			while (o.xEvents[evt.type].stack.length) {
-				if (o.xEvents[evt.type].stack[0]) {
-					tmp = o.xEvents[evt.type].indexOf(o.xEvents[evt.type].stack[0][1]);
-					if (o.xEvents[evt.type].stack[0][0]) {
-						if (tmp >= 0) {
-							o.xEvents[evt.type].splice(tmp, 1);
-						}
-					} else {
-						if (tmp < 0) {
-							o.xEvents[evt.type].push(o.xEvents[evt.type].stack[0][1]);
-						}
-					}
-				} else {
-					o.xEvents[evt.type].splice(0, o.xEvents[evt.type].length);
-				}
-				o.xEvents[evt.type].stack.shift();
-			}
-			if (!o.xEvents[evt.type].length) {
-				delete o.xEvents[evt.type];
-				o['on' + evt.type] = null;
-			}
-			if (o.xEvents.removeMark) {
-				delete o.xEvents.removeMark;
-				for (i in o.xEvents) {
-					delete o.xEvents[i];
-					o['on' + i] = null;
-				}
-				delete o.xEvents;
-			}
-		}
-	}();
-
-	! function () {
-		kernel.scrollReload = function (dom, func) {
-			var y, st, reloadHint, scrolled,
-				events = pointerevents(dom, function (evt) {
-					if (evt.type === 'start') {
-						if (events.pointers.length === 0 && kernel.getScrollTop(dom) === 0) {
-							y = evt.y;
-							window.addEventListener('scroll', scrolling, true);
-							return true;
-						}
-					} else {
-						if (scrolled) {
-							scrolled = false;
-							return true;
-						} else {
-							var h;
-							if (evt.y > y + 5) {
-								if (!st) {
-									st = true;
-									window.removeEventListener('scroll', scrolling, true);
-								}
-								evt.domEvent.preventDefault();
-								if (!reloadHint) {
-									reloadHint = document.createElement('div');
-									reloadHint.className = 'reloadHint';
-									reloadHint.appendChild(kernel.makeSvg('sync-alt-solid', 1));
-									dom.appendChild(reloadHint);
-								}
-								h = reloadHint.offsetHeight || reloadHint.clientHeight;
-								if (evt.y - y < h * 2) {
-									reloadHint.style.top = evt.y - y - h + 'px';
-									reloadHint.classList.remove('pin');
-									reloadHint.style.opacity = (evt.y - y) / h / 2;
-									reloadHint.style.transform = 'rotate(' + 360 * reloadHint.style.opacity + 'deg)';
-								} else {
-									reloadHint.style.top = h + 'px';
-									reloadHint.style.opacity = 1;
-									reloadHint.classList.add('pin');
-									reloadHint.style.transform = '';
-								}
-							} else {
-								if (evt.y < y && !st) {
-									return true;
-								} else if (reloadHint) {
-									dom.removeChild(reloadHint);
-									reloadHint = undefined;
-								}
-							}
-							if (evt.type === 'end' || evt.type === 'cancel') {
-								if (reloadHint) {
-									dom.removeChild(reloadHint);
-									if (reloadHint.classList.contains('pin')) {
-										if (typeof func === 'function') {
-											func();
-										} else {
-											kernel.reloadPage();
-										}
-									}
-									reloadHint = undefined;
-								}
-								st = false;
-							}
-						}
-					}
-				});
-			kernel.fixIosScrolling(dom);
-
-			function scrolling(evt) {
-				if (evt.target !== dom) {
-					scrolled = true;
-					window.removeEventListener('scroll', scrolling, true);
-				}
-			}
-		};
-		//fix ios vertical overscrolling on viewport issue
-		kernel.fixIosScrolling = function (o, hscroll) {
-			if (browser.name === 'IOS') {
-				o.style.webkitOverflowScrolling = 'touch';
-				o.addEventListener('touchmove', stopEvent);
-				if (!hscroll) {
-					o.classList.add('iosScrollFix');
-					o.scrollTop = 1;
-					o.addEventListener('scroll', onscroll);
-				}
-			}
-		};
-
-		kernel.getScrollTop = function (o) {
-			return o.classList.contains('iosScrollFix') ? o.scrollTop - 1 : o.scrollTop;
-		};
-
-		kernel.getScrollHeight = function (o) {
-			return o.classList.contains('iosScrollFix') ? o.scrollHeight - 2 : o.scrollHeight;
-		};
-
-		kernel.setScrollTop = function (o, v) {
-			o.scrollTop = o.classList.contains('iosScrollFix') ? v + 1 : v;
-		};
-
-		if (browser.name === 'IOS') {
-			window.addEventListener('touchmove', cancelEvent);
-		}
-
-		function onscroll(evt) {
-			if (this.scrollTop === 0) {
-				this.scrollTop = 1;
-			} else if (this.scrollTop + this.clientHeight === this.scrollHeight) {
-				this.scrollTop -= 1;
-			}
-		}
-	}();
-
-	! function () {
-		var helper = document.getElementById('helper'),
-			tb = helper.firstChild,
-			img = helper.lastChild,
-			allSteps;
-		helper.addEventListener('click', nextStep);
-		kernel.showHelper = function (steps) {
-			if (kernel.dataType(steps) === 'array') {
-				allSteps = steps;
-			} else {
-				allSteps = [steps];
-			}
-			setStep(allSteps[0]);
-			helper.style.display = 'block';
-		};
-
-		function nextStep() {
-			if (allSteps.length > 1) {
-				allSteps.shift();
-				if (typeof allSteps[0] === 'function') {
-					allSteps[0]();
-					nextStep();
-				} else {
-					setStep(allSteps[0]);
-				}
-			} else {
-				helper.style.display = '';
-			}
-		}
-
-		function setStep(step) {
-			var tmp, tmp1, i;
-			img.src = step.img;
-			if ('right' in step) {
-				img.style.right = step.right;
-			}
-			if ('left' in step) {
-				img.style.left = step.left;
-			}
-			if ('top' in step) {
-				img.style.top = step.top;
-			}
-			if ('bottom' in step) {
-				img.style.bottom = step.bottom;
-			}
-			if ('width' in step) {
-				img.style.width = step.width;
-			}
-			if ('height' in step) {
-				img.style.height = step.height;
-			}
-			for (i = 0; i < tb.childNodes.length; i++) {
-				tmp = tb.childNodes[i];
-				if (step.rows[i]) {
-					tmp.style.height = step.rows[i];
-					tmp.className = 'unflexable';
-				} else {
-					tmp.style.height = 'auto';
-					tmp.className = 'flexable';
-				}
-			}
-			tmp = tb.childNodes[1];
-			for (i = 0; i < tmp.childNodes.length; i++) {
-				tmp1 = tmp.childNodes[i];
-				if (step.cells[i]) {
-					tmp1.style.width = step.cells[i];
-					tmp1.className = 'unflexable';
-				} else {
-					tmp1.style.width = 'auto';
-					tmp1.className = 'flexable';
-				}
-			}
-		}
-	}();
-
-	//弹出窗口
-	! function () {
-		var activePopup, tempBack, tempBackParam, animating, todo,
-			popupsBox = document.getElementById('popup'),
-			popupClose = popupsBox.querySelector(':scope>.header>.close'),
-			title = popupsBox.querySelector(':scope>.header>.title').firstChild,
-			back = popupsBox.querySelector(':scope>.header>.back');
-
-		// 如果弹窗有自定义打开方式则直接调用该接口，否则会调用showPopup
-		// 如果定义了open请确保最终打开自己时调用的是showPopup而不是openPopup
-		kernel.openPopup = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.openPopup === 'function' ? window.frameElement.kernel.openPopup : function (id, param, goBack) {
-			var popupcfg = popups[id];
-			if (popupcfg) {
-				initLoad(popupcfg, id, false, function (firstLoad) {
-					if (typeof popupcfg.open === 'function') {
-						popupcfg.open(param, activePopup && goBack);
-					} else {
-						kernel.showPopup(id, goBack);
-					}
-				});
-				return true;
-			} else {
-				kernel.hint('popup config not found: ' + id);
-			}
-		};
-		// 普通弹窗
-		kernel.showPopup = function (id, goBack) { //显示弹出窗口
-			var toshow, tohide, oldPopup;
-			if (animating) {
-				todo = function () {
-					kernel.showPopup(id, goBack);
-				};
-			} else {
-				goBack = activePopup && goBack;
-				toshow = popupsBox.querySelector(':scope>.content>.' + id);
-				// 有 .in 表示正在显示中
-				// 如果没有 in class 就需要打开
-				if (!popupsBox.classList.contains('in')) {
-					if (switchCanceled(id, goBack)) {
-						return true;
-					} else {
-						toshow.style.right = 0;
-						toshow.style.visibility = 'inherit';
-						popupsBox.classList.add('in');
-						animating = id;
-						if (typeof kernel.popupEvents.onshow === 'function') {
-							kernel.popupEvents.onshow({
-								type: 'show',
-								id: id
-							});
-						}
-						popupSwitched(id);
-						kernel.hideReadable();
-					}
-				} else if (activePopup !== id) {
-					if (switchCanceled(id, goBack)) {
-						return true;
-					} else {
-						oldPopup = activePopup;
-						tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
-						panelSwitch(toshow, tohide, goBack, function () {
-							var tmp;
-							animating = false;
-							popupSwitched(id);
-							if (typeof popups[oldPopup].onunloadend === 'function') {
-								popups[oldPopup].onunloadend();
-							}
-							if (document.activeElement && tohide.contains(document.activeElement)) {
-								document.activeElement.blur();
-							}
-							if (typeof popups[activePopup].onloadend === 'function') {
-								popups[activePopup].onloadend(goBack);
-							}
-							if (typeof todo === 'function') {
-								tmp = todo;
-								todo = undefined;
-								tmp();
-							}
-						});
-						animating = id;
-						return false;
-					}
-				} else {
-					if (typeof popups[id].onload !== 'function' || !popups[id].onload(goBack)) {
-						if (typeof popups[id].onloadend === 'function') {
-							popups[id].onloadend(goBack);
-						}
-					}
-				}
-			}
-		};
-		//关闭弹窗, 如果未指定id则会关闭任何弹窗否则只有当前弹窗匹配id时才关闭
-		kernel.closePopup = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.closePopup === 'function' ? window.frameElement.kernel.closePopup : function (id) {
-			var p;
-			if (animating) {
-				todo = function () {
-					kernel.closePopup(id);
-				};
-			} else {
-				p = kernel.getCurrentPopup();
-				if (p && (!id || p === id || (kernel.dataType(id) === 'array' && id.indexOf(p) >= 0))) {
-					//onunload 返回 true可以阻止窗口关闭
-					if (typeof popups[p].onunload !== 'function' || !popups[p].onunload()) {
-						popupsBox.classList.remove('in');
-						popupsBox.classList.add('out');
-						animating = true;
-						if (typeof kernel.popupEvents.onhide === 'function') {
-							kernel.popupEvents.onhide({
-								type: 'hide',
-								id: p
-							});
-						}
-					}
-				}
-			}
-		};
-		// 获取当前显示的 popup id
-		kernel.getCurrentPopup = function () {
-			if (popupsBox.classList.contains('in')) {
-				return activePopup;
-			}
-		};
-		// 如果未指定id则临时改变当前弹窗的后退位置, 临时修改不能在loadend之前使用
-		// 参数1 需要返回的页面id
-		// 参数2 如果提供; 就会永久修改 指定页面的 后退页面ID
-		kernel.setPopupBack = function (backid, param) {
-			if (popupsBox.classList.contains('in')) {
-				if (backid) {
-					back.lastChild.data = typeof backid === 'function' || !popups[backid].title ? '返回' : popups[backid].title;
-					tempBack = backid;
-					back.style.display = '';
-					tempBackParam = param;
-				} else {
-					back.style.display = 'none';
-				}
-			}
-		};
-		// 如果未指定id则临时改变当前弹窗的标题, 临时修改不能在loadend之前使用
-		kernel.setPopupTitle = function (newTitle, id) {
-			if (id) {
-				if (popups.hasOwnProperty(id)) {
-					popups[id].title = newTitle;
-					if (activePopup === id) {
-						title.data = newTitle;
-						if (document.body.classList.contains('hidePopupHeader')) {
-							document.title = title.data;
-						}
-					}
-				}
-			} else {
-				if (popupsBox.classList.contains('in')) {
-					title.data = newTitle;
-					if (document.body.classList.contains('hidePopupHeader')) {
-						document.title = title.data;
-					}
-				}
-			}
-		};
-		kernel.destoryPopup = function (id) {
-			var p = popups[id];
-			if (p) {
-				destory(p, 'popup', id);
-			}
-		};
-		// 包含onshow, onshowend, onhide, onhideend
-		kernel.popupEvents = {};
-		// 初始化窗口关闭按钮
-		popupClose.appendChild(kernel.makeSvg('times-light', 1));
-		popupClose.addEventListener('click', function () {
-			kernel.closePopup()
-		});
-		// 初始化窗口返回按钮
-		back.insertBefore(kernel.makeSvg('angle-left-light', 1), back.firstChild);
-		back.addEventListener('click', function (evt) {
-			if (typeof tempBack === 'function') {
-				tempBack(tempBackParam);
-			} else {
-				kernel.openPopup(tempBack, tempBackParam, true);
-			}
-		});
-		popupsBox.addEventListener('animationend', function (evt) {
-			var tohide, tmp;
-			if (evt.target === this) {
-				animating = false;
-				if (this.classList.contains('out')) {
-					this.classList.remove('out');
-					if (typeof kernel.popupEvents.onhideend === 'function') {
-						kernel.popupEvents.onhideend({
-							type: 'hideend',
-							id: activePopup
-						});
-					}
-					tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
-					tohide.style.right = tohide.style.visibility = '';
-					if (typeof popups[activePopup].onunloadend === 'function') {
-						popups[activePopup].onunloadend();
-					}
-					if (document.activeElement && tohide.contains(document.activeElement)) {
-						document.activeElement.blur();
-					}
-					popupsBox.classList.remove(activePopup);
-					activePopup = undefined;
-				} else {
-					if (typeof popups[activePopup].onloadend === 'function') {
-						popups[activePopup].onloadend(true);
-					}
-					if (typeof kernel.popupEvents.onshowend === 'function') {
-						kernel.popupEvents.onshowend({
-							type: 'showend',
-							id: activePopup
-						});
-					}
-				}
-				if (typeof todo === 'function') {
-					tmp = todo;
-					todo = undefined;
-					tmp();
-				}
-			}
-		});
-
-		function switchCanceled(id, goBack) {
-			//onunload 或 onload 返回 true 可以阻止停止事件
-			return (activePopup && typeof popups[activePopup].onunload === 'function' && popups[activePopup].onunload()) || (typeof popups[id].onload === 'function' && popups[id].onload(goBack));
-		}
-		// 弹窗显示后要执行的工作
-		function popupSwitched(id) {
-			// activePopup 上一个显示的窗口;
-			// 只有在弹窗切换的时候 会有 activePopup
-			if (activePopup) {
-				popupsBox.classList.remove(activePopup);
-			}
-			tempBack = tempBackParam = undefined;
-			activePopup = id;
-			popupsBox.classList.add(activePopup);
-			// 给 title 节点设值
-			title.data = popups[id].title;
-			if (document.body.classList.contains('hidePopupHeader')) {
-				document.title = title.data;
-			}
-			back.style.display = 'none';
-		}
-	}();
-	// 内置特殊弹窗, 会显示在普通弹窗之上, 并且彼此独立
-	! function () {
-		var readableBox = document.getElementById('readable'),
-			readableClose = readableBox.querySelector(':scope>.close'),
-			readableContent = readableBox.querySelector(':scope>.content'),
-			raCallback;
-
-		kernel.fixIosScrolling(readableContent);
-		kernel.showReadable = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.showReadable === 'function' ? window.frameElement.kernel.showReadable : function (html, callback, className) { //展示静态内容
-			if (typeof html === 'string') {
-				readableContent.innerHTML = html;
-			} else {
-				readableContent.appendChild(html);
-			}
-			readableBox.className = className ? 'in ' + className : 'in';
-			raCallback = callback;
-		};
-		kernel.hideReadable = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.hideReadable === 'function' ? window.frameElement.kernel.hideReadable : function () {
-			if (readableBox.classList.contains('in')) {
-				readableBox.classList.remove('in');
-				readableBox.classList.add('out');
-				if (typeof raCallback === 'function') {
-					raCallback();
-				}
-			}
-		};
-		kernel.showForeign = function (url, callback) { //展示站外内容
-			kernel.showReadable('<iframe frameborder="no" scrolling="auto" sandbox="allow-same-origin allow-forms allow-scripts" src="' + url + '"></iframe>', callback, 'foreign');
-		};
-		readableClose.appendChild(kernel.makeSvg('times-solid', 1));
-		readableClose.addEventListener('click', kernel.hideReadable);
-		readableBox.addEventListener('animationend', function (evt) {
-			if (evt.target === this && this.classList.contains('out')) {
-				while (readableContent.childNodes.length > 0) {
-					readableContent.removeChild(readableContent.firstChild);
-				}
-				this.className = '';
-			}
-		});
-	}();
-	//对话框及提示功能
-	! function () {
-		var hintmo, callback,
-			loadingRT = 0,
-			dlgStack = [],
-			photoStatus = {},
-			loadingCtn = document.getElementById('loading'),
-			hintCtn = document.getElementById('hint'),
-			dialogCtn = document.getElementById('dialog'),
-			dialogBox = dialogCtn.querySelector(':scope>div'),
-			dialogContent = dialogBox.querySelector(':scope>.content'),
-			dialogClose = dialogBox.querySelector(':scope>.close'),
-			yesbtn = dialogBox.querySelector(':scope>.btns>.yes'),
-			nobtn = dialogBox.querySelector(':scope>.btns>.no'),
-			sliderViewCtn = document.getElementById('sliderView'),
-			sliderViewClose = sliderViewCtn.querySelector(':scope>.close'),
-			slider = touchslider(sliderViewCtn.querySelector(':scope>.content')),
-			photoViewCtn = document.getElementById('photoView'),
-			photoViewClose = photoViewCtn.querySelector(':scope>.close'),
-			photoViewContent = photoViewCtn.querySelector(':scope>img'),
-			photoViewActions = photoViewCtn.querySelector(':scope>.actions'),
-			guesture = touchguesture(photoViewCtn);
-
-		guesture.onzoomstart = zoomstart;
-		guesture.ondragstart = dragstart;
-		kernel.showPhotoView = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.showPhotoView === 'function' ? window.frameElement.kernel.showPhotoView : function (url, btns, cb) {
-			var i, tmp;
-			photoViewContent.src = url;
-			while (photoViewActions.childNodes.length) {
-				photoViewActions.removeChild(photoViewActions.firstChild);
-			}
-			if (typeof cb === 'function' && btns && btns.length) {
-				for (i = 0; i < btns.length; i++) {
-					tmp = document.createElement('a');
-					tmp.href = 'javascript:;';
-					tmp.appendChild(document.createTextNode(btns[i]));
-					tmp.addEventListener('click', cb.bind(kernel, i));
-					photoViewActions.appendChild(tmp);
-				}
-				photoViewActions.style.display = '';
-			} else {
-				photoViewActions.style.display = 'none';
-			}
-		};
-
-		kernel.hidePhotoView = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.hidePhotoView === 'function' ? window.frameElement.kernel.hidePhotoView : function () {
-			photoViewContent.src = 'about:blank';
-		};
-		photoViewContent.addEventListener('load', function () {
-			photoViewCtn.style.visibility = 'inherit';
-			document.body.classList.add('mask');
-			window.addEventListener('resize', syncPhotoViewSize);
-			syncPhotoViewSize();
-		});
-		photoViewContent.addEventListener('error', function () {
-			photoViewCtn.style.visibility = '';
-			window.removeEventListener('resize', syncPhotoViewSize);
-			unmask();
-		});
-
-		kernel.showSliderView = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.showSliderView === 'function' ? window.frameElement.kernel.showSliderView : function (doms, idx, className) {
-			var i;
-			sliderViewCtn.className = className || '';
-			for (i = 0; i < doms.length; i++) {
-				slider.add(doms[i]);
-			}
-			if (idx) {
-				slider.slideTo(idx, true);
-			}
-		};
-		kernel.hideSliderView = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.hideSliderView === 'function' ? window.frameElement.kernel.hideSliderView : function () {
-			slider.clear();
-		};
-		kernel.alert = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.alert === 'function' ? window.frameElement.kernel.alert : function (text, callback) { //alert对话框
-			openDialog('alert', text, callback);
-		};
-		kernel.confirm = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.confirm === 'function' ? window.frameElement.kernel.confirm : function (text, callback) { //yes no对话框
-			openDialog('confirm', text, callback);
-		};
-		kernel.htmlDialog = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.htmlDialog === 'function' ? window.frameElement.kernel.htmlDialog : function (html, className, callback) { //自定义内容的对话框
-			openDialog(className || '', html, callback);
-		};
-		kernel.closeDialog = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.closeDialog === 'function' ? window.frameElement.kernel.closeDialog : function (param) { //通用对话框关闭方法
-			var a;
-			window.removeEventListener('resize', syncDialogSize, false);
-			dialogCtn.style.visibility = '';
-			unmask();
-			if (typeof callback === 'function') {
-				callback(param);
-			}
-			while (dialogContent.childNodes.length) {
-				dialogContent.removeChild(dialogContent.lastChild);
-			}
-			callback = undefined;
-			if (dlgStack.length) {
-				a = dlgStack.shift();
-				kernel[a.shift()].apply(kernel, a);
-			}
-		};
-		kernel.showLoading = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.showLoading === 'function' ? window.frameElement.kernel.showLoading : function (text) { //loading提示框, 每次调用引用计数+1所以showLoading和hideLoading必须成对使用
-			loadingCtn.querySelector(':scope>div').lastChild.data = text ? text : '加载中...';
-			if (loadingRT === 0) {
-				loadingCtn.style.visibility = 'inherit';
-				document.body.classList.add('mask');
-			}
-			loadingRT++;
-		};
-		kernel.hideLoading = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.hideLoading === 'function' ? window.frameElement.kernel.hideLoading : function () {
-			if (loadingRT > 0) {
-				loadingRT--;
-				if (loadingRT === 0) {
-					loadingCtn.style.visibility = '';
-					unmask();
-					if (typeof kernel.dialogEvents.onloaded === 'function') {
-						kernel.dialogEvents.onloaded({
-							type: 'loaded'
-						});
-					}
-				}
-			}
-		};
-		kernel.isLoading = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.isLoading === 'function' ? window.frameElement.kernel.isLoading : function () {
-			return loadingRT > 0;
-		};
-		kernel.hint = window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.hint === 'function' ? window.frameElement.kernel.hint : function (text, t) { //底部提示, 不干扰用户操作, 默认显示5秒
-			hintCtn.querySelector(':scope>.text').firstChild.data = text;
-			if (hintmo) {
-				clearTimeout(hintmo);
-			} else {
-				hintCtn.style.opacity = 1;
-			}
-			hintmo = setTimeout(function () {
-				hintCtn.style.opacity = '';
-				hintmo = undefined;
-			}, t ? t : 5000);
-		};
-		//目前只有loaded事件
-		kernel.dialogEvents = {};
-
-		slider.onchange = function () {
-			var i, txt = '';
-			if (this.children.length) {
-				if (this.children.length > 1) {
-					for (i = 0; i < this.children.length; i++) {
-						txt += (i === this.current) ? '●' : '○';
-					}
-				}
-				sliderViewCtn.style.visibility = 'inherit';
-				document.body.classList.add('mask');
-			} else {
-				sliderViewCtn.style.visibility = '';
-				unmask();
-			}
-			sliderViewCtn.querySelector(':scope>.nav').firstChild.data = txt;
-		};
-		dialogClose.appendChild(kernel.makeSvg('times-circle-solid', 1));
-		dialogClose.addEventListener('click', closeDialog);
-		nobtn.addEventListener('click', closeDialog);
-		yesbtn.addEventListener('click', kernel.closeDialog);
-		sliderViewClose.appendChild(kernel.makeSvg('times-solid', 1));
-		photoViewClose.appendChild(sliderViewClose.firstChild.cloneNode(true));
-		sliderViewClose.addEventListener('click', kernel.hideSliderView);
-		photoViewClose.addEventListener('click', kernel.hidePhotoView);
-
-		function unmask() {
-			if (dialogCtn.style.visibility === '' && loadingCtn.style.visibility === '' && sliderViewCtn.style.visibility === '' && photoViewCtn.style.visibility === '') {
-				document.body.classList.remove('mask');
-			}
-		}
-
-		function closeDialog() {
-			kernel.closeDialog();
-		}
-
-		function openDialog(type, content, cb) {
-			if (dialogCtn.style.visibility === 'inherit') {
-				dlgStack.push([type, content, cb]);
-			} else {
-				dialogBox.className = type;
-				if (type === 'alert') {
-					dialogContent.textContent = content;
-				} else if (type === 'confirm') {
-					if (typeof content === 'string') {
-						dialogContent.textContent = content;
-						yesbtn.textContent = '是';
-						nobtn.textContent = '否';
-					} else {
-						dialogContent.textContent = content[0];
-						yesbtn.textContent = content[1];
-						nobtn.textContent = content[2];
-					}
-				} else {
-					if (typeof content === 'string') {
-						dialogContent.innerHTML = content;
-					} else {
-						dialogContent.appendChild(content);
-					}
-				}
-				window.addEventListener('resize', syncDialogSize);
-				syncDialogSize();
-				document.body.classList.add('mask');
-				dialogCtn.style.visibility = 'inherit';
-				callback = cb;
-			}
-		}
-
-		function syncDialogSize() {
-			dialogBox.style.width = dialogBox.style.height = '';
-			dialogBox.style.left = dialogBox.style.top = '20px';
-			dialogBox.style.bottom = dialogBox.style.right = 'auto';
-			dialogBox.style.width = dialogBox.offsetWidth + 'px';
-			dialogBox.style.height = dialogBox.offsetHeight + 'px';
-			dialogBox.style.left = dialogBox.style.top = dialogBox.style.bottom = dialogBox.style.right = '';
-		}
-
-		function setImg() {
-			photoViewContent.style.width = photoStatus.w + 'px';
-			photoViewContent.style.height = photoStatus.h + 'px';
-			photoViewContent.style.left = photoStatus.l + 'px';
-			photoViewContent.style.top = photoStatus.t + 'px';
-		}
-
-		function syncPhotoViewSize() {
-			photoStatus.ww = window.innerWidth;
-			photoStatus.wh = window.innerHeight;
-			photoStatus.wr = photoStatus.ww / photoStatus.wh;
-			photoStatus.ow = photoViewContent.naturalWidth;
-			photoStatus.oh = photoViewContent.naturalHeight;
-			photoStatus.r = photoStatus.ow / photoStatus.oh;
-			if (photoStatus.ow > photoStatus.ww || photoStatus.oh > photoStatus.wh) {
-				if (photoStatus.r > photoStatus.wr) {
-					photoStatus.z = photoStatus.mz = photoStatus.ww / photoStatus.ow;
-					photoStatus.l = 0;
-					photoStatus.w = photoStatus.ww;
-					photoStatus.h = photoStatus.w / photoStatus.r;
-					photoStatus.t = (photoStatus.wh - photoStatus.h) / 2;
-				} else {
-					photoStatus.z = photoStatus.mz = photoStatus.wh / photoStatus.oh;
-					photoStatus.t = 0;
-					photoStatus.h = photoStatus.wh;
-					photoStatus.w = photoStatus.h * photoStatus.r;
-					photoStatus.l = (photoStatus.ww - photoStatus.w) / 2;
-				}
-			} else {
-				photoStatus.z = photoStatus.mz = 1;
-				photoStatus.w = photoStatus.ow;
-				photoStatus.h = photoStatus.oh;
-				photoStatus.l = (photoStatus.ww - photoStatus.w) / 2;
-				photoStatus.t = (photoStatus.wh - photoStatus.h) / 2;
-			}
-			setImg();
-		}
-
-		function zoomstart(evt) {
-			var x = evt.x,
-				y = evt.y,
-				oz = photoStatus.z;
-			this.onzoomstart = null;
-			this.onzoomchange = zoomchange;
-			this.onzoomend = function (evt) {
-				zoomchange.call(this, evt);
-				this.onzoomchange = this.zoomend = null;
-				this.onzoomstart = zoomstart;
-			};
-
-			function zoomchange(evt) {
-				var nz = Math.max(Math.min(evt.zoom * oz, 1), photoStatus.mz);
-				if (nz !== photoStatus.z) {
-					photoStatus.w = photoStatus.ow * nz;
-					photoStatus.h = photoStatus.oh * nz;
-					photoStatus.l = photoStatus.w > photoStatus.ww ? Math.min(Math.max(x + (photoStatus.l - x) * nz / photoStatus.z, photoStatus.ww - photoStatus.w), 0) : (photoStatus.ww - photoStatus.w) / 2;
-					photoStatus.t = photoStatus.h > photoStatus.wh ? Math.min(Math.max(y + (photoStatus.t - y) * nz / photoStatus.z, photoStatus.wh - photoStatus.h), 0) : (photoStatus.wh - photoStatus.h) / 2;
-					photoStatus.z = nz;
-					setImg();
-				}
-			}
-		}
-
-		function dragstart(evt) {
-			var x = evt.x,
-				y = evt.y,
-				ol = photoStatus.l,
-				ot = photoStatus.t;
-			guesture.ondragmove = dragmove;
-			guesture.ondragend = function (evt) {
-				dragmove.call(this, evt);
-				this.ondragmove = this.ondragend = null;
-				this.ondragstart = dragstart;
-			};
-
-			function dragmove(evt) {
-				if (photoStatus.w > photoStatus.ww) {
-					photoStatus.l = Math.min(Math.max(ol + evt.x - x, photoStatus.ww - photoStatus.w), 0);
-				}
-				if (photoStatus.h > photoStatus.wh) {
-					photoStatus.t = Math.min(Math.max(ot + evt.y - y, photoStatus.wh - photoStatus.h), 0);
-				}
-				setImg();
-			}
-		}
-	}();
-
 	//页面加载相关功能
 	! function () {
 		//此处不能使用kernel.lastLocation.id, 因为currentpage仅在页面加载成功才会更新
@@ -1132,7 +186,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			var n;
 			if (pages.hasOwnProperty(home)) {
 				homePage = home;
-				if (!kernel.location) {
+				if (kernel.hasOwnProperty('location')) {
+					if (icos) {
+						initNavs(icos);
+					}
+					hashchange();
+				} else {
 					// 当前URL
 					kernel.location = kernel.parseHash(location.hash);
 					// 如果带ui参数就把参数中样式加入body
@@ -1163,11 +222,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					} else {
 						removeLoading();
 					}
-				} else {
-					if (icos) {
-						initNavs(icos);
-					}
-					hashchange();
 				}
 			}
 		};
@@ -1260,7 +314,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		function manageLocation() {
 			var n, m, pageid = kernel.location.id,
 				pagecfg = pages[pageid];
-			if (kernel.lastLocation) {
+			if (kernel.hasOwnProperty('lastLocation')) {
 				n = pageid.replace(/-.*$/, '');
 				m = kernel.lastLocation.id.replace(/-.*$/, '');
 				if (n !== m) {
@@ -1302,8 +356,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						if (document.body.classList.contains('clean') || document.body.classList.contains('hidePageHeader')) {
 							document.title = title;
 						}
-						if (window.frameElement && window.frameElement.kernel && typeof window.frameElement.kernel.getCurrentPopup === 'function' && window.frameElement.kernel.getCurrentPopup() === 'page') {
-							window.frameElement.kernel.setPopupTitle(title);
+						if (window.frameElement && window.frameElement.kernel && kernel.getCurrentPopup() === 'page') {
+							kernel.setPopupTitle(title);
 						}
 						// 重置 顶部按钮
 						while (headerRightMenuBtn.childNodes.length) {
@@ -1438,6 +492,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		}
 
+		function clearWindow() {
+			if (!window.frameElement || !window.frameElement.kernel) {
+				kernel.hideReadable();
+				kernel.closePopup();
+			}
+		}
+
 		function noSwitchLoad(force) {
 			var cfg = pages[currentpage].alias ? pages[pages[currentpage].alias] : pages[currentpage];
 			if (typeof cfg.onload === 'function') {
@@ -1463,6 +524,965 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		}
 	}();
+
+	if (browser.name === 'IOS') {
+		window.addEventListener('touchmove', cancelEvent);
+	}
+
+	if (window.frameElement && window.frameElement.kernel) {
+		if (window.Reflect) {
+			Reflect.setPrototypeOf(kernel, window.frameElement.kernel);
+		} else {
+			kernel.__proto__ = window.frameElement.kernel;
+		}
+	} else {
+		//杂项功能
+		! function () {
+			kernel.buildHash = function (loc) {
+				var n, hash = '#!' + encodeURIComponent(loc.id);
+				for (n in loc.args) {
+					hash += loc.args[n] === undefined ? '&' + encodeURIComponent(n) : '&' + encodeURIComponent(n) + '=' + encodeURIComponent(loc.args[n]);
+				}
+				return hash;
+			};
+			// 比较两个 location对象; 看 url 是否改变;
+			// 比较 key 和 args
+			kernel.isSameLocation = function (loc1, loc2) {
+				var n;
+				if (loc1.id === loc2.id && Object.keys(loc1.args).length === Object.keys(loc2.args).length) {
+					for (n in loc1.args) {
+						if (loc2.args.hasOwnProperty(n)) {
+							if (loc1.args[n] === undefined) {
+								if (loc1.args[n] !== loc2.args[n]) {
+									return false;
+								}
+							} else {
+								if ('' + loc1.args[n] !== '' + loc2.args[n]) {
+									return false;
+								}
+							}
+						} else {
+							return false;
+						}
+					}
+					return true;
+				} else {
+					return false;
+				}
+			};
+			kernel.dataType = function (a) {
+				var t = typeof a;
+				if (t === 'boolean' || t === 'string' || t === 'symbol' || t === 'number' || t === 'function' || t === 'undefined') {
+					return t;
+				} else {
+					t = Object.prototype.toString.call(a).replace(/^\[object |\]$/g, '').toLowerCase();
+					if (t === 'date' || t === 'array' || t === 'regexp' || t === 'error' || t === 'null') {
+						return t;
+					} else {
+						return 'object';
+					}
+				}
+			};
+		}();
+		//事件处理
+		! function () {
+			kernel.listeners = {
+				add: function (o, e, f) {
+					if (!o.xEvents) {
+						o.xEvents = function (evt) { //override internal event manager
+							xEventProcessor(o, evt);
+						};
+					}
+					if (!o.xEvents[e]) {
+						o.xEvents[e] = [];
+						o.xEvents[e].stack = [];
+						o.xEvents[e].locked = false;
+						o['on' + e] = o.xEvents;
+					}
+					if (o.xEvents[e].locked) {
+						o.xEvents[e].stack.push([false, f]);
+					} else {
+						if (o.xEvents[e].indexOf(f) < 0) {
+							o.xEvents[e].push(f);
+						}
+					}
+				},
+				list: function (o, e) {
+					var r, n;
+					if (e) {
+						if (o.xEvents && o.xEvents[e]) {
+							r = o.xEvents[e].slice(0);
+						} else {
+							r = [];
+						}
+					} else {
+						r = {};
+						if (o.xEvents) {
+							for (n in o.xEvents) {
+								if (kernel.dataType(o.xEvents[n]) === 'array' && o.xEvents[n].length) {
+									r[n] = o.xEvents[n].slice(0);
+								}
+							}
+						}
+					}
+					return r;
+				},
+				remove: function (o, e, f) {
+					var n, addRemoveMark, tmp;
+					if (o.xEvents) {
+						if (e) {
+							if (o.xEvents[e]) {
+								if (o.xEvents[e].locked) {
+									if (f) {
+										o.xEvents[e].stack.push([true, f]);
+									} else {
+										o.xEvents[e].stack.push(null);
+									}
+								} else {
+									if (f) {
+										tmp = o.xEvents[e].indexOf(f);
+										if (tmp >= 0) {
+											o.xEvents[e].splice(tmp, 1);
+										}
+									} else {
+										o.xEvents[e].splice(0, o.xEvents[e].length);
+									}
+								}
+								if (o.xEvents[e].length === 0) {
+									delete o.xEvents[e];
+									o['on' + e] = null;
+								}
+							}
+						} else {
+							if (!o.xEvents.removeMark) {
+								for (n in o.xEvents) {
+									if (!o.xEvents[n].locked) {
+										delete o.xEvents[n];
+										o['on' + n] = null;
+									} else {
+										addRemoveMark = true;
+									}
+								}
+								if (addRemoveMark) {
+									o.xEvents.removeMark = true;
+								} else {
+									delete o.xEvents;
+								}
+							}
+						}
+					}
+				}
+			};
+
+			function xEventProcessor(o, evt) {
+				var i, tmp;
+				o.xEvents[evt.type].locked = true;
+				for (i = 0; i < o.xEvents[evt.type].length; i++) {
+					o.xEvents[evt.type][i].call(o, evt);
+				}
+				o.xEvents[evt.type].locked = false;
+				while (o.xEvents[evt.type].stack.length) {
+					if (o.xEvents[evt.type].stack[0]) {
+						tmp = o.xEvents[evt.type].indexOf(o.xEvents[evt.type].stack[0][1]);
+						if (o.xEvents[evt.type].stack[0][0]) {
+							if (tmp >= 0) {
+								o.xEvents[evt.type].splice(tmp, 1);
+							}
+						} else {
+							if (tmp < 0) {
+								o.xEvents[evt.type].push(o.xEvents[evt.type].stack[0][1]);
+							}
+						}
+					} else {
+						o.xEvents[evt.type].splice(0, o.xEvents[evt.type].length);
+					}
+					o.xEvents[evt.type].stack.shift();
+				}
+				if (!o.xEvents[evt.type].length) {
+					delete o.xEvents[evt.type];
+					o['on' + evt.type] = null;
+				}
+				if (o.xEvents.removeMark) {
+					delete o.xEvents.removeMark;
+					for (i in o.xEvents) {
+						delete o.xEvents[i];
+						o['on' + i] = null;
+					}
+					delete o.xEvents;
+				}
+			}
+		}();
+
+		! function () {
+			kernel.scrollReload = function (dom, func) {
+				var y, st, reloadHint, scrolled,
+					kernel = this,
+					events = pointerevents(dom, function (evt) {
+						var h;
+						if (evt.type === 'start') {
+							if (events.pointers.length === 0 && kernel.getScrollTop(dom) === 0) {
+								y = evt.y;
+								evt.domEvent.view.addEventListener('scroll', scrolling, true);
+								return true;
+							}
+						} else {
+							if (scrolled) {
+								scrolled = false;
+								return true;
+							} else {
+								if (evt.y > y + 5) {
+									if (!st) {
+										st = true;
+										evt.domEvent.view.removeEventListener('scroll', scrolling, true);
+									}
+									evt.domEvent.preventDefault();
+									if (!reloadHint) {
+										reloadHint = evt.domEvent.view.document.createElement('div');
+										reloadHint.className = 'reloadHint';
+										reloadHint.appendChild(kernel.makeSvg('sync-alt-solid', 1));
+										dom.appendChild(reloadHint);
+									}
+									h = reloadHint.offsetHeight || reloadHint.clientHeight;
+									if (evt.y - y < h * 2) {
+										reloadHint.style.top = evt.y - y - h + 'px';
+										reloadHint.classList.remove('pin');
+										reloadHint.style.opacity = (evt.y - y) / h / 2;
+										reloadHint.style.transform = 'rotate(' + 360 * reloadHint.style.opacity + 'deg)';
+									} else {
+										reloadHint.style.top = h + 'px';
+										reloadHint.style.opacity = 1;
+										reloadHint.classList.add('pin');
+										reloadHint.style.transform = '';
+									}
+								} else {
+									if (evt.y < y && !st) {
+										return true;
+									} else if (reloadHint) {
+										dom.removeChild(reloadHint);
+										reloadHint = undefined;
+									}
+								}
+								if (evt.type === 'end' || evt.type === 'cancel') {
+									if (reloadHint) {
+										dom.removeChild(reloadHint);
+										if (reloadHint.classList.contains('pin')) {
+											if (typeof func === 'function') {
+												func();
+											} else {
+												kernel.reloadPage();
+											}
+										}
+										reloadHint = undefined;
+									}
+									st = false;
+								}
+							}
+						}
+					});
+				kernel.fixIosScrolling(dom);
+
+				function scrolling(evt) {
+					if (evt.target !== dom) {
+						scrolled = true;
+						this.removeEventListener('scroll', scrolling, true);
+					}
+				}
+			};
+
+			//fix ios vertical overscrolling on viewport issue
+			kernel.fixIosScrolling = function (o, hscroll) {
+				if (browser.name === 'IOS') {
+					o.style.webkitOverflowScrolling = 'touch';
+					o.addEventListener('touchmove', stopEvent);
+					if (!hscroll) {
+						o.classList.add('iosScrollFix');
+						o.scrollTop = 1;
+						o.addEventListener('scroll', onscroll);
+					}
+				}
+			};
+
+			kernel.getScrollTop = function (o) {
+				return o.classList.contains('iosScrollFix') ? o.scrollTop - 1 : o.scrollTop;
+			};
+
+			kernel.getScrollHeight = function (o) {
+				return o.classList.contains('iosScrollFix') ? o.scrollHeight - 2 : o.scrollHeight;
+			};
+
+			kernel.setScrollTop = function (o, v) {
+				o.scrollTop = o.classList.contains('iosScrollFix') ? v + 1 : v;
+			};
+
+			function onscroll(evt) {
+				if (this.scrollTop === 0) {
+					this.scrollTop = 1;
+				} else if (this.scrollTop + this.clientHeight === this.scrollHeight) {
+					this.scrollTop -= 1;
+				}
+			}
+		}();
+
+		! function () {
+			var helper = document.getElementById('helper'),
+				tb = helper.firstChild,
+				img = helper.lastChild,
+				allSteps;
+			helper.addEventListener('click', nextStep);
+			kernel.showHelper = function (steps) {
+				if (kernel.dataType(steps) === 'array') {
+					allSteps = steps;
+				} else {
+					allSteps = [steps];
+				}
+				setStep(allSteps[0]);
+				helper.style.display = 'block';
+			};
+
+			function nextStep() {
+				if (allSteps.length > 1) {
+					allSteps.shift();
+					if (typeof allSteps[0] === 'function') {
+						allSteps[0]();
+						nextStep();
+					} else {
+						setStep(allSteps[0]);
+					}
+				} else {
+					helper.style.display = '';
+				}
+			}
+
+			function setStep(step) {
+				var tmp, tmp1, i;
+				img.src = step.img;
+				if ('right' in step) {
+					img.style.right = step.right;
+				}
+				if ('left' in step) {
+					img.style.left = step.left;
+				}
+				if ('top' in step) {
+					img.style.top = step.top;
+				}
+				if ('bottom' in step) {
+					img.style.bottom = step.bottom;
+				}
+				if ('width' in step) {
+					img.style.width = step.width;
+				}
+				if ('height' in step) {
+					img.style.height = step.height;
+				}
+				for (i = 0; i < tb.childNodes.length; i++) {
+					tmp = tb.childNodes[i];
+					if (step.rows[i]) {
+						tmp.style.height = step.rows[i];
+						tmp.className = 'unflexable';
+					} else {
+						tmp.style.height = 'auto';
+						tmp.className = 'flexable';
+					}
+				}
+				tmp = tb.childNodes[1];
+				for (i = 0; i < tmp.childNodes.length; i++) {
+					tmp1 = tmp.childNodes[i];
+					if (step.cells[i]) {
+						tmp1.style.width = step.cells[i];
+						tmp1.className = 'unflexable';
+					} else {
+						tmp1.style.width = 'auto';
+						tmp1.className = 'flexable';
+					}
+				}
+			}
+		}();
+
+		//弹出窗口
+		! function () {
+			var activePopup, tempBack, tempBackParam, animating, todo,
+				popupsBox = document.getElementById('popup'),
+				popupClose = popupsBox.querySelector(':scope>.header>.close'),
+				title = popupsBox.querySelector(':scope>.header>.title').firstChild,
+				back = popupsBox.querySelector(':scope>.header>.back');
+
+			// 如果弹窗有自定义打开方式则直接调用该接口，否则会调用showPopup
+			// 如果定义了open请确保最终打开自己时调用的是showPopup而不是openPopup
+			kernel.openPopup = function (id, param, goBack) {
+				var popupcfg = popups[id];
+				if (popupcfg) {
+					initLoad(popupcfg, id, false, function (firstLoad) {
+						if (typeof popupcfg.open === 'function') {
+							popupcfg.open(param, activePopup && goBack);
+						} else {
+							kernel.showPopup(id, goBack);
+						}
+					});
+					return true;
+				} else {
+					kernel.hint('popup config not found: ' + id);
+				}
+			};
+			// 普通弹窗
+			kernel.showPopup = function (id, goBack) { //显示弹出窗口
+				var toshow, tohide, oldPopup;
+				if (animating) {
+					todo = function () {
+						kernel.showPopup(id, goBack);
+					};
+				} else {
+					goBack = activePopup && goBack;
+					toshow = popupsBox.querySelector(':scope>.content>.' + id);
+					// 有 .in 表示正在显示中
+					// 如果没有 in class 就需要打开
+					if (!popupsBox.classList.contains('in')) {
+						if (switchCanceled(id, goBack)) {
+							return true;
+						} else {
+							toshow.style.right = 0;
+							toshow.style.visibility = 'inherit';
+							popupsBox.classList.add('in');
+							animating = id;
+							if (typeof kernel.popupEvents.onshow === 'function') {
+								kernel.popupEvents.onshow({
+									type: 'show',
+									id: id
+								});
+							}
+							popupSwitched(id);
+							kernel.hideReadable();
+						}
+					} else if (activePopup !== id) {
+						if (switchCanceled(id, goBack)) {
+							return true;
+						} else {
+							oldPopup = activePopup;
+							tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
+							panelSwitch(toshow, tohide, goBack, function () {
+								var tmp;
+								animating = false;
+								popupSwitched(id);
+								if (typeof popups[oldPopup].onunloadend === 'function') {
+									popups[oldPopup].onunloadend();
+								}
+								if (document.activeElement && tohide.contains(document.activeElement)) {
+									document.activeElement.blur();
+								}
+								if (typeof popups[activePopup].onloadend === 'function') {
+									popups[activePopup].onloadend(goBack);
+								}
+								if (typeof todo === 'function') {
+									tmp = todo;
+									todo = undefined;
+									tmp();
+								}
+							});
+							animating = id;
+							return false;
+						}
+					} else {
+						if (typeof popups[id].onload !== 'function' || !popups[id].onload(goBack)) {
+							if (typeof popups[id].onloadend === 'function') {
+								popups[id].onloadend(goBack);
+							}
+						}
+					}
+				}
+			};
+			//关闭弹窗, 如果未指定id则会关闭任何弹窗否则只有当前弹窗匹配id时才关闭
+			kernel.closePopup = function (id) {
+				var p;
+				if (animating) {
+					todo = function () {
+						kernel.closePopup(id);
+					};
+				} else {
+					p = kernel.getCurrentPopup();
+					if (p && (!id || p === id || (kernel.dataType(id) === 'array' && id.indexOf(p) >= 0))) {
+						//onunload 返回 true可以阻止窗口关闭
+						if (typeof popups[p].onunload !== 'function' || !popups[p].onunload()) {
+							popupsBox.classList.remove('in');
+							popupsBox.classList.add('out');
+							animating = true;
+							if (typeof kernel.popupEvents.onhide === 'function') {
+								kernel.popupEvents.onhide({
+									type: 'hide',
+									id: p
+								});
+							}
+						}
+					}
+				}
+			};
+			// 获取当前显示的 popup id
+			kernel.getCurrentPopup = function () {
+				if (popupsBox.classList.contains('in')) {
+					return activePopup;
+				}
+			};
+			// 如果未指定id则临时改变当前弹窗的后退位置, 临时修改不能在loadend之前使用
+			// 参数1 需要返回的页面id
+			// 参数2 如果提供; 就会永久修改 指定页面的 后退页面ID
+			kernel.setPopupBack = function (backid, param) {
+				if (popupsBox.classList.contains('in')) {
+					if (backid) {
+						back.lastChild.data = typeof backid === 'function' || !popups[backid].title ? '返回' : popups[backid].title;
+						tempBack = backid;
+						back.style.display = '';
+						tempBackParam = param;
+					} else {
+						back.style.display = 'none';
+					}
+				}
+			};
+			// 如果未指定id则临时改变当前弹窗的标题, 临时修改不能在loadend之前使用
+			kernel.setPopupTitle = function (newTitle, id) {
+				if (id) {
+					if (popups.hasOwnProperty(id)) {
+						popups[id].title = newTitle;
+						if (activePopup === id) {
+							title.data = newTitle;
+							if (document.body.classList.contains('hidePopupHeader')) {
+								document.title = title.data;
+							}
+						}
+					}
+				} else {
+					if (popupsBox.classList.contains('in')) {
+						title.data = newTitle;
+						if (document.body.classList.contains('hidePopupHeader')) {
+							document.title = title.data;
+						}
+					}
+				}
+			};
+			kernel.destoryPopup = function (id) {
+				var p = popups[id];
+				if (p) {
+					destory(p, 'popup', id);
+				}
+			};
+			// 包含onshow, onshowend, onhide, onhideend
+			kernel.popupEvents = {};
+			// 初始化窗口关闭按钮
+			popupClose.appendChild(kernel.makeSvg('times-light', 1));
+			popupClose.addEventListener('click', function () {
+				kernel.closePopup()
+			});
+			// 初始化窗口返回按钮
+			back.insertBefore(kernel.makeSvg('angle-left-light', 1), back.firstChild);
+			back.addEventListener('click', function (evt) {
+				if (typeof tempBack === 'function') {
+					tempBack(tempBackParam);
+				} else {
+					kernel.openPopup(tempBack, tempBackParam, true);
+				}
+			});
+			popupsBox.addEventListener('animationend', function (evt) {
+				var tohide, tmp;
+				if (evt.target === this) {
+					animating = false;
+					if (this.classList.contains('out')) {
+						this.classList.remove('out');
+						if (typeof kernel.popupEvents.onhideend === 'function') {
+							kernel.popupEvents.onhideend({
+								type: 'hideend',
+								id: activePopup
+							});
+						}
+						tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
+						tohide.style.right = tohide.style.visibility = '';
+						if (typeof popups[activePopup].onunloadend === 'function') {
+							popups[activePopup].onunloadend();
+						}
+						if (document.activeElement && tohide.contains(document.activeElement)) {
+							document.activeElement.blur();
+						}
+						popupsBox.classList.remove(activePopup);
+						activePopup = undefined;
+					} else {
+						if (typeof popups[activePopup].onloadend === 'function') {
+							popups[activePopup].onloadend(true);
+						}
+						if (typeof kernel.popupEvents.onshowend === 'function') {
+							kernel.popupEvents.onshowend({
+								type: 'showend',
+								id: activePopup
+							});
+						}
+					}
+					if (typeof todo === 'function') {
+						tmp = todo;
+						todo = undefined;
+						tmp();
+					}
+				}
+			});
+
+			function switchCanceled(id, goBack) {
+				//onunload 或 onload 返回 true 可以阻止停止事件
+				return (activePopup && typeof popups[activePopup].onunload === 'function' && popups[activePopup].onunload()) || (typeof popups[id].onload === 'function' && popups[id].onload(goBack));
+			}
+			// 弹窗显示后要执行的工作
+			function popupSwitched(id) {
+				// activePopup 上一个显示的窗口;
+				// 只有在弹窗切换的时候 会有 activePopup
+				if (activePopup) {
+					popupsBox.classList.remove(activePopup);
+				}
+				tempBack = tempBackParam = undefined;
+				activePopup = id;
+				popupsBox.classList.add(activePopup);
+				// 给 title 节点设值
+				title.data = popups[id].title;
+				if (document.body.classList.contains('hidePopupHeader')) {
+					document.title = title.data;
+				}
+				back.style.display = 'none';
+			}
+		}();
+		// 内置特殊弹窗, 会显示在普通弹窗之上, 并且彼此独立
+		! function () {
+			var readableBox = document.getElementById('readable'),
+				readableClose = readableBox.querySelector(':scope>.close'),
+				readableContent = readableBox.querySelector(':scope>.content'),
+				raCallback;
+
+			kernel.fixIosScrolling(readableContent);
+			kernel.showReadable = function (html, callback, className) { //展示静态内容
+				if (typeof html === 'string') {
+					readableContent.innerHTML = html;
+				} else {
+					readableContent.appendChild(html);
+				}
+				readableBox.className = className ? 'in ' + className : 'in';
+				raCallback = callback;
+			};
+			kernel.hideReadable = function () {
+				if (readableBox.classList.contains('in')) {
+					readableBox.classList.remove('in');
+					readableBox.classList.add('out');
+					if (typeof raCallback === 'function') {
+						raCallback();
+					}
+				}
+			};
+			kernel.showForeign = function (url, callback) { //展示站外内容
+				kernel.showReadable('<iframe frameborder="no" scrolling="auto" sandbox="allow-same-origin allow-forms allow-scripts" src="' + url + '"></iframe>', callback, 'foreign');
+			};
+			readableClose.appendChild(kernel.makeSvg('times-solid', 1));
+			readableClose.addEventListener('click', kernel.hideReadable);
+			readableBox.addEventListener('animationend', function (evt) {
+				if (evt.target === this && this.classList.contains('out')) {
+					while (readableContent.childNodes.length > 0) {
+						readableContent.removeChild(readableContent.firstChild);
+					}
+					this.className = '';
+				}
+			});
+		}();
+		//对话框及提示功能
+		! function () {
+			var hintmo, callback,
+				loadingRT = 0,
+				dlgStack = [],
+				photoStatus = {},
+				loadingCtn = document.getElementById('loading'),
+				hintCtn = document.getElementById('hint'),
+				dialogCtn = document.getElementById('dialog'),
+				dialogBox = dialogCtn.querySelector(':scope>div'),
+				dialogContent = dialogBox.querySelector(':scope>.content'),
+				dialogClose = dialogBox.querySelector(':scope>.close'),
+				yesbtn = dialogBox.querySelector(':scope>.btns>.yes'),
+				nobtn = dialogBox.querySelector(':scope>.btns>.no'),
+				sliderViewCtn = document.getElementById('sliderView'),
+				sliderViewClose = sliderViewCtn.querySelector(':scope>.close'),
+				slider = touchslider(sliderViewCtn.querySelector(':scope>.content')),
+				photoViewCtn = document.getElementById('photoView'),
+				photoViewClose = photoViewCtn.querySelector(':scope>.close'),
+				photoViewContent = photoViewCtn.querySelector(':scope>img'),
+				photoViewActions = photoViewCtn.querySelector(':scope>.actions'),
+				guesture = touchguesture(photoViewCtn);
+
+			guesture.onzoomstart = zoomstart;
+			guesture.ondragstart = dragstart;
+			kernel.showPhotoView = function (url, btns, cb) {
+				var i, tmp;
+				photoViewContent.src = url;
+				while (photoViewActions.childNodes.length) {
+					photoViewActions.removeChild(photoViewActions.firstChild);
+				}
+				if (typeof cb === 'function' && btns && btns.length) {
+					for (i = 0; i < btns.length; i++) {
+						tmp = document.createElement('a');
+						tmp.href = 'javascript:;';
+						tmp.appendChild(document.createTextNode(btns[i]));
+						tmp.addEventListener('click', cb.bind(kernel, i));
+						photoViewActions.appendChild(tmp);
+					}
+					photoViewActions.style.display = '';
+				} else {
+					photoViewActions.style.display = 'none';
+				}
+			};
+
+			kernel.hidePhotoView = function () {
+				photoViewContent.src = 'about:blank';
+			};
+			photoViewContent.addEventListener('load', function () {
+				photoViewCtn.style.visibility = 'inherit';
+				document.body.classList.add('mask');
+				window.addEventListener('resize', syncPhotoViewSize);
+				syncPhotoViewSize();
+			});
+			photoViewContent.addEventListener('error', function () {
+				photoViewCtn.style.visibility = '';
+				window.removeEventListener('resize', syncPhotoViewSize);
+				unmask();
+			});
+
+			kernel.showSliderView = function (doms, idx, className) {
+				var i;
+				sliderViewCtn.className = className || '';
+				for (i = 0; i < doms.length; i++) {
+					slider.add(doms[i]);
+				}
+				if (idx) {
+					slider.slideTo(idx, true);
+				}
+			};
+			kernel.hideSliderView = function () {
+				slider.clear();
+			};
+			kernel.alert = function (text, callback) { //alert对话框
+				openDialog('alert', text, callback);
+			};
+			kernel.confirm = function (text, callback) { //yes no对话框
+				openDialog('confirm', text, callback);
+			};
+			kernel.htmlDialog = function (html, className, callback) { //自定义内容的对话框
+				openDialog(className || '', html, callback);
+			};
+			kernel.closeDialog = function (param) { //通用对话框关闭方法
+				var a;
+				window.removeEventListener('resize', syncDialogSize, false);
+				dialogCtn.style.visibility = '';
+				unmask();
+				if (typeof callback === 'function') {
+					callback(param);
+				}
+				while (dialogContent.childNodes.length) {
+					dialogContent.removeChild(dialogContent.lastChild);
+				}
+				callback = undefined;
+				if (dlgStack.length) {
+					a = dlgStack.shift();
+					kernel[a.shift()].apply(kernel, a);
+				}
+			};
+			kernel.showLoading = function (text) { //loading提示框, 每次调用引用计数+1所以showLoading和hideLoading必须成对使用
+				loadingCtn.querySelector(':scope>div').lastChild.data = text ? text : '加载中...';
+				if (loadingRT === 0) {
+					loadingCtn.style.visibility = 'inherit';
+					document.body.classList.add('mask');
+				}
+				loadingRT++;
+			};
+			kernel.hideLoading = function () {
+				if (loadingRT > 0) {
+					loadingRT--;
+					if (loadingRT === 0) {
+						loadingCtn.style.visibility = '';
+						unmask();
+						if (typeof kernel.dialogEvents.onloaded === 'function') {
+							kernel.dialogEvents.onloaded({
+								type: 'loaded'
+							});
+						}
+					}
+				}
+			};
+			kernel.isLoading = function () {
+				return loadingRT > 0;
+			};
+			kernel.hint = function (text, t) { //底部提示, 不干扰用户操作, 默认显示5秒
+				hintCtn.querySelector(':scope>.text').firstChild.data = text;
+				if (hintmo) {
+					clearTimeout(hintmo);
+				} else {
+					hintCtn.style.opacity = 1;
+				}
+				hintmo = setTimeout(function () {
+					hintCtn.style.opacity = '';
+					hintmo = undefined;
+				}, t ? t : 5000);
+			};
+			//目前只有loaded事件
+			kernel.dialogEvents = {};
+
+			slider.onchange = function () {
+				var i, txt = '';
+				if (this.children.length) {
+					if (this.children.length > 1) {
+						for (i = 0; i < this.children.length; i++) {
+							txt += (i === this.current) ? '●' : '○';
+						}
+					}
+					sliderViewCtn.style.visibility = 'inherit';
+					document.body.classList.add('mask');
+				} else {
+					sliderViewCtn.style.visibility = '';
+					unmask();
+				}
+				sliderViewCtn.querySelector(':scope>.nav').firstChild.data = txt;
+			};
+			dialogClose.appendChild(kernel.makeSvg('times-circle-solid', 1));
+			dialogClose.addEventListener('click', closeDialog);
+			nobtn.addEventListener('click', closeDialog);
+			yesbtn.addEventListener('click', kernel.closeDialog);
+			sliderViewClose.appendChild(kernel.makeSvg('times-solid', 1));
+			photoViewClose.appendChild(sliderViewClose.firstChild.cloneNode(true));
+			sliderViewClose.addEventListener('click', kernel.hideSliderView);
+			photoViewClose.addEventListener('click', kernel.hidePhotoView);
+
+			function unmask() {
+				if (dialogCtn.style.visibility === '' && loadingCtn.style.visibility === '' && sliderViewCtn.style.visibility === '' && photoViewCtn.style.visibility === '') {
+					document.body.classList.remove('mask');
+				}
+			}
+
+			function closeDialog() {
+				kernel.closeDialog();
+			}
+
+			function openDialog(type, content, cb) {
+				if (dialogCtn.style.visibility === 'inherit') {
+					dlgStack.push([type, content, cb]);
+				} else {
+					dialogBox.className = type;
+					if (type === 'alert') {
+						dialogContent.textContent = content;
+					} else if (type === 'confirm') {
+						if (typeof content === 'string') {
+							dialogContent.textContent = content;
+							yesbtn.textContent = '是';
+							nobtn.textContent = '否';
+						} else {
+							dialogContent.textContent = content[0];
+							yesbtn.textContent = content[1];
+							nobtn.textContent = content[2];
+						}
+					} else {
+						if (typeof content === 'string') {
+							dialogContent.innerHTML = content;
+						} else {
+							dialogContent.appendChild(content);
+						}
+					}
+					window.addEventListener('resize', syncDialogSize);
+					syncDialogSize();
+					document.body.classList.add('mask');
+					dialogCtn.style.visibility = 'inherit';
+					callback = cb;
+				}
+			}
+
+			function syncDialogSize() {
+				dialogBox.style.width = dialogBox.style.height = '';
+				dialogBox.style.left = dialogBox.style.top = '20px';
+				dialogBox.style.bottom = dialogBox.style.right = 'auto';
+				dialogBox.style.width = dialogBox.offsetWidth + 'px';
+				dialogBox.style.height = dialogBox.offsetHeight + 'px';
+				dialogBox.style.left = dialogBox.style.top = dialogBox.style.bottom = dialogBox.style.right = '';
+			}
+
+			function setImg() {
+				photoViewContent.style.width = photoStatus.w + 'px';
+				photoViewContent.style.height = photoStatus.h + 'px';
+				photoViewContent.style.left = photoStatus.l + 'px';
+				photoViewContent.style.top = photoStatus.t + 'px';
+			}
+
+			function syncPhotoViewSize() {
+				photoStatus.ww = window.innerWidth;
+				photoStatus.wh = window.innerHeight;
+				photoStatus.wr = photoStatus.ww / photoStatus.wh;
+				photoStatus.ow = photoViewContent.naturalWidth;
+				photoStatus.oh = photoViewContent.naturalHeight;
+				photoStatus.r = photoStatus.ow / photoStatus.oh;
+				if (photoStatus.ow > photoStatus.ww || photoStatus.oh > photoStatus.wh) {
+					if (photoStatus.r > photoStatus.wr) {
+						photoStatus.z = photoStatus.mz = photoStatus.ww / photoStatus.ow;
+						photoStatus.l = 0;
+						photoStatus.w = photoStatus.ww;
+						photoStatus.h = photoStatus.w / photoStatus.r;
+						photoStatus.t = (photoStatus.wh - photoStatus.h) / 2;
+					} else {
+						photoStatus.z = photoStatus.mz = photoStatus.wh / photoStatus.oh;
+						photoStatus.t = 0;
+						photoStatus.h = photoStatus.wh;
+						photoStatus.w = photoStatus.h * photoStatus.r;
+						photoStatus.l = (photoStatus.ww - photoStatus.w) / 2;
+					}
+				} else {
+					photoStatus.z = photoStatus.mz = 1;
+					photoStatus.w = photoStatus.ow;
+					photoStatus.h = photoStatus.oh;
+					photoStatus.l = (photoStatus.ww - photoStatus.w) / 2;
+					photoStatus.t = (photoStatus.wh - photoStatus.h) / 2;
+				}
+				setImg();
+			}
+
+			function zoomstart(evt) {
+				var x = evt.x,
+					y = evt.y,
+					oz = photoStatus.z;
+				this.onzoomstart = null;
+				this.onzoomchange = zoomchange;
+				this.onzoomend = function (evt) {
+					zoomchange.call(this, evt);
+					this.onzoomchange = this.zoomend = null;
+					this.onzoomstart = zoomstart;
+				};
+
+				function zoomchange(evt) {
+					var nz = Math.max(Math.min(evt.zoom * oz, 1), photoStatus.mz);
+					if (nz !== photoStatus.z) {
+						photoStatus.w = photoStatus.ow * nz;
+						photoStatus.h = photoStatus.oh * nz;
+						photoStatus.l = photoStatus.w > photoStatus.ww ? Math.min(Math.max(x + (photoStatus.l - x) * nz / photoStatus.z, photoStatus.ww - photoStatus.w), 0) : (photoStatus.ww - photoStatus.w) / 2;
+						photoStatus.t = photoStatus.h > photoStatus.wh ? Math.min(Math.max(y + (photoStatus.t - y) * nz / photoStatus.z, photoStatus.wh - photoStatus.h), 0) : (photoStatus.wh - photoStatus.h) / 2;
+						photoStatus.z = nz;
+						setImg();
+					}
+				}
+			}
+
+			function dragstart(evt) {
+				var x = evt.x,
+					y = evt.y,
+					ol = photoStatus.l,
+					ot = photoStatus.t;
+				guesture.ondragmove = dragmove;
+				guesture.ondragend = function (evt) {
+					dragmove.call(this, evt);
+					this.ondragmove = this.ondragend = null;
+					this.ondragstart = dragstart;
+				};
+
+				function dragmove(evt) {
+					if (photoStatus.w > photoStatus.ww) {
+						photoStatus.l = Math.min(Math.max(ol + evt.x - x, photoStatus.ww - photoStatus.w), 0);
+					}
+					if (photoStatus.h > photoStatus.wh) {
+						photoStatus.t = Math.min(Math.max(ot + evt.y - y, photoStatus.wh - photoStatus.h), 0);
+					}
+					setImg();
+				}
+			}
+		}();
+	}
 
 	return kernel;
 
@@ -1627,13 +1647,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				this.style.right = 0;
 			}
 			this.style.animationName = '';
-		}
-	}
-
-	function clearWindow() {
-		if (!window.frameElement || !window.frameElement.kernel) {
-			kernel.hideReadable();
-			kernel.closePopup();
 		}
 	}
 
