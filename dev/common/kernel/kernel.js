@@ -1,168 +1,170 @@
 'use strict';
 define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 'common/pointerevents/pointerevents', 'common/svgicos/svgicos', 'site/pages/pages', 'site/popups/popups'], function (touchslider, touchguesture, pointerevents, svgicos, pages, popups) {
-	var homePage, kernel = {
-		// 加入css 到head中;
-		// 如果是生产环境; 加入 css
-		// 如果是开发环境 加入less
-		appendCss: function (url) { //自动根据当前环境添加css或less
-			var csslnk = document.createElement('link');
-			if (/\.less$/.test(url)) {
-				if (window.less) {
-					csslnk.rel = 'stylesheet/less';
-					csslnk.href = url;
-					less.sheets.push(csslnk);
-					less.refresh();
+	var homePage,
+		activities = document.getElementById('activities'),
+		kernel = {
+			// 加入css 到head中;
+			// 如果是生产环境; 加入 css
+			// 如果是开发环境 加入less
+			appendCss: function (url) { //自动根据当前环境添加css或less
+				var csslnk = document.createElement('link');
+				if (/\.less$/.test(url)) {
+					if (window.less) {
+						csslnk.rel = 'stylesheet/less';
+						csslnk.href = url;
+						less.sheets.push(csslnk);
+						less.refresh();
+					} else {
+						csslnk.rel = 'stylesheet';
+						csslnk.href = url.replace(/less$/, 'css');
+					}
 				} else {
 					csslnk.rel = 'stylesheet';
-					csslnk.href = url.replace(/less$/, 'css');
+					csslnk.href = url;
 				}
-			} else {
-				csslnk.rel = 'stylesheet';
-				csslnk.href = url;
-			}
-			return document.head.appendChild(csslnk);
-		},
-		removeCss: function (lnk) {
-			document.head.removeChild(lnk);
-			if (lnk.rel === 'stylesheet/less') {
-				less.sheets.splice(less.sheets.indexOf(lnk), 1);
-				less.refresh();
-			}
-			return lnk.getAttribute('href');
-		},
-		// 创建 svg dom;
-		makeSvg: function (name, type) {
-			var svgns = 'http://www.w3.org/2000/svg',
-				svg = document.createElementNS(svgns, 'svg');
-			svg.appendChild(document.createElementNS(svgns, 'path'));
-			if (name) {
-				kernel.setSvgPath(svg, name, type);
-			}
-			return svg;
-		},
-		// 设置svg 内容
-		setSvgPath: function (svg, name, type) {
-			var box, tmp = kernel.makeSvg();
-			if (svgicos.hasOwnProperty(name)) {
-				name = svgicos[name];
-			}
-			svg.firstChild.setAttribute('d', name);
-			tmp.style.position = 'absolute';
-			tmp.style.bottom = tmp.style.right = '100%';
-			tmp.firstChild.setAttribute('d', name);
-			document.body.appendChild(tmp);
-			box = tmp.firstChild.getBBox();
-			document.body.removeChild(tmp);
-			if (type == 2) {
-				box.width += box.x * 2;
-				box.x = 0;
-				box.height += box.y * 2;
-				box.y = 0;
-			} else if (type) {
-				if (box.width > box.height) {
-					box.y -= (box.width - box.height) / 2;
-					box.height = box.width;
-				} else {
-					box.x -= (box.height - box.width) / 2;
-					box.width = box.height;
+				return document.head.appendChild(csslnk);
+			},
+			removeCss: function (lnk) {
+				document.head.removeChild(lnk);
+				if (lnk.rel === 'stylesheet/less') {
+					less.sheets.splice(less.sheets.indexOf(lnk), 1);
+					less.refresh();
 				}
-			}
-			svg.setAttribute('viewBox', box.x + ' ' + box.y + ' ' + box.width + ' ' + box.height);
-		},
-		parseHash: function (hash) {
-			var i, a, s, nl = {
-				id: homePage,
-				args: {}
-			};
-			hash = hash.substr(1).replace(/[#?].*$/, '');
-			s = hash.match(/[^=&]+(=[^&]*)?/g);
-			if (s && s[0].charAt(0) === '!') {
-				a = decodeURIComponent(s[0].substr(1));
-				if (pages.hasOwnProperty(a)) {
-					nl.id = a;
+				return lnk.getAttribute('href');
+			},
+			// 创建 svg dom;
+			makeSvg: function (name, type) {
+				var svgns = 'http://www.w3.org/2000/svg',
+					svg = document.createElementNS(svgns, 'svg');
+				svg.appendChild(document.createElementNS(svgns, 'path'));
+				if (name) {
+					kernel.setSvgPath(svg, name, type);
 				}
-				for (i = 1; i < s.length; i++) {
-					a = s[i].match(/^([^=]+)(=)?(.+)?$/);
-					if (a) {
-						nl.args[decodeURIComponent(a[1])] = a[2] ? decodeURIComponent(a[3] || '') : undefined;
+				return svg;
+			},
+			// 设置svg 内容
+			setSvgPath: function (svg, name, type) {
+				var box, tmp = kernel.makeSvg();
+				if (svgicos.hasOwnProperty(name)) {
+					name = svgicos[name];
+				}
+				svg.firstChild.setAttribute('d', name);
+				tmp.style.position = 'absolute';
+				tmp.style.bottom = tmp.style.right = '100%';
+				tmp.firstChild.setAttribute('d', name);
+				document.body.appendChild(tmp);
+				box = tmp.firstChild.getBBox();
+				document.body.removeChild(tmp);
+				if (type == 2) {
+					box.width += box.x * 2;
+					box.x = 0;
+					box.height += box.y * 2;
+					box.y = 0;
+				} else if (type) {
+					if (box.width > box.height) {
+						box.y -= (box.width - box.height) / 2;
+						box.height = box.width;
+					} else {
+						box.x -= (box.height - box.width) / 2;
+						box.width = box.height;
 					}
 				}
-			}
-			return nl;
-		},
-		// 后退行为
-		getDefaultBack: function (loc) {
-			var i, o, bk1, bk2;
-			if (!loc) {
-				loc = kernel.location;
-			}
-			bk1 = pages[loc.id].backLoc;
-			if (pages[loc.id].back && pages[pages[loc.id].back]) {
-				bk2 = {
-					id: pages[loc.id].back,
+				svg.setAttribute('viewBox', box.x + ' ' + box.y + ' ' + box.width + ' ' + box.height);
+			},
+			parseHash: function (hash) {
+				var i, a, s, nl = {
+					id: homePage,
 					args: {}
 				};
-				o = pages[pages[loc.id].back].alias ? pages[pages[pages[loc.id].back].alias] : pages[pages[loc.id].back];
-				if (o.args) {
-					for (i = 0; i < o.args.length; i++) {
-						if (loc.args.hasOwnProperty(o.args[i])) {
-							bk2.args[o.args[i]] = loc.args[o.args[i]];
+				hash = hash.substr(1).replace(/[#?].*$/, '');
+				s = hash.match(/[^=&]+(=[^&]*)?/g);
+				if (s && s[0].charAt(0) === '!') {
+					a = decodeURIComponent(s[0].substr(1));
+					if (pages.hasOwnProperty(a)) {
+						nl.id = a;
+					}
+					for (i = 1; i < s.length; i++) {
+						a = s[i].match(/^([^=]+)(=)?(.+)?$/);
+						if (a) {
+							nl.args[decodeURIComponent(a[1])] = a[2] ? decodeURIComponent(a[3] || '') : undefined;
 						}
 					}
 				}
-			}
-			if (bk1 && bk2) {
-				for (i in bk2.args) {
-					if (bk2.args[i] !== bk1.args[i]) {
-						return bk2;
+				return nl;
+			},
+			// 后退行为
+			getDefaultBack: function (loc) {
+				var i, o, bk1, bk2;
+				if (!loc) {
+					loc = kernel.location;
+				}
+				bk1 = pages[loc.id].backLoc;
+				if (pages[loc.id].back && pages[pages[loc.id].back]) {
+					bk2 = {
+						id: pages[loc.id].back,
+						args: {}
+					};
+					o = pages[pages[loc.id].back].alias ? pages[pages[pages[loc.id].back].alias] : pages[pages[loc.id].back];
+					if (o.args) {
+						for (i = 0; i < o.args.length; i++) {
+							if (loc.args.hasOwnProperty(o.args[i])) {
+								bk2.args[o.args[i]] = loc.args[o.args[i]];
+							}
+						}
 					}
 				}
-				return bk1;
-			} else {
-				return bk1 || bk2;
-			}
-		},
-		// 判断是否是后退
-		isGoingback: function (from, to) {
-			var i, j, t, f = from;
-			if (f !== to) {
-				if (to === homePage || (f.length > to.length + 1 && f.substr(0, to.length + 1) === to + '-')) {
-					return true;
+				if (bk1 && bk2) {
+					for (i in bk2.args) {
+						if (bk2.args[i] !== bk1.args[i]) {
+							return bk2;
+						}
+					}
+					return bk1;
 				} else {
-					while (pages[f].back) {
-						f = pages[f].back;
-						if (f === to) {
-							return true;
+					return bk1 || bk2;
+				}
+			},
+			// 判断是否是后退
+			isGoingback: function (from, to) {
+				var i, j, t, f = from;
+				if (f !== to) {
+					if (to === homePage || (f.length > to.length + 1 && f.substr(0, to.length + 1) === to + '-')) {
+						return true;
+					} else {
+						while (pages[f].back) {
+							f = pages[f].back;
+							if (f === to) {
+								return true;
+							}
 						}
-					}
-					f = from.split('-');
-					t = to.split('-');
-					j = Math.min(f.length, t.length);
-					for (i = 0; i < j; i++) {
-						if (f[i] !== t[i]) {
-							break;
+						f = from.split('-');
+						t = to.split('-');
+						j = Math.min(f.length, t.length);
+						for (i = 0; i < j; i++) {
+							if (f[i] !== t[i]) {
+								break;
+							}
 						}
-					}
-					if (i < Math.max(f.length, t.length) - 1) {
-						if (i < f.length - 1) {
-							f.splice(i + 1);
+						if (i < Math.max(f.length, t.length) - 1) {
+							if (i < f.length - 1) {
+								f.splice(i + 1);
+							}
+							if (i < t.length - 1) {
+								t.splice(i + 1);
+							}
+							return kernel.isGoingback(f.join('-'), t.join('-'));
 						}
-						if (i < t.length - 1) {
-							t.splice(i + 1);
-						}
-						return kernel.isGoingback(f.join('-'), t.join('-'));
 					}
 				}
+			},
+			replaceLocation: function (loc) {
+				if (kernel.location && kernel.isSameLocation(loc, kernel.location)) {
+					kernel.reloadPage();
+				} else {
+					location.replace(kernel.buildHash(loc));
+				}
 			}
-		},
-		replaceLocation: function (loc) {
-			if (kernel.location && kernel.isSameLocation(loc, kernel.location)) {
-				kernel.reloadPage();
-			} else {
-				location.replace(kernel.buildHash(loc));
-			}
-		}
-	};
+		};
 	//页面加载相关功能
 	! function () {
 		//此处不能使用kernel.lastLocation.id, 因为currentpage仅在页面加载成功才会更新
@@ -197,7 +199,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					// 如果带ui参数就把参数中样式加入body
 					if (kernel.location.args.ui) {
 						kernel.location.args.ui.split(',').forEach(function (item) {
-							document.body.classList.add(item);
+							activities.classList.add(item);
 						});
 					}
 					// 看是否有history
@@ -353,10 +355,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						// 重置 title
 						title = pages[pageid].title || pages[id].title;
 						pagesBox.querySelector(':scope>.header>.title').firstChild.data = title;
-						if (document.body.classList.contains('clean') || document.body.classList.contains('hidePageHeader')) {
+						if (activities.classList.contains('clean') || activities.classList.contains('hidePageHeader')) {
 							document.title = title;
 						}
-						if (window.frameElement && window.frameElement.kernel && kernel.getCurrentPopup() === 'page') {
+						if (window.frameElement && frameElement.kernel && kernel.getCurrentPopup() === 'page') {
 							kernel.setPopupTitle(title);
 						}
 						// 重置 顶部按钮
@@ -456,7 +458,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						} else { // 初次加载不显示动画
 							force = true;
 							currentpage = pageid; // 记录当前显示中的页面
-							toshow.style.right = 0;
+							toshow.style.left = 0;
 							toshow.style.visibility = 'inherit';
 							noSwitchLoad(force); // 触发当前页的 加载事件
 						}
@@ -493,7 +495,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		}
 
 		function clearWindow() {
-			if (!window.frameElement || !window.frameElement.kernel) {
+			if (!window.frameElement || !frameElement.kernel) {
 				kernel.hideReadable();
 				kernel.closePopup();
 			}
@@ -526,14 +528,16 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	}();
 
 	if (browser.name === 'IOS') {
-		window.addEventListener('touchmove', cancelEvent);
+		window.addEventListener('touchmove', cancelEvent, {
+			passive: false
+		});
 	}
 
-	if (window.frameElement && window.frameElement.kernel) {
+	if (window.frameElement && frameElement.kernel) {
 		if (window.Reflect) {
-			Reflect.setPrototypeOf(kernel, window.frameElement.kernel);
+			Reflect.setPrototypeOf(kernel, frameElement.kernel);
 		} else {
-			kernel.__proto__ = window.frameElement.kernel;
+			kernel.__proto__ = frameElement.kernel;
 		}
 	} else {
 		//杂项功能
@@ -793,7 +797,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			kernel.fixIosScrolling = function (o, hscroll) {
 				if (browser.name === 'IOS') {
 					o.style.webkitOverflowScrolling = 'touch';
-					o.addEventListener('touchmove', stopEvent);
+					o.addEventListener('touchmove', stopEvent, {
+						passive: false
+					});
 					if (!hscroll) {
 						o.classList.add('iosScrollFix');
 						o.scrollTop = 1;
@@ -939,7 +945,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						if (switchCanceled(id, goBack)) {
 							return true;
 						} else {
-							toshow.style.right = 0;
+							toshow.style.left = 0;
 							toshow.style.visibility = 'inherit';
 							popupsBox.classList.add('in');
 							animating = id;
@@ -1042,7 +1048,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						popups[id].title = newTitle;
 						if (activePopup === id) {
 							title.data = newTitle;
-							if (document.body.classList.contains('hidePopupHeader')) {
+							if (activities.classList.contains('hidePopupHeader')) {
 								document.title = title.data;
 							}
 						}
@@ -1050,7 +1056,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				} else {
 					if (popupsBox.classList.contains('in')) {
 						title.data = newTitle;
-						if (document.body.classList.contains('hidePopupHeader')) {
+						if (activities.classList.contains('hidePopupHeader')) {
 							document.title = title.data;
 						}
 					}
@@ -1091,7 +1097,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							});
 						}
 						tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
-						tohide.style.right = tohide.style.visibility = '';
+						tohide.style.left = tohide.style.visibility = '';
 						if (typeof popups[activePopup].onunloadend === 'function') {
 							popups[activePopup].onunloadend();
 						}
@@ -1135,7 +1141,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				popupsBox.classList.add(activePopup);
 				// 给 title 节点设值
 				title.data = popups[id].title;
-				if (document.body.classList.contains('hidePopupHeader')) {
+				if (activities.classList.contains('hidePopupHeader')) {
 					document.title = title.data;
 				}
 				back.style.display = 'none';
@@ -1231,14 +1237,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			};
 			photoViewContent.addEventListener('load', function () {
 				photoViewCtn.style.visibility = 'inherit';
-				document.body.classList.add('mask');
 				window.addEventListener('resize', syncPhotoViewSize);
 				syncPhotoViewSize();
 			});
 			photoViewContent.addEventListener('error', function () {
 				photoViewCtn.style.visibility = '';
 				window.removeEventListener('resize', syncPhotoViewSize);
-				unmask();
 			});
 
 			kernel.showSliderView = function (doms, idx, className) {
@@ -1267,7 +1271,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				var a;
 				window.removeEventListener('resize', syncDialogSize, false);
 				dialogCtn.style.visibility = '';
-				unmask();
 				if (typeof callback === 'function') {
 					callback(param);
 				}
@@ -1284,7 +1287,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				loadingCtn.querySelector(':scope>div').lastChild.data = text ? text : '加载中...';
 				if (loadingRT === 0) {
 					loadingCtn.style.visibility = 'inherit';
-					document.body.classList.add('mask');
+					activities.classList.add('mask');
 				}
 				loadingRT++;
 			};
@@ -1293,7 +1296,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					loadingRT--;
 					if (loadingRT === 0) {
 						loadingCtn.style.visibility = '';
-						unmask();
+						activities.classList.remove('mask');
 						if (typeof kernel.dialogEvents.onloaded === 'function') {
 							kernel.dialogEvents.onloaded({
 								type: 'loaded'
@@ -1329,10 +1332,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						}
 					}
 					sliderViewCtn.style.visibility = 'inherit';
-					document.body.classList.add('mask');
 				} else {
 					sliderViewCtn.style.visibility = '';
-					unmask();
 				}
 				sliderViewCtn.querySelector(':scope>.nav').firstChild.data = txt;
 			};
@@ -1344,12 +1345,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			photoViewClose.appendChild(sliderViewClose.firstChild.cloneNode(true));
 			sliderViewClose.addEventListener('click', kernel.hideSliderView);
 			photoViewClose.addEventListener('click', kernel.hidePhotoView);
-
-			function unmask() {
-				if (dialogCtn.style.visibility === '' && loadingCtn.style.visibility === '' && sliderViewCtn.style.visibility === '' && photoViewCtn.style.visibility === '') {
-					document.body.classList.remove('mask');
-				}
-			}
 
 			function closeDialog() {
 				kernel.closeDialog();
@@ -1381,7 +1376,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					}
 					window.addEventListener('resize', syncDialogSize);
 					syncDialogSize();
-					document.body.classList.add('mask');
 					dialogCtn.style.visibility = 'inherit';
 					callback = cb;
 				}
@@ -1404,8 +1398,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 
 			function syncPhotoViewSize() {
-				photoStatus.ww = window.innerWidth;
-				photoStatus.wh = window.innerHeight;
+				photoStatus.ww = innerWidth;
+				photoStatus.wh = innerHeight;
 				photoStatus.wr = photoStatus.ww / photoStatus.wh;
 				photoStatus.ow = photoViewContent.naturalWidth;
 				photoStatus.oh = photoViewContent.naturalHeight;
@@ -1642,9 +1636,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	function panelAnimationEnd(evt) {
 		if (evt.target === this) { //ios中this的子节点也会触发该事件
 			if (this.style.animationName.substr(this.style.animationName.length - 1) === '1') {
-				this.style.right = this.style.visibility = '';
+				this.style.left = this.style.visibility = '';
 			} else {
-				this.style.right = 0;
+				this.style.left = 0;
 			}
 			this.style.animationName = '';
 		}
