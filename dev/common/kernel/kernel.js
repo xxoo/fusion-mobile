@@ -475,15 +475,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 		function reloadPage(id, silent) {
 			var cfg = pages[currentpage].alias ? pages[pages[currentpage].alias] : pages[currentpage];
-			if (!id || (typeof id === 'string' && id === kernel.location.id) || id.indexOf(kernel.location.id) >= 0) {
+			if (!id || id === currentpage || (kernel.dataType(id) === 'array' && id.indexOf(currentpage) >= 0)) {
 				if (!silent) {
 					clearWindow();
-				}
-				if (typeof cfg.onunload === 'function') {
-					cfg.onunload();
-				}
-				if (typeof cfg.onunloadend === 'function') {
-					cfg.onunloadend();
 				}
 				if (typeof cfg.onload === 'function') {
 					cfg.onload(true);
