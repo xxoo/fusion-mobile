@@ -387,10 +387,10 @@ function loaded(evt){
 				}
 			}
 		},
-		sld = touchslider(dom.querySelector(':scope>.sld')),
+		sld = touchslider(dom.querySelector('.sld')),
 		nav = dom.querySelector('.nav'),
-		tabs = dom.querySelector(':scope>.tabs'),
-		content = dom.querySelector(':scope>.content'),
+		tabs = dom.querySelector('.tabs'),
+		content = dom.querySelector('.content'),
 		mods = Object.keys(tree),
 		typeNames = {
 			properties: '属性',
@@ -460,9 +460,9 @@ function loaded(evt){
 			}
 			if (t !== type) {
 				a = '';
-				tabs.querySelector(':scope>a:nth-child(' + (types.indexOf(type) + 1) + ')').className = 'active';
+				tabs.querySelector('a:nth-child(' + (types.indexOf(type) + 1) + ')').className = 'active';
 				if (t) {
-					tabs.querySelector(':scope>a:nth-child(' + (types.indexOf(t) + 1) + ')').className = '';
+					tabs.querySelector('a:nth-child(' + (types.indexOf(t) + 1) + ')').className = '';
 				}
 				while(content.childNodes.length) {
 					content.removeChild(content.firstChild);
@@ -477,14 +477,14 @@ function loaded(evt){
 				}
 			}
 			if (a) {
-				content.querySelector(':scope>div:nth-child(' + (apis.indexOf(a) + 1) + ')').className = '';
+				content.querySelector('div:nth-child(' + (apis.indexOf(a) + 1) + ')').className = '';
 			}
 			if (api) {
-				content.querySelector(':scope>div:nth-child(' + (apis.indexOf(api) + 1) + ')').className = 'active';
+				content.querySelector('div:nth-child(' + (apis.indexOf(api) + 1) + ')').className = 'active';
 			}
 		},
 		onloadend: function() {
-			tmp = content.querySelector(':scope>div.active');
+			tmp = content.querySelector('div.active');
 			tmp && tmp.scrollIntoView({
 				block: 'start',
 				behavior: 'smooth'
