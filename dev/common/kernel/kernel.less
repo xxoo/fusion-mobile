@@ -290,6 +290,7 @@ body {
 		width: 40px;
 		height: 40px;
 		animation: loadingAni 800ms infinite linear;
+		border-top-color: var(--loadingColor1);
 		&:before{
 			content: '';
 			position: absolute;
@@ -300,6 +301,7 @@ body {
 			border: 2px solid transparent;
 			border-radius: 50%;
 			animation: loadingAni 8s infinite linear;
+			border-top-color: var(--loadingColor2);
 		}
 		&:after{
 			content: '';
@@ -311,18 +313,14 @@ body {
 			border: 2px solid transparent;
 			border-radius: 50%;
 			animation: loadingAni 4s infinite linear;
+			border-top-color: var(--loadingColor3);
 		}
 		@keyframes loadingAni {
 			0% {
 				transform: rotate(0deg);
-				border-top-color: var(--loadingColor);
-			}
-			50% {
-				border-top-color: var(--loadingAltColor);
 			}
 			100% {
 				transform: rotate(360deg);
-				border-top-color: var(--loadingColor);
 			}
 		}
 	}
