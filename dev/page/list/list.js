@@ -460,31 +460,32 @@ function loaded(evt){
 			}
 			if (t !== type) {
 				a = '';
-				tabs.querySelector('a:nth-child(' + (types.indexOf(type) + 1) + ')').className = 'active';
+				tabs.querySelector('a:nth-child(' + (types.indexOf(type) + 1) + ')').classList.add('active');
 				if (t) {
-					tabs.querySelector('a:nth-child(' + (types.indexOf(t) + 1) + ')').className = '';
+					tabs.querySelector('a:nth-child(' + (types.indexOf(t) + 1) + ')').classList.remove('active');
 				}
 				while(content.childNodes.length) {
 					content.removeChild(content.firstChild);
 				}
 				for (i in tree[mod][type]) {
-					tmp = document.createElement('div');
-					tmp.innerHTML = `<a href="#!${thispage}&mod=${encodeURIComponent(mod)}&type=${encodeURIComponent(type)}&api=${encodeURIComponent(i)}">${i}</a><div class="desc">${tree[mod][type][i].desc}</div>`;
+					tmp = `<div class="item">
+						<a href="#!${thispage}&mod=${encodeURIComponent(mod)}&type=${encodeURIComponent(type)}&api=${encodeURIComponent(i)}">${i}</a><div class="desc">${tree[mod][type][i].desc}</div>`;
 					if (tree[mod][type][i].code) {
-						tmp.insertAdjacentHTML('beforeEnd', `<div class="code">${tree[mod][type][i].code}</div>`);
+						tmp += `<div class="code">${tree[mod][type][i].code}</div>`;
 					}
-					content.appendChild(tmp);
+					tmp += '</div>';
+					content.insertAdjacentHTML('beforeEnd', tmp);
 				}
 			}
 			if (a) {
-				content.querySelector('div:nth-child(' + (apis.indexOf(a) + 1) + ')').className = '';
+				content.querySelector('.item:nth-child(' + (apis.indexOf(a) + 1) + ')').classList.remove('active');
 			}
 			if (api) {
-				content.querySelector('div:nth-child(' + (apis.indexOf(api) + 1) + ')').className = 'active';
+				content.querySelector('.item:nth-child(' + (apis.indexOf(api) + 1) + ')').classList.add('active');
 			}
 		},
 		onloadend: function() {
-			tmp = content.querySelector('div.active');
+			tmp = content.querySelector('.item.active');
 			tmp && tmp.scrollIntoView({
 				block: 'start',
 				behavior: 'smooth'
