@@ -5,7 +5,16 @@ var browser = (function () {
 		name: 'unsupported',
 		version: 0
 	};
-	if (navigator.userAgent.match(/Android/)) {
+	if (navigator.userAgent.match(/Windows/)) {
+		browser.platform = 'Windows';
+		if (M = navigator.userAgent.match(/(Trident)\/([\d\.]+).+Touch/)) {
+			browser.name = M[1];
+			browser.version = M[2];
+		} else if (navigator.maxTouchPoints && ((M = navigator.userAgent.match(/(Edge)\/([\d\.]+)/)) || (M = navigator.userAgent.match(/(Chrome|Firefox)\/([\d\.]+)/)))) {
+			browser.name = M[1];
+			browser.version = M[2];
+		}
+	} else if (navigator.userAgent.match(/Android/)) {
 		browser.platform = 'Android';
 		if (M = navigator.userAgent.match(/(Chrome|Firefox)\/([\d\.]+)/)) {
 			browser.name = M[1];
@@ -15,15 +24,6 @@ var browser = (function () {
 		browser.platform = M[1];
 		browser.name = 'IOS';
 		browser.version = M[2].replace(/_/g, '.');
-	} else if (navigator.userAgent.match(/Windows/)) {
-		browser.platform = 'Windows';
-		if (M = navigator.userAgent.match(/(Trident)\/([\d\.]+).+Touch/)) {
-			browser.name = M[1];
-			browser.version = M[2];
-		} else if ((navigator.maxTouchPoints || window.TouchEvent) && (M = navigator.userAgent.match(/(Chrome|Firefox)\/([\d\.]+)/))) {
-			browser.name = M[1];
-			browser.version = M[2];
-		}
 	}
 	if (navigator.userAgent.match(/QQ\/[\d\.]+/i)) {
 		browser.app = 'QQ';

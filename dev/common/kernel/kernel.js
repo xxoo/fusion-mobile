@@ -172,9 +172,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		var routerHistory, currentpage, animating, todo, navIcos, navs,
 			historyName = location.pathname,
 			pagesBox = document.getElementById('page'),
-			backbtn = pagesBox.querySelector(':scope>.header>.back'),
-			headerLeftMenuBtn = pagesBox.querySelector(':scope>.header>.leftMenuBtn'),
-			headerRightMenuBtn = pagesBox.querySelector(':scope>.header>.rightMenuBtn');
+			navCtn = pagesBox.querySelector('.navMenu'),
+			pageTitle = pagesBox.querySelector('.header>.title').firstChild,
+			backbtn = pagesBox.querySelector('.header>.back'),
+			headerLeftMenuBtn = pagesBox.querySelector('.header>.leftMenuBtn'),
+			headerRightMenuBtn = pagesBox.querySelector('.header>.rightMenuBtn');
 		//if private browsing is enabled, Safari will throw a stupid exception when calling setItem from sessionStorage or localStorage. the fallowing code can avoid this.
 		try {
 			sessionStorage.setItem(0, 0);
@@ -269,7 +271,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		});
 
 		function initNavs(icos) {
-			var n, navCtn = pagesBox.querySelector(':scope>.navMenu');
+			var n;
 			while (navCtn.childNodes.length) {
 				navCtn.removeChild(navCtn.childNodes[0]);
 			}
@@ -354,7 +356,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						pagesBox.classList.add(pageid);
 						// 重置 title
 						title = pages[pageid].title || pages[id].title;
-						pagesBox.querySelector(':scope>.header>.title').firstChild.data = title;
+						pageTitle.data = title;
 						if (activities.classList.contains('clean') || activities.classList.contains('hidePageHeader')) {
 							document.title = title;
 						}
@@ -404,7 +406,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						}
 						// 设置 返回按钮URL
 						setBackButton(kernel.getDefaultBack());
-						toshow = pagesBox.querySelector(':scope>.content>.' + id);
+						toshow = pagesBox.querySelector('.content>.' + id);
 
 						// 如果有 上一个pageID; 就动画切换
 						// 如果没有 就直接显示
@@ -418,7 +420,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 								noSwitchLoad(force);
 							} else {
 								animating = true;
-								tohide = pagesBox.querySelector(':scope>.content>.' + oldid);
+								tohide = pagesBox.querySelector('.content>.' + oldid);
 								// kernel 判断是否是 返回操作; 处理不一样的动画
 								goingback = kernel.isGoingback(oldpageid, pageid);
 								force = !goingback || firstLoad;
@@ -902,9 +904,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		! function () {
 			var activePopup, tempBack, tempBackParam, animating, todo,
 				popupsBox = document.getElementById('popup'),
-				popupClose = popupsBox.querySelector(':scope>.header>.close'),
-				title = popupsBox.querySelector(':scope>.header>.title').firstChild,
-				back = popupsBox.querySelector(':scope>.header>.back');
+				popupClose = popupsBox.querySelector('.header>.close'),
+				title = popupsBox.querySelector('.header>.title').firstChild,
+				back = popupsBox.querySelector('.header>.back');
 
 			// 如果弹窗有自定义打开方式则直接调用该接口，否则会调用showPopup
 			// 如果定义了open请确保最终打开自己时调用的是showPopup而不是openPopup
@@ -932,7 +934,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					};
 				} else {
 					goBack = activePopup && goBack;
-					toshow = popupsBox.querySelector(':scope>.content>.' + id);
+					toshow = popupsBox.querySelector('.content>.' + id);
 					// 有 .in 表示正在显示中
 					// 如果没有 in class 就需要打开
 					if (!popupsBox.classList.contains('in')) {
@@ -957,7 +959,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							return true;
 						} else {
 							oldPopup = activePopup;
-							tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
+							tohide = popupsBox.querySelector('.content>.' + activePopup);
 							panelSwitch(toshow, tohide, goBack, function () {
 								var tmp;
 								animating = false;
@@ -1090,7 +1092,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 								id: activePopup
 							});
 						}
-						tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
+						tohide = popupsBox.querySelector('.content>.' + activePopup);
 						tohide.style.left = tohide.style.visibility = '';
 						if (typeof popups[activePopup].onunloadend === 'function') {
 							popups[activePopup].onunloadend();
@@ -1144,8 +1146,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		// 内置特殊弹窗, 会显示在普通弹窗之上, 并且彼此独立
 		! function () {
 			var readableBox = document.getElementById('readable'),
-				readableClose = readableBox.querySelector(':scope>.close'),
-				readableContent = readableBox.querySelector(':scope>.content'),
+				readableClose = readableBox.querySelector('.close'),
+				readableContent = readableBox.querySelector('.content'),
 				raCallback;
 
 			kernel.fixIosScrolling(readableContent);
@@ -1190,18 +1192,18 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				loadingCtn = document.getElementById('loading'),
 				hintCtn = document.getElementById('hint'),
 				dialogCtn = document.getElementById('dialog'),
-				dialogBox = dialogCtn.querySelector(':scope>div'),
-				dialogContent = dialogBox.querySelector(':scope>.content'),
-				dialogClose = dialogBox.querySelector(':scope>.close'),
-				yesbtn = dialogBox.querySelector(':scope>.btns>.yes'),
-				nobtn = dialogBox.querySelector(':scope>.btns>.no'),
+				dialogBox = dialogCtn.querySelector('div'),
+				dialogContent = dialogBox.querySelector('.content'),
+				dialogClose = dialogBox.querySelector('.close'),
+				yesbtn = dialogBox.querySelector('.btns>.yes'),
+				nobtn = dialogBox.querySelector('.btns>.no'),
 				sliderViewCtn = document.getElementById('sliderView'),
-				sliderViewClose = sliderViewCtn.querySelector(':scope>.close'),
-				slider = touchslider(sliderViewCtn.querySelector(':scope>.content')),
+				sliderViewClose = sliderViewCtn.querySelector('.close'),
+				slider = touchslider(sliderViewCtn.querySelector('.content')),
 				photoViewCtn = document.getElementById('photoView'),
-				photoViewClose = photoViewCtn.querySelector(':scope>.close'),
-				photoViewContent = photoViewCtn.querySelector(':scope>img'),
-				photoViewActions = photoViewCtn.querySelector(':scope>.actions'),
+				photoViewClose = photoViewCtn.querySelector('.close'),
+				photoViewContent = photoViewCtn.querySelector('img'),
+				photoViewActions = photoViewCtn.querySelector('.actions'),
 				guesture = touchguesture(photoViewCtn);
 
 			guesture.onzoomstart = zoomstart;
@@ -1278,7 +1280,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			};
 			kernel.showLoading = function (text) { //loading提示框, 每次调用引用计数+1所以showLoading和hideLoading必须成对使用
-				loadingCtn.querySelector(':scope>div').lastChild.data = text ? text : '加载中...';
+				loadingCtn.querySelector('div').lastChild.data = text ? text : '加载中...';
 				if (loadingRT === 0) {
 					loadingCtn.style.visibility = 'inherit';
 					activities.classList.add('mask');
@@ -1303,7 +1305,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				return loadingRT > 0;
 			};
 			kernel.hint = function (text, t) { //底部提示, 不干扰用户操作, 默认显示5秒
-				hintCtn.querySelector(':scope>.text').firstChild.data = text;
+				hintCtn.querySelector('.text').firstChild.data = text;
 				if (hintmo) {
 					clearTimeout(hintmo);
 				} else {
@@ -1329,7 +1331,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				} else {
 					sliderViewCtn.style.visibility = '';
 				}
-				sliderViewCtn.querySelector(':scope>.nav').firstChild.data = txt;
+				sliderViewCtn.querySelector('.nav').firstChild.data = txt;
 			};
 			dialogClose.appendChild(kernel.makeSvg('times-circle-solid', 1));
 			dialogClose.addEventListener('click', closeDialog);
@@ -1551,8 +1553,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 		function loadJs(html) {
 			var js;
-			ctn.querySelector(':scope>.content').insertAdjacentHTML('beforeEnd', '<div class="' + id + '">' + html + '</div>');
-			addPanelAnimationListener(ctn.querySelector(':scope>.content>.' + id));
+			ctn.querySelector('.content').insertAdjacentHTML('beforeEnd', '<div class="' + id + '">' + html + '</div>');
+			addPanelAnimationListener(ctn.querySelector('.content>.' + id));
 			if ('js' in oldcfg) {
 				kernel.showLoading();
 				js = n + oldcfg.js;
