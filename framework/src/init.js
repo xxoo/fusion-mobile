@@ -7,7 +7,7 @@ var browser = (function () {
 	};
 	if (M = navigator.userAgent.match(/Macintosh|Windows/)) {
 		browser.platform = M[0];
-		if (M = navigator.userAgent.match(/(Trident)\/([\d\.]+).+/) || navigator.userAgent.match(/(Edge)\/([\d\.]+)/) || navigator.userAgent.match(/(Chrome|Firefox)\/([\d\.]+)/) || navigator.userAgent.match(/(Safari)\/([\d\.]+)/)) {
+		if (navigator.userAgent.match(/(Edge)\/([\d\.]+)/) || navigator.userAgent.match(/(Chrome|Firefox)\/([\d\.]+)/) || navigator.userAgent.match(/(Safari)\/([\d\.]+)/)) {
 			browser.name = M[1];
 			browser.version = M[2];
 		}
@@ -54,7 +54,7 @@ var browser = (function () {
 		window.removeEventListener('resize', rsz);
 		t.content = 'user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1';
 		s = calcRato(Math.min(window.innerWidth, window.innerHeight));
-		if (browser.platform === 'unknown' || browser.name === 'unsupported' || browser.name === 'Trident') {
+		if (browser.name === 'unsupported') {
 			document.documentElement.style.zoom = s;
 		} else {
 			t.content = 'user-scalable=no, width=' + 100 / s + '%, initial-scale=' + s + ', maximum-scale=' + s + ', minimum-scale=' + s;
