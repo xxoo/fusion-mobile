@@ -5,12 +5,9 @@ var browser = (function () {
 		name: 'unsupported',
 		version: 0
 	};
-	if (navigator.userAgent.match(/Windows/)) {
-		browser.platform = 'Windows';
-		if (M = navigator.userAgent.match(/(Trident)\/([\d\.]+).+Touch/)) {
-			browser.name = M[1];
-			browser.version = M[2];
-		} else if (navigator.maxTouchPoints && ((M = navigator.userAgent.match(/(Edge)\/([\d\.]+)/)) || (M = navigator.userAgent.match(/(Chrome|Firefox)\/([\d\.]+)/)))) {
+	if (M = navigator.userAgent.match(/Macintosh|Windows/)) {
+		browser.platform = M[0];
+		if (M = navigator.userAgent.match(/(Trident)\/([\d\.]+).+/) || navigator.userAgent.match(/(Edge)\/([\d\.]+)/) || navigator.userAgent.match(/(Chrome|Firefox)\/([\d\.]+)/) || navigator.userAgent.match(/(Safari)\/([\d\.]+)/)) {
 			browser.name = M[1];
 			browser.version = M[2];
 		}
@@ -33,36 +30,12 @@ var browser = (function () {
 		browser.app = 'WeiBo';
 	}
 	if (window.top === window) {
-		var s, sw, ww,
-			t = document.head.appendChild(document.createElement('meta'));
+		var t = document.head.appendChild(document.createElement('meta'));
 		t.name = 'format-detection';
 		t.content = 'telephone=no';
 		t = document.head.appendChild(document.createElement('meta'));
 		t.name = 'viewport';
-		if (browser.name === 'Firefox') {
-			s = calcRato(Math.min(screen.width, screen.height));
-			t.content = 'user-scalable=no, width=' + 100 / s + '%, initial-scale=' + s + ', maximum-scale=' + s + ', minimum-scale=' + s;
-		} else if (browser.name === 'Trident') {
-			t.content = 'width=device-width, user-scalable=no';
-			document.documentElement.style.zoom = calcRato(Math.min(screen.width, screen.height));
-		} else {
-			t.content = 'user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1';
-			sw = Math.min(screen.width, screen.height);
-			ww = Math.min(window.innerWidth, window.innerHeight);
-			if (sw >= ww * devicePixelRatio) {
-				document.documentElement.style.zoom = calcRato(sw / devicePixelRatio);
-			} else {
-				s = calcRato(sw);
-				t.content = 'user-scalable=no, width=' + 100 / s + '%, initial-scale=' + s + ', maximum-scale=' + s + ', minimum-scale=' + s;
-				if (browser.name === 'IOS' && CSS.supports('padding-bottom: constant(safe-area-inset-bottom)')) {
-					t.content += ', viewport-fit=cover';
-					document.documentElement.style.top = 'constant(safe-area-inset-top)';
-					document.documentElement.style.left = 'constant(safe-area-inset-left)';
-					document.documentElement.style.right = 'constant(safe-area-inset-right)';
-					document.documentElement.style.bottom = 'constant(safe-area-inset-bottom)';
-				}
-			}
-		}
+		rsz();
 	}
 	return browser;
 
@@ -75,10 +48,25 @@ var browser = (function () {
 		}
 		return zoom;
 	}
+
+	function rsz() {
+		var s;
+		window.removeEventListener('resize', rsz);
+		t.content = 'user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1';
+		s = calcRato(Math.min(window.innerWidth, window.innerHeight));
+		if (browser.platform === 'unknown' || browser.name === 'unsupported' || browser.name === 'Trident') {
+			document.documentElement.style.zoom = s;
+		} else {
+			t.content = 'user-scalable=no, width=' + 100 / s + '%, initial-scale=' + s + ', maximum-scale=' + s + ', minimum-scale=' + s;
+		}
+		setTimeout(function () {
+			window.addEventListener('resize', rsz);
+		}, 0);
+	}
 })();
 ! function () {
 	'use strict';
-	var src = document.currentScript.getAttribute('src'),
+	var src = (document.currentScript || document.scripts[document.scripts.length - 1]).getAttribute('src'),
 		prefix = src.replace(/framework\/[^\/]+$/, ''),
 		cfg = {
 			waitSeconds: 0,
