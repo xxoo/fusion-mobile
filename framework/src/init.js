@@ -1,10 +1,12 @@
 var browser = (function () {
 	'use strict';
-	var t, M, browser = {
-		platform: 'unknown',
-		name: 'unsupported',
-		version: 0
-	};
+	var t, M, wait,
+		s = 'user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1',
+		browser = {
+			platform: 'unknown',
+			name: 'unsupported',
+			version: 0
+		};
 	if (M = navigator.userAgent.match(/Macintosh|Windows/)) {
 		browser.platform = M[0];
 		if (M = navigator.userAgent.match(/(Edge)\/([\d\.]+)/) || navigator.userAgent.match(/(Chrome|Firefox)\/([\d\.]+)/) || navigator.userAgent.match(/(AppleWebKit)\/([\d\.]+)/)) {
@@ -32,7 +34,12 @@ var browser = (function () {
 	if (window.top === window) {
 		t = document.head.appendChild(document.createElement('meta'));
 		t.name = 'viewport';
-		rsz();
+		if (browser.name === 'unsupported') {
+			t.content = s;
+		} else {
+			rsz();
+			window.addEventListener('resize', rsz);
+		}
 	}
 	return browser;
 
@@ -47,18 +54,20 @@ var browser = (function () {
 	}
 
 	function rsz() {
-		var s;
-		window.removeEventListener('resize', rsz);
-		t.content = 'user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1';
-		s = calcRato(Math.min(innerWidth, innerHeight));
-		if (browser.name === 'unsupported') {
-			document.documentElement.style.zoom = s;
+		var r;
+		if (wait) {
+			wait = false;
 		} else {
-			t.content = 'user-scalable=no, width=' + 100 / s + '%, initial-scale=' + s + ', maximum-scale=' + s + ', minimum-scale=' + s;
+			if (t.content !== s) {
+				wait = true;
+				t.content = s;
+			}
+			r = calcRato(Math.min(innerWidth, innerHeight));
+			if (r !== 1) {
+				wait = true;
+				t.content = 'user-scalable=no, width=' + 100 / r + '%, initial-scale=' + r + ', maximum-scale=' + r + ', minimum-scale=' + r;
+			}
 		}
-		setTimeout(function () {
-			window.addEventListener('resize', rsz);
-		}, 0);
 	}
 })();
 ! function () {
