@@ -1,19 +1,19 @@
 var browser = (function () {
 	'use strict';
-	var M, browser = {
+	var t, M, browser = {
 		platform: 'unknown',
 		name: 'unsupported',
 		version: 0
 	};
 	if (M = navigator.userAgent.match(/Macintosh|Windows/)) {
 		browser.platform = M[0];
-		if (navigator.userAgent.match(/(Edge)\/([\d\.]+)/) || navigator.userAgent.match(/(Chrome|Firefox)\/([\d\.]+)/) || navigator.userAgent.match(/(Safari)\/([\d\.]+)/)) {
+		if (M = navigator.userAgent.match(/(Edge)\/([\d\.]+)/) || navigator.userAgent.match(/(Chrome|Firefox)\/([\d\.]+)/) || navigator.userAgent.match(/(AppleWebKit)\/([\d\.]+)/)) {
 			browser.name = M[1];
 			browser.version = M[2];
 		}
-	} else if (navigator.userAgent.match(/Android/)) {
-		browser.platform = 'Android';
-		if (M = navigator.userAgent.match(/(Chrome|Firefox)\/([\d\.]+)/)) {
+	} else if (M = navigator.userAgent.match(/Android/) || navigator.userAgent.match(/Linux/)) {
+		browser.platform = M[0];
+		if (M = navigator.userAgent.match(/(Chrome|Firefox)\/([\d\.]+)/) || navigator.userAgent.match(/(AppleWebKit)\/([\d\.]+)/)) {
 			browser.name = M[1];
 			browser.version = M[2];
 		}
@@ -30,7 +30,7 @@ var browser = (function () {
 		browser.app = 'WeiBo';
 	}
 	if (window.top === window) {
-		var t = document.head.appendChild(document.createElement('meta'));
+		t = document.head.appendChild(document.createElement('meta'));
 		t.name = 'format-detection';
 		t.content = 'telephone=no';
 		t = document.head.appendChild(document.createElement('meta'));
