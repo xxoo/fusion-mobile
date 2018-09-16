@@ -31,9 +31,6 @@ var browser = (function () {
 	}
 	if (window.top === window) {
 		t = document.head.appendChild(document.createElement('meta'));
-		t.name = 'format-detection';
-		t.content = 'telephone=no';
-		t = document.head.appendChild(document.createElement('meta'));
 		t.name = 'viewport';
 		rsz();
 	}
@@ -53,7 +50,7 @@ var browser = (function () {
 		var s;
 		window.removeEventListener('resize', rsz);
 		t.content = 'user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1';
-		s = calcRato(Math.min(window.innerWidth, window.innerHeight));
+		s = calcRato(Math.min(innerWidth, innerHeight));
 		if (browser.name === 'unsupported') {
 			document.documentElement.style.zoom = s;
 		} else {
