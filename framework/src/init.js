@@ -72,7 +72,7 @@ var browser = (function () {
 })();
 ! function () {
 	'use strict';
-	var src = (document.currentScript || document.scripts[document.scripts.length - 1]).getAttribute('src'),
+	var src = document.currentScript.getAttribute('src'),
 		prefix = src.replace(/framework\/[^\/]+$/, ''),
 		cfg = {
 			waitSeconds: 0,
