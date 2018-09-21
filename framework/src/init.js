@@ -34,40 +34,45 @@ var browser = (function () {
 	if (window.top === window) {
 		t = document.head.appendChild(document.createElement('meta'));
 		t.name = 'viewport';
+		t.content = s;
 		if (browser.name) {
-			rsz();
-			window.addEventListener('resize', rsz);
-		} else {
-			t.content = s;
+			if (window.visualViewport) {
+				visualViewport.addEventListener('resize', function (){
+					var r = calcRato(Math.min(visualViewport.width * visualViewport.scale, visualViewport.height * visualViewport.scale));
+					t.content = 'user-scalable=no, width=' + visualViewport.width * visualViewport.scale / r + ', initial-scale=' + r + ', maximum-scale=' + r + ', minimum-scale=' + r;
+				});
+				visualViewport.dispatchEvent(new Event('resize'));
+			} else {
+				window.addEventListener('resize', function () {
+					var r;
+					if (wait) {
+						wait = false;
+					} else {
+						if (t.content !== s) {
+							wait = true;
+							t.content = s;
+						}
+						r = calcRato(Math.min(innerWidth, innerHeight));
+						if (r !== 1) {
+							wait = true;
+							t.content = 'user-scalable=no, width=' + innerWidth / r + ', initial-scale=' + r + ', maximum-scale=' + r + ', minimum-scale=' + r;
+						}
+					}
+				});
+				window.dispatchEvent(new Event('resize'));
+			}
 		}
 	}
 	return browser;
 
 	function calcRato(sw) {
-		var step = 0.125;
+		var step = 0.0625;
 		var zoom = sw / 320;
 		//放大时不使用线性算法
 		if (zoom > 1) {
 			zoom = Math.floor(Math.sqrt(zoom) / step) * step;
 		}
 		return zoom;
-	}
-
-	function rsz() {
-		var r;
-		if (wait) {
-			wait = false;
-		} else {
-			if (t.content !== s) {
-				wait = true;
-				t.content = s;
-			}
-			r = calcRato(Math.min(innerWidth, innerHeight));
-			if (r !== 1) {
-				wait = true;
-				t.content = 'user-scalable=no, width=' + 100 / r + '%, initial-scale=' + r + ', maximum-scale=' + r + ', minimum-scale=' + r;
-			}
-		}
 	}
 })();
 ! function () {
