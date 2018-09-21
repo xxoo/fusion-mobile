@@ -524,6 +524,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	}();
 
 	if (browser.name === 'IOS') {
+		window.addEventListener('gesturestart', cancelEvent);
 		window.addEventListener('touchmove', cancelEvent, {
 			passive: false
 		});
