@@ -1,4 +1,4 @@
-let l = document.querySelector('link[href^="https://pro.fontawesome.com/releases/"]');
+let l = document.querySelector('link[href^="https://pro-next.fontawesome.com/releases/"]');
 if (l) {
 	let s = document.createElement('script');
 	s.src = l.href.replace(/css\/all.css$/, 'js/all.js');
