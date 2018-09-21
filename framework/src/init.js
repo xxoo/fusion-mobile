@@ -3,8 +3,8 @@ var browser = (function () {
 	var t, M, wait,
 		s = 'user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1',
 		browser = {
-			platform: 'unknown',
-			name: 'unsupported',
+			platform: '',
+			name: '',
 			version: 0
 		};
 	if (M = navigator.userAgent.match(/Macintosh|Windows/)) {
@@ -34,11 +34,11 @@ var browser = (function () {
 	if (window.top === window) {
 		t = document.head.appendChild(document.createElement('meta'));
 		t.name = 'viewport';
-		if (browser.name === 'unsupported') {
-			t.content = s;
-		} else {
+		if (browser.name) {
 			rsz();
 			window.addEventListener('resize', rsz);
+		} else {
+			t.content = s;
 		}
 	}
 	return browser;
