@@ -1,4 +1,4 @@
-var browser = (function () {
+var browser = function () {
 	'use strict';
 	var t, M, wait,
 		s = 'user-scalable=no, width=device-width',
@@ -72,7 +72,7 @@ var browser = (function () {
 		}
 		return Math.round(width / r);
 	}
-})();
+}();
 ! function () {
 	'use strict';
 	var src = document.currentScript.getAttribute('src'),
