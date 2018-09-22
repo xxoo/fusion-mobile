@@ -1,7 +1,7 @@
 var browser = (function () {
 	'use strict';
 	var t, M, wait,
-		s = 'user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1',
+		s = 'user-scalable=no, width=device-width',
 		browser = {
 			platform: '',
 			name: '',
@@ -37,10 +37,8 @@ var browser = (function () {
 		t.content = s;
 		if (browser.name) {
 			if (window.visualViewport) {
-				visualViewport.addEventListener('resize', function (){
-					var width = Math.round(visualViewport.width * visualViewport.scale);
-					var r = calcRato(Math.min(width, visualViewport.height * visualViewport.scale));
-					t.content = 'user-scalable=no, width=' + Math.round(width / r) + ', initial-scale=' + r + ', maximum-scale=' + r + ', minimum-scale=' + r;
+				visualViewport.addEventListener('resize', function () {
+					t.content = 'user-scalable=no, width=' + calcWidth(Math.round(visualViewport.width * visualViewport.scale), visualViewport.height * visualViewport.scale);
 				});
 				visualViewport.dispatchEvent(new Event('resize'));
 			} else {
@@ -53,10 +51,10 @@ var browser = (function () {
 							wait = true;
 							t.content = s;
 						}
-						r = calcRato(Math.min(innerWidth, innerHeight));
-						if (r !== 1) {
+						r = calcWidth(innerWidth, innerHeight);
+						if (r !== innerWidth) {
 							wait = true;
-							t.content = 'user-scalable=no, width=' + Math.round(innerWidth / r) + ', initial-scale=' + r + ', maximum-scale=' + r + ', minimum-scale=' + r;
+							t.content = 'user-scalable=no, width=' + r;
 						}
 					}
 				});
@@ -66,14 +64,13 @@ var browser = (function () {
 	}
 	return browser;
 
-	function calcRato(sw) {
-		var zoom = sw / 320;
-		//放大时不使用线性算法
-		if (zoom > 1) {
-			zoom = Math.sqrt(zoom);
-			zoom = sw / Math.round(sw / zoom);
+	function calcWidth(width, height) {
+		var sw = Math.min(width, height),
+			r = sw / 320;
+		if (r > 1) {
+			r = Math.sqrt(r);
 		}
-		return zoom;
+		return Math.round(width / r);
 	}
 })();
 ! function () {
