@@ -50,7 +50,7 @@ var browser = function () {
 		t.content = s;
 		if (window.visualViewport) {
 			visualViewport.addEventListener('resize', function () {
-				t.content = 'user-scalable=no, width=' + calcWidth(Math.round(visualViewport.width * visualViewport.scale), visualViewport.height * visualViewport.scale);
+				t.content = 'user-scalable=no, width=' + calcWidth(Math.round(visualViewport.width * visualViewport.scale), Math.round(visualViewport.height * visualViewport.scale));
 			});
 			visualViewport.dispatchEvent(new Event('resize'));
 		} else {
