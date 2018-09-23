@@ -1,7 +1,6 @@
 var browser = function () {
 	'use strict';
-	var t, M, wait,
-		s = 'user-scalable=no, width=device-width',
+	var M,
 		browser = {
 			platform: '',
 			name: '',
@@ -31,51 +30,12 @@ var browser = function () {
 	} else if (navigator.userAgent.match(/WeiBo/i)) {
 		browser.app = 'WeiBo';
 	}
-	if (window.top === window) {
-		t = document.head.appendChild(document.createElement('meta'));
-		t.name = 'viewport';
-		t.content = s;
-		if (browser.name) {
-			if (window.visualViewport) {
-				visualViewport.addEventListener('resize', function () {
-					t.content = 'user-scalable=no, width=' + calcWidth(Math.round(visualViewport.width * visualViewport.scale), visualViewport.height * visualViewport.scale);
-				});
-				visualViewport.dispatchEvent(new Event('resize'));
-			} else {
-				window.addEventListener('resize', function () {
-					var r;
-					if (wait) {
-						wait = false;
-					} else {
-						if (t.content !== s) {
-							wait = true;
-							t.content = s;
-						}
-						r = calcWidth(innerWidth, innerHeight);
-						if (r !== innerWidth) {
-							wait = true;
-							t.content = 'user-scalable=no, width=' + r;
-						}
-					}
-				});
-				window.dispatchEvent(new Event('resize'));
-			}
-		}
-	}
 	return browser;
-
-	function calcWidth(width, height) {
-		var sw = Math.min(width, height),
-			r = sw / 320;
-		if (r > 1) {
-			r = Math.sqrt(r);
-		}
-		return Math.round(width / r);
-	}
 }();
 ! function () {
 	'use strict';
 	var src = document.currentScript.getAttribute('src'),
+		s = 'user-scalable=no, width=device-width',
 		prefix = src.replace(/framework\/[^\/]+$/, ''),
 		cfg = {
 			waitSeconds: 0,
@@ -83,7 +43,36 @@ var browser = function () {
 		},
 		l = document.createElement('link'),
 		m = document.createElement('link'),
-		n;
+		n, t, wait;
+	if (window.top === window) {
+		t = document.head.appendChild(document.createElement('meta'));
+		t.name = 'viewport';
+		t.content = s;
+		if (window.visualViewport) {
+			visualViewport.addEventListener('resize', function () {
+				t.content = 'user-scalable=no, width=' + calcWidth(Math.round(visualViewport.width * visualViewport.scale), visualViewport.height * visualViewport.scale);
+			});
+			visualViewport.dispatchEvent(new Event('resize'));
+		} else {
+			window.addEventListener('resize', function () {
+				var width;
+				if (wait) {
+					wait = false;
+				} else {
+					if (t.content !== s) {
+						wait = true;
+						t.content = s;
+					}
+					width = calcWidth(innerWidth, innerHeight);
+					if (width !== innerWidth) {
+						wait = true;
+						t.content = 'user-scalable=no, width=' + width;
+					}
+				}
+			});
+			window.dispatchEvent(new Event('resize'));
+		}
+	}
 	if (VERSION !== 'dev') {
 		for (n in MODULES) {
 			MODULES[n] = prefix + 'dist/' + n + '/' + MODULES[n];
@@ -124,4 +113,13 @@ var browser = function () {
 	}
 	document.head.appendChild(m);
 	document.head.appendChild(l);
+
+	function calcWidth(width, height) {
+		var sw = Math.min(width, height),
+			r = sw / 320;
+		if (r > 1) {
+			r = Math.sqrt(r);
+		}
+		return Math.round(width / r);
+	}
 }();
