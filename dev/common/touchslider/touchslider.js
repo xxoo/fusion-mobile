@@ -1,17 +1,17 @@
 /* touchSlider 0.1
  * usage:
- *		var touchslider = require('path/to/touchslider');
- *		var slider = [new] touchsilder([container_dom]);
+ *		let touchslider = require('path/to/touchslider');
+ *		let slider = [new] touchsilder([container_dom]);
  *		slider.add(content_com);
  *		slider.onchange = function(){
- *			var current = slider.current;
+ *			let current = slider.current;
  *			...
  *		};
  */
 
 'use strict';
 define(['common/pointerevents/pointerevents'], function(pointerevents) {
-	var touchslider, tmp, tmp1;
+	let touchslider, tmp, tmp1;
 	if ('transition' in document.documentElement.style) {
 		tmp1 = 'transition';
 		tmp = 'transitionend';
@@ -20,10 +20,10 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 		tmp = 'webkitTransitionEnd';
 	}
 	touchslider = function(container, contents, idx) {
+		let i, peo,
+			self = this,
+			vars = {};
 		if (this instanceof touchslider) {
-			var i, peo,
-				self = this,
-				vars = {};
 			this.pushStack = []; //for adding elements while sliding
 			this.removeStack = []; //for removing elements while sliding
 			if (container) {
@@ -95,7 +95,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	//if sliding begins, scrolling will be disabled in the entire document till it is end
 	touchslider.prototype.minVal = 5;
 	touchslider.prototype.add = function(o) {
-		var result;
+		let result;
 		if (this.sliding) { //will push to children when sliding ends
 			this.pushStack.push(o);
 		} else {
@@ -134,7 +134,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 		return result;
 	};
 	touchslider.prototype.remove = function(i) {
-		var result;
+		let result;
 		if (this.sliding) {
 			if (typeof i === 'number') {
 				i = this.children[i];
@@ -207,7 +207,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 		return result;
 	};
 	touchslider.prototype.clear = function() {
-		var i;
+		let i;
 		if (this.sliding) {
 			this.removeStack = this.children.slice(0);
 			this.pushStack = [];
@@ -218,7 +218,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 		}
 	};
 	touchslider.prototype.slideTo = function(i, direction) {
-		var result;
+		let result;
 		if (typeof i !== 'number') {
 			i = this.children.indexOf(i);
 		}
@@ -249,7 +249,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 		restartTimer(this);
 	};
 	touchslider.prototype.stopPlay = function() {
-		var result = this.delay;
+		let result = this.delay;
 		if (result) {
 			delete this.delay;
 			if (this.timer) {
@@ -262,7 +262,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	return touchslider;
 
 	function beginSlide(obj, r) {
-		var t, n;
+		let t, n;
 		if (r) {
 			t = Math.round(Math.sqrt(obj.subcontainer.offsetLeft * -1 / obj.container.clientWidth) * obj.duration);
 			n = 0;
@@ -324,7 +324,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	}
 
 	function mv(evt, obj, vars) {
-		var v, n, n1;
+		let v, n, n1;
 		if (obj.children.length > 1 && !obj.sliding) {
 			vars.ox = vars.nx;
 			vars.ot = vars.nt;
@@ -394,7 +394,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	}
 
 	function ed(evt, obj, vars) {
-		var speed, s;
+		let speed, s;
 		if (obj.subcontainer.childNodes.length === 2) {
 			speed = (evt.x - vars.ox) / (evt.domEvent.timeStamp - vars.ot);
 			s = Math.pow(speed, 2) * obj.rate;
@@ -446,21 +446,21 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	}
 
 	function getPos(c, t) {
-		var s = c % t;
+		let s = c % t;
 		if (s < 0) {
 			s += t;
 		}
 		return s;
 	}
 
-	function fireEvent(obj, name, props) {
-		var funcName = 'on' + name;
-		if (typeof obj[funcName] === 'function') {
-			var a =
-			obj[funcName]({
-				type: name,
-				__proto__: props
-			});
+	function fireEvent(obj, evt, o) {
+		let n = 'on' + evt;
+		if (typeof obj[n] === 'function') {
+			if (!o) {
+				o = {};
+			}
+			o.type = evt;
+			obj[n](o);
 		}
 	}
 
