@@ -586,7 +586,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			};
 		}();
 		! function () {
-			let t = document.querySelector('meta[name=viewport]'),
+			let t = document.head.querySelector('meta[name=viewport]'),
 				s = t.content,
 				minWidth, wait;
 			kernel.setAutoScale = function (v) {
