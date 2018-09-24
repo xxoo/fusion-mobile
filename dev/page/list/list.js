@@ -72,6 +72,10 @@ console.log(svg);`
 	id: 'home'
 }));`
 					},
+					'setAutoScale(minWidth:Number):void': {
+						desc: '设置自动缩放功能. 当 minWidth > 0 时则启用, 否则禁用. 当窗口宽度小于 minWidth 时会(线性)缩小页面内容, 当窗口宽度大于 minWidth 时会(非线性)放大页面内容.',
+						code: `kernel.setAutoScale(375);`
+					},
 					'dataType(a:any):String': {
 						desc: '获得a的数据类型, 和jQuery.type类似',
 						code: `console.log(kernel.dataType([]));`

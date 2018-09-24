@@ -585,6 +585,57 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			};
 		}();
+		! function () {
+			let t = document.querySelector('meta[name=viewport]'),
+				s = t.content,
+				minWidth, wait;
+			kernel.setAutoScale = function (v) {
+				minWidth = v;
+				if (minWidth > 0) {
+					if (window.visualViewport) {
+						visualViewport.dispatchEvent(new Event('resize'));
+					} else {
+						window.dispatchEvent(new Event('resize'));
+					}
+				} else {
+					t.content = s;
+				}
+			};
+			if (window.visualViewport) {
+				visualViewport.addEventListener('resize', function () {
+					if (minWidth) {
+						t.content = 'user-scalable=no, width=' + calcWidth(Math.round(visualViewport.width * visualViewport.scale), Math.round(visualViewport.height * visualViewport.scale));
+					}
+				});
+			} else {
+				window.addEventListener('resize', function () {
+					if (minWidth > 0) {
+						if (wait) {
+							wait = false;
+						} else {
+							if (t.content !== s) {
+								wait = true;
+								t.content = s;
+							}
+							let width = calcWidth(innerWidth, innerHeight);
+							if (width !== innerWidth) {
+								wait = true;
+								t.content = 'user-scalable=no, width=' + width;
+							}
+						}
+					}
+				});
+			}
+
+			function calcWidth(width, height) {
+				var sw = Math.min(width, height),
+					r = sw / minWidth;
+				if (r > 1) {
+					r = Math.sqrt(r);
+				}
+				return Math.round(width / r);
+			}
+		}();
 		//事件处理
 		! function () {
 			kernel.listeners = {
