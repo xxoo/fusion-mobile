@@ -1,7 +1,7 @@
 'use strict';
 define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 'common/pointerevents/pointerevents', 'common/svgicos/svgicos', 'site/pages/pages', 'site/popups/popups'], function (touchslider, touchguesture, pointerevents, svgicos, pages, popups) {
 	var homePage,
-		activities = document.getElementById('activities'),
+		activities = document.body.querySelector('#activities'),
 		kernel = {
 			// 加入css 到head中;
 			// 如果是生产环境; 加入 css
@@ -24,8 +24,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 				return document.head.appendChild(csslnk);
 			},
-			removeCss: function (lnk) {
-				document.head.removeChild(lnk);
+			removeCss: function (lnk) {				
+				lnk.remove();
 				if (lnk.rel === 'stylesheet/less') {
 					less.sheets.splice(less.sheets.indexOf(lnk), 1);
 					less.refresh();
@@ -54,7 +54,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				tmp.firstChild.setAttribute('d', name);
 				document.body.appendChild(tmp);
 				box = tmp.firstChild.getBBox();
-				document.body.removeChild(tmp);
+				tmp.remove();
 				if (type == 2) {
 					box.width += box.x * 2;
 					box.x = 0;
@@ -171,7 +171,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		//而kernel.lastLocation.id在页面加载前就已经更新, 无法确保成功加载
 		var routerHistory, currentpage, animating, todo, navIcos, navs,
 			historyName = location.pathname,
-			pagesBox = document.getElementById('page'),
+			pagesBox = document.body.querySelector('#page'),
 			navCtn = pagesBox.querySelector(':scope>.navMenu'),
 			pageTitle = pagesBox.querySelector(':scope>.header>.title').firstChild,
 			backbtn = pagesBox.querySelector(':scope>.header>.back'),
@@ -221,7 +221,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					window.addEventListener('dragstart', cancelEvent);
 					manageLocation();
 					if (kernel.location.args.hasOwnProperty('autopopup') && kernel.openPopup(kernel.location.args.autopopup, kernel.location.args.autopopuparg ? JSON.parse(kernel.location.args.autopopuparg) : undefined)) {
-						document.getElementById('popup').style.animationDuration = '1ms';
+						document.body.querySelector('#popup').style.animationDuration = '1ms';
 						kernel.listeners.add(kernel.popupEvents, 'showend', removeLoading);
 					} else {
 						removeLoading();
@@ -273,7 +273,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		function initNavs(icos) {
 			var n;
 			while (navCtn.childNodes.length) {
-				navCtn.removeChild(navCtn.childNodes[0]);
+				navCtn.firstChild.remove();
 			}
 			navIcos = icos;
 			navs = {};
@@ -365,11 +365,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						}
 						// 重置 顶部按钮
 						while (headerRightMenuBtn.childNodes.length) {
-							headerRightMenuBtn.removeChild(headerRightMenuBtn.firstChild);
+							headerRightMenuBtn.firstChild.remove();
 						}
 						headerRightMenuBtn.removeAttribute('href');
 						while (headerLeftMenuBtn.childNodes.length) {
-							headerLeftMenuBtn.removeChild(headerLeftMenuBtn.firstChild);
+							headerLeftMenuBtn.firstChild.remove();
 						}
 						headerLeftMenuBtn.removeAttribute('href');
 						// init 顶部按钮事件 和 元素
@@ -810,13 +810,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 									if (evt.y < y && !st) {
 										return true;
 									} else if (reloadHint) {
-										dom.removeChild(reloadHint);
+										reloadHint.remove();
 										reloadHint = undefined;
 									}
 								}
 								if (evt.type === 'end' || evt.type === 'cancel') {
 									if (reloadHint) {
-										dom.removeChild(reloadHint);
+										reloadHint.remove();
 										if (reloadHint.classList.contains('pin')) {
 											if (typeof func === 'function') {
 												func();
@@ -878,7 +878,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		}();
 
 		! function () {
-			var helper = document.getElementById('helper'),
+			var helper = document.body.querySelector('#helper'),
 				tb = helper.firstChild,
 				img = helper.lastChild,
 				allSteps;
@@ -955,7 +955,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		//弹出窗口
 		! function () {
 			var activePopup, tempBack, tempBackParam, animating, todo,
-				popupsBox = document.getElementById('popup'),
+				popupsBox = document.body.querySelector('#popup'),
 				popupClose = popupsBox.querySelector(':scope>.header>.close'),
 				title = popupsBox.querySelector(':scope>.header>.title').firstChild,
 				back = popupsBox.querySelector(':scope>.header>.back');
@@ -1197,7 +1197,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		}();
 		// 内置特殊弹窗, 会显示在普通弹窗之上, 并且彼此独立
 		! function () {
-			var readableBox = document.getElementById('readable'),
+			var readableBox = document.body.querySelector('#readable'),
 				readableClose = readableBox.querySelector(':scope>.close'),
 				readableContent = readableBox.querySelector(':scope>.content'),
 				raCallback;
@@ -1229,7 +1229,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			readableBox.addEventListener('animationend', function (evt) {
 				if (evt.target === this && this.classList.contains('out')) {
 					while (readableContent.childNodes.length > 0) {
-						readableContent.removeChild(readableContent.firstChild);
+						readableContent.firstChild.remove();
 					}
 					this.className = '';
 				}
@@ -1241,18 +1241,18 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				loadingRT = 0,
 				dlgStack = [],
 				photoStatus = {},
-				loadingCtn = document.getElementById('loading'),
-				hintCtn = document.getElementById('hint'),
-				dialogCtn = document.getElementById('dialog'),
+				loadingCtn = document.body.querySelector('#loading'),
+				hintCtn = document.body.querySelector('#hint'),
+				dialogCtn = document.body.querySelector('#dialog'),
 				dialogBox = dialogCtn.querySelector(':scope>div'),
 				dialogContent = dialogBox.querySelector(':scope>.content'),
 				dialogClose = dialogBox.querySelector(':scope>.close'),
 				yesbtn = dialogBox.querySelector(':scope>.btns>.yes'),
 				nobtn = dialogBox.querySelector(':scope>.btns>.no'),
-				sliderViewCtn = document.getElementById('sliderView'),
+				sliderViewCtn = document.body.querySelector('#sliderView'),
 				sliderViewClose = sliderViewCtn.querySelector(':scope>.close'),
 				slider = touchslider(sliderViewCtn.querySelector(':scope>.content')),
-				photoViewCtn = document.getElementById('photoView'),
+				photoViewCtn = document.body.querySelector('#photoView'),
 				photoViewClose = photoViewCtn.querySelector(':scope>.close'),
 				photoViewContent = photoViewCtn.querySelector(':scope>img'),
 				photoViewActions = photoViewCtn.querySelector(':scope>.actions'),
@@ -1264,7 +1264,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				var i, tmp;
 				photoViewContent.src = url;
 				while (photoViewActions.childNodes.length) {
-					photoViewActions.removeChild(photoViewActions.firstChild);
+					photoViewActions.firstChild.remove();
 				}
 				if (typeof cb === 'function' && btns && btns.length) {
 					for (i = 0; i < btns.length; i++) {
@@ -1323,7 +1323,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					callback(param);
 				}
 				while (dialogContent.childNodes.length) {
-					dialogContent.removeChild(dialogContent.lastChild);
+					dialogContent.lastChild.remove();
 				}
 				callback = undefined;
 				if (dlgStack.length) {
@@ -1530,11 +1530,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 	function destory(cfg, type, id) {
 		var n = type + '/' + id + '/',
-			o = document.querySelector('#' + type + '>.content>.' + id);
+			o = document.body.querySelector('#' + type + '>.content>.' + id);
 		if (cfg.loaded === 2 && typeof cfg.ondestory === 'function') {
 			cfg.ondestory();
 		}
-		o.parentNode.removeChild(o);
+		o.remove();
 		if (cfg.css && typeof cfg.css !== 'string') {
 			cfg.css = kernel.removeCss(cfg.css).substr(require.toUrl(n).length);
 		}
@@ -1566,10 +1566,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		} else if (oldcfg.loaded !== 1) {
 			oldcfg.loaded = 1;
 			if (isPage) {
-				ctn = document.getElementById('page');
+				ctn = document.body.querySelector('#page');
 				family = 'page';
 			} else {
-				ctn = document.getElementById('popup');
+				ctn = document.body.querySelector('#popup');
 				family = 'popup';
 			}
 			n = family + '/' + id + '/';
@@ -1704,7 +1704,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		if (evt) {
 			kernel.listeners.remove(this, evt.type, removeLoading);
 			setTimeout(function () {
-				document.getElementById('popup').style.animationDuration = '';
+				document.body.querySelector('#popup').style.animationDuration = '';
 			}, 400);
 		}
 		document.body.addEventListener('transitionend', function (evt) {
