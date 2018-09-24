@@ -1,5 +1,5 @@
 'use strict';
-define(['common/kernel/kernel'], function(kernel) {
+define(['common/kernel/kernel'], function (kernel) {
 	//百度统计代码
 	if (location.host === 'your_production_host') {
 		window._hmt = document.createElement('script');
@@ -8,23 +8,20 @@ define(['common/kernel/kernel'], function(kernel) {
 		_hmt = [
 			['_setAutoPageview', false]
 		];
+		kernel.listeners.add(kernel.pageEvents, 'route', function () {
+			_hmt.push(['_trackPageview', location.pathname + kernel.buildHash(kernel.location)]);
+		});
 	}
-	kernel.listeners.add(kernel.pageEvents, 'route', function(){
-		//百度统计接口
-		if (window._hmt && _hmt.push) {
-			_hmt.push(['_trackPageview', '/' + kernel.buildHash(kernel.location)]);
-		}
-	});
 	kernel.init('list', {
-		'list': {
+		list: {
 			normal: 'home-regular',
 			selected: 'home-solid'
 		},
-		'user': {
+		user: {
 			normal: 'user-regular',
 			selected: 'user-solid'
 		},
-		'settings': {
+		settings: {
 			normal: 'cog-regular',
 			selected: 'cog-solid'
 		}
