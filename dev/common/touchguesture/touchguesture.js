@@ -1,35 +1,35 @@
 /*	touchguesture.js 0.1
  *
  *	usage:
- *		var gesture=touchguesture(dom);
+ *		let gesture=touchguesture(dom);
  *		guesture.ondragstart=function(evt){
- *			var x = evt.x;
- *			var y = evt.y;
+ *			let x = evt.x;
+ *			let y = evt.y;
  *		}
  *		guesture.ondragmove=function(evt){
- *			var x = evt.x;
- *			var y = evt.y;
+ *			let x = evt.x;
+ *			let y = evt.y;
  *		}
  *		guesture.ondragend=function(evt){
- *			var x = evt.x;
- *			var y = evt.y;
+ *			let x = evt.x;
+ *			let y = evt.y;
  *		}
  *		guesture.onzoomstart=function(evt){
- *			var x = evt.x;
- *			var y = evt.y;
+ *			let x = evt.x;
+ *			let y = evt.y;
  *		}
  *		guesture.onzoomchange=function(evt){
- *			var zoom = evt.zoom;
+ *			let zoom = evt.zoom;
  *		}
  *		guesture.onzoomend=function(evt){
- *			var zoom = evt.zoom;
+ *			let zoom = evt.zoom;
  *		}
  */
 
 'use strict';
 define(['common/pointerevents/pointerevents'], function(pointerevents) {
-	var touchguesture = function(dom) {
-		var self, touchs;
+	let touchguesture = function(dom) {
+		let self, touchs;
 		if (this instanceof touchguesture) {
 			self = this;
 			touchs = [];
@@ -43,7 +43,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	return touchguesture;
 
 	function touchstart(obj, evt, touchs) {
-		var o;
+		let o;
 		if (evt.type === 'start') {
 			if (touchs.length < 2) {
 				o = {
@@ -78,7 +78,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	}
 
 	function mv(obj, evt, touchs) {
-		var i, j = 0;
+		let i, j = 0;
 		evt.domEvent.preventDefault();
 		evt.domEvent.stopPropagation();
 		if (touchs.length === 1) {
@@ -91,7 +91,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 				});
 			}
 		} else {
-			var j = evt.id === touchs[0].id ? 0 : 1;
+			let j = evt.id === touchs[0].id ? 0 : 1;
 			touchs[j].x = evt.x;
 			touchs[j].y = evt.y;
 			fireEvent(obj, 'zoomchange', {
@@ -101,7 +101,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	}
 
 	function ed(obj, evt, touchs) {
-		var j;
+		let j;
 		if (touchs.length === 2) {
 			j = evt.id === touchs[0].id ? 0 : 1;
 			touchs[j].x = evt.x;
@@ -125,7 +125,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	}
 
 	function fireEvent(obj, evt, o) {
-		var n = 'on' + evt;
+		let n = 'on' + evt;
 		if (typeof obj[n] === 'function') {
 			if (!o) {
 				o = {};

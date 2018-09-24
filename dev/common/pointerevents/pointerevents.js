@@ -1,7 +1,7 @@
 /*	pointerevents.js 0.1
  *	support both touch events model and w3c pointer events model (which is currently only available in ie)
  *	usage:
- *      var events=pointerevents(dom,function(evt){
+ *      let events=pointerevents(dom,function(evt){
  *          if(evt.type==='start'){
  *              if(events.pointers.length<2){
  *                  return true; //return true on start means watch this pointer
@@ -20,7 +20,7 @@
 
 'use strict';
 define(function() {
-	var touchEvents, touchActionStyle;
+	let touchEvents, touchActionStyle;
 	if (window.TouchEvent) {
 		touchEvents = {
 			start: 'touchstart',
@@ -53,7 +53,7 @@ define(function() {
 	}
 
 	return function(dom, callback) {
-		var result = {
+		let result = {
 			pointers: [],
 			destory: function() {
 				dom.removeEventListener(touchEvents.start, start, false);
@@ -71,7 +71,7 @@ define(function() {
 	};
 
 	function watchView(callback, pointers, self, win) {
-		var o = {
+		let o = {
 			move: function(evt) {
 				process(evt, callback, pointers, 'move', o, self);
 			},
@@ -112,7 +112,7 @@ define(function() {
 	}
 
 	function pointerStart(evt, callback, pointers, self) {
-		var i, t;
+		let i, t;
 		if ('pointerId' in evt) {
 			if (callback.call(self, {
 					type: 'start',
@@ -159,7 +159,7 @@ define(function() {
 	}
 
 	function process(evt, callback, pointers, type, o, self) {
-		var i, j, t;
+		let i, j, t;
 		if ('pointerId' in evt) {
 			j = pointers.indexOf(evt.pointerId);
 			if (j >= 0) {
