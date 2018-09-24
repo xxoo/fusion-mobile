@@ -614,7 +614,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							t.content = s;
 							setTimeout(function () {
 								t.content = 'user-scalable=no, width=' + calcWidth(innerWidth, innerHeight);
-							}, 120);
+							}, 150);
 						} else {
 							if (wait) {
 								wait = false;
