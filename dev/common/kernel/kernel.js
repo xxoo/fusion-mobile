@@ -24,7 +24,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 				return document.head.appendChild(csslnk);
 			},
-			removeCss: function (lnk) {				
+			removeCss: function (lnk) {
 				lnk.remove();
 				if (lnk.rel === 'stylesheet/less') {
 					less.sheets.splice(less.sheets.indexOf(lnk), 1);
@@ -603,24 +603,31 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			};
 			if (window.visualViewport) {
 				visualViewport.addEventListener('resize', function () {
-					if (minWidth) {
+					if (minWidth > 0) {
 						t.content = 'user-scalable=no, width=' + calcWidth(Math.round(visualViewport.width * visualViewport.scale), Math.round(visualViewport.height * visualViewport.scale));
 					}
 				});
 			} else {
 				window.addEventListener('resize', function () {
 					if (minWidth > 0) {
-						if (wait) {
-							wait = false;
+						if (browser.name === 'IOS') {
+							t.content = s;
+							setTimeout(function () {
+								t.content = 'user-scalable=no, width=' + calcWidth(innerWidth, innerHeight);
+							}, 120);
 						} else {
-							if (t.content !== s) {
-								wait = true;
-								t.content = s;
-							}
-							let width = calcWidth(innerWidth, innerHeight);
-							if (width !== innerWidth) {
-								wait = true;
-								t.content = 'user-scalable=no, width=' + width;
+							if (wait) {
+								wait = false;
+							} else {
+								if (t.content !== s) {
+									wait = true
+									t.content = s;
+								}
+								let width = calcWidth(innerWidth, innerHeight);
+								if (width !== innerWidth) {
+									wait = true;
+									t.content = 'user-scalable=no, width=' + width;
+								}
 							}
 						}
 					}
