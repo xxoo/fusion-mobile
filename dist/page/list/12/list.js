@@ -6,9 +6,12 @@ setTimeout(function(){
 console.log(a.href);
 setTimeout(function(){
 	console.log(kernel.removeCss(a));
-}, 1000);`},"makeSvg(name:String, type?:0:1:2):SVGSVGElement":{desc:'使用common/svgicos模块中name索引的内容作为path创建一个svg图标',code:`console.log(kernel.makeSvg('home-regular'));`},"setSvgPath(svg:SVGSVGElement, name:String, type?:0|1|2):void":{desc:'修改由makeSvg创建的图标',code:`var svg = kernel.makeSvg('home-regular');
-kernel.setSvgPath(svg, 'list', true);
-console.log(svg);`},"buildHash(loc:Object):String":{desc:'将loc对象转换为锚点链接字符串',code:`console.log(kernel.buildHash(kernel.location));`},"parseHash(hash:String):Object":{desc:'将锚点链接字符串转换为loc对象',code:`console.log(kernel.parseHash(location.hash));`},"isSameLocation(loc1:Object, loc2:Object):Bollean":{desc:'判断loc1和loc2是否对应同一个地址',code:`console.log(kernel.isSameLocation(kernel.location, {
+}, 1000);`},"makeSvg(name:String, type?:0|1|2):SVGSVGElement":{desc:'使用common/svgicos模块中name索引的内容作为path创建一个svg图标. type为0时图标的空白填充区域为0, 为1时图标会以最小的空白填充来使其成为正方形，为2时图标的空白填充区域为设计时指定的尺寸',code:`console.log(kernel.makeSvg('home-regular'));`},"setSvgPath(svg:SVGSVGElement, name:String, type?:0|1|2):void":{desc:'修改由makeSvg创建的图标. type为0时图标的空白填充区域为0, 为1时图标会以最小的空白填充来使其成为正方形，为2时图标的空白填充区域为设计时指定的尺寸',code:`var svg = kernel.makeSvg('home-regular');
+console.log(svg.getAttribute('viewBox'));
+kernel.setSvgPath(svg, 'home-regular', 1);
+console.log(svg.getAttribute('viewBox'));
+kernel.setSvgPath(svg, 'home-regular', 2);
+console.log(svg.getAttribute('viewBox'));`},"buildHash(loc:Object):String":{desc:'将loc对象转换为锚点链接字符串',code:`console.log(kernel.buildHash(kernel.location));`},"parseHash(hash:String):Object":{desc:'将锚点链接字符串转换为loc对象',code:`console.log(kernel.parseHash(location.hash));`},"isSameLocation(loc1:Object, loc2:Object):Bollean":{desc:'判断loc1和loc2是否对应同一个地址',code:`console.log(kernel.isSameLocation(kernel.location, {
 	id: 'doc',
 	args: {
 		api: 'isSameLocation'
