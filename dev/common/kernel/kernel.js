@@ -325,13 +325,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					if (n in navs) {
 						navs[n].className = 'selected';
 						if (typeof navIcos[n] !== 'string') {
-							kernel.setSvgPath(navs[n].firstChild, navIcos[n].selected, true);
+							kernel.setSvgPath(navs[n].firstChild, navIcos[n].selected, 1);
 						}
 					}
 					if (m in navs) {
 						navs[m].className = '';
 						if (typeof navIcos[m] !== 'string') {
-							kernel.setSvgPath(navs[m].firstChild, navIcos[m].normal, true);
+							kernel.setSvgPath(navs[m].firstChild, navIcos[m].normal, 1);
 						}
 					}
 				}
