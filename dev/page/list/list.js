@@ -24,11 +24,11 @@ setTimeout(function(){
 					},
 					'makeSvg(name:String, type?:0:1:2):SVGSVGElement': {
 						desc: '使用common/svgicos模块中name索引的内容作为path创建一个svg图标',
-						code: `console.log(kernel.makeSvg('home'));`
+						code: `console.log(kernel.makeSvg('home-regular'));`
 					},
 					'setSvgPath(svg:SVGSVGElement, name:String, type?:0|1|2):void': {
 						desc: '修改由makeSvg创建的图标',
-						code: `var svg = kernel.makeSvg('home');
+						code: `var svg = kernel.makeSvg('home-regular');
 kernel.setSvgPath(svg, 'list', true);
 console.log(svg);`
 					},
@@ -54,7 +54,7 @@ console.log(svg);`
 						code: `kernel.replaceLocation({
 	id: 'doc',
 	args: {
-		api: 'replaceLocation'
+		api: 'replaceLocation(loc:Object):void'
 	}
 });`
 					},
