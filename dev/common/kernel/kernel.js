@@ -573,15 +573,15 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			};
 			kernel.dataType = function (a) {
 				let t = typeof a;
-				if (t === 'boolean' || t === 'string' || t === 'symbol' || t === 'number' || t === 'function' || t === 'undefined') {
-					return t;
-				} else {
+				if (['boolean', 'string', 'symbol', 'number', 'bigint', 'function', 'undefined'].indexOf(t) < 0) {
 					t = Object.prototype.toString.call(a).replace(/^\[object |\]$/g, '').toLowerCase();
-					if (t === 'date' || t === 'array' || t === 'regexp' || t === 'error' || t === 'null') {
-						return t;
-					} else {
+					if (['date', 'array', 'regexp', 'error', 'null'].indexOf(t) < 0) {
 						return 'object';
+					} else {
+						return t;
 					}
+				} else {
+					return t;
 				}
 			};
 		}();
