@@ -611,10 +611,21 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				window.addEventListener('resize', function () {
 					if (minWidth > 0) {
 						if (browser.name === 'IOS') {
-							t.content = s;
-							setTimeout(function () {
+							if (t.content === s) {
 								t.content = 'user-scalable=no, width=' + calcWidth(innerWidth, innerHeight);
-							}, 150);
+							} else {
+								let w = innerWidth,
+									h = innerHeight,
+									rsz = function() {
+										if (innerWidth === w && innerHeight === h) {
+											requestAnimationFrame(rsz);
+										} else {
+											t.content = 'user-scalable=no, width=' + calcWidth(innerWidth, innerHeight);
+										}
+									};
+								t.content = s;
+								rsz();
+							}
 						} else {
 							if (wait) {
 								wait = false;
