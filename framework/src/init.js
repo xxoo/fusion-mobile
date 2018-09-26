@@ -43,7 +43,7 @@
 		l.rel = m.rel = 'stylesheet';
 		l.href = require.toUrl('site/index/index.css');
 		m.href = require.toUrl('common/kernel/kernel.css');
-		window.addEventListener('load', function () {
+		self.addEventListener('load', function () {
 			require(['site/index/index']);
 		});
 	}

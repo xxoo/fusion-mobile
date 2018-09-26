@@ -9,7 +9,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			appendCss: function (url) { //自动根据当前环境添加css或less
 				let csslnk = document.createElement('link');
 				if (/\.less$/.test(url)) {
-					if (window.less) {
+					if (self.less) {
 						csslnk.rel = 'stylesheet/less';
 						csslnk.href = url;
 						less.sheets.push(csslnk);
@@ -213,12 +213,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							pages[n].backLoc = routerHistory[n];
 						}
 					}
-					window.addEventListener('hashchange', hashchange);
+					self.addEventListener('hashchange', hashchange);
 					initNavs(icos);
 					//禁止各种 long tap 菜单
 					//ios 中需使用样式 -webkit-touch-callout: none;
-					window.addEventListener('contextmenu', browser.name === 'Firefox' ? stopEvent : cancelEvent);
-					window.addEventListener('dragstart', cancelEvent);
+					self.addEventListener('contextmenu', browser.name === 'Firefox' ? stopEvent : cancelEvent);
+					self.addEventListener('dragstart', cancelEvent);
 					manageLocation();
 					if (kernel.location.args.hasOwnProperty('autopopup') && kernel.openPopup(kernel.location.args.autopopup, kernel.location.args.autopopuparg ? JSON.parse(kernel.location.args.autopopuparg) : undefined)) {
 						document.body.querySelector('#popup').style.animationDuration = '1ms';
@@ -360,7 +360,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						if (activities.classList.contains('clean') || activities.classList.contains('hidePageHeader')) {
 							document.title = title;
 						}
-						if (window.frameElement && frameElement.kernel && kernel.getCurrentPopup() === 'page') {
+						if (self.frameElement && frameElement.kernel && kernel.getCurrentPopup() === 'page') {
 							kernel.setPopupTitle(title);
 						}
 						// 重置 顶部按钮
@@ -491,7 +491,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		}
 
 		function clearWindow() {
-			if (!window.frameElement || !frameElement.kernel) {
+			if (!self.frameElement || !frameElement.kernel) {
 				kernel.hideReadable();
 				kernel.closePopup();
 			}
@@ -524,14 +524,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	}();
 
 	if (browser.name === 'IOS') {
-		window.addEventListener('gesturestart', cancelEvent);
-		window.addEventListener('touchmove', cancelEvent, {
+		self.addEventListener('gesturestart', cancelEvent);
+		self.addEventListener('touchmove', cancelEvent, {
 			passive: false
 		});
 	}
 
-	if (window.frameElement && frameElement.kernel) {
-		if (window.Reflect) {
+	if (self.frameElement && frameElement.kernel) {
+		if (self.Reflect) {
 			Reflect.setPrototypeOf(kernel, frameElement.kernel);
 		} else {
 			kernel.__proto__ = frameElement.kernel;
@@ -592,23 +592,23 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			kernel.setAutoScale = function (v) {
 				minWidth = v;
 				if (minWidth > 0) {
-					if (window.visualViewport) {
+					if (self.visualViewport) {
 						visualViewport.dispatchEvent(new Event('resize'));
 					} else {
-						window.dispatchEvent(new Event('resize'));
+						self.dispatchEvent(new Event('resize'));
 					}
 				} else {
 					t.content = s;
 				}
 			};
-			if (window.visualViewport) {
+			if (self.visualViewport) {
 				visualViewport.addEventListener('resize', function () {
 					if (minWidth > 0) {
 						t.content = 'user-scalable=no, width=' + calcWidth(Math.round(visualViewport.width * visualViewport.scale), Math.round(visualViewport.height * visualViewport.scale));
 					}
 				});
 			} else {
-				window.addEventListener('resize', function () {
+				self.addEventListener('resize', function () {
 					if (minWidth > 0) {
 						if (browser.name === 'IOS') {
 							if (t.content === s) {
@@ -1303,12 +1303,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			};
 			photoViewContent.addEventListener('load', function () {
 				photoViewCtn.style.visibility = 'inherit';
-				window.addEventListener('resize', syncPhotoViewSize);
+				self.addEventListener('resize', syncPhotoViewSize);
 				syncPhotoViewSize();
 			});
 			photoViewContent.addEventListener('error', function () {
 				photoViewCtn.style.visibility = '';
-				window.removeEventListener('resize', syncPhotoViewSize);
+				self.removeEventListener('resize', syncPhotoViewSize);
 			});
 
 			kernel.showSliderView = function (doms, idx, className) {
@@ -1335,7 +1335,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			};
 			kernel.closeDialog = function (param) { //通用对话框关闭方法
 				let a;
-				window.removeEventListener('resize', syncDialogSize, false);
+				self.removeEventListener('resize', syncDialogSize, false);
 				dialogCtn.style.visibility = '';
 				if (typeof callback === 'function') {
 					callback(param);
@@ -1440,7 +1440,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							dialogContent.appendChild(content);
 						}
 					}
-					window.addEventListener('resize', syncDialogSize);
+					self.addEventListener('resize', syncDialogSize);
 					syncDialogSize();
 					dialogCtn.style.visibility = 'inherit';
 					callback = cb;
@@ -1562,7 +1562,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				o = require(n);
 				require.undef(n);
 				if (o) {
-					if (window.Reflect) {
+					if (self.Reflect) {
 						Reflect.setPrototypeOf(cfg, Object.prototype);
 					} else {
 						cfg.__proto__ = Object.prototype;
@@ -1630,7 +1630,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				js = n + oldcfg.js;
 				require([js], function (cfg) {
 					if (cfg) {
-						if (window.Reflect) {
+						if (self.Reflect) {
 							Reflect.setPrototypeOf(oldcfg, cfg);
 						} else {
 							oldcfg.__proto__ = cfg;
