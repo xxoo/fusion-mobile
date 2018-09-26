@@ -21,14 +21,14 @@
 'use strict';
 define(function() {
 	let touchEvents, touchActionStyle;
-	if (window.TouchEvent) {
+	if (self.TouchEvent) {
 		touchEvents = {
 			start: 'touchstart',
 			move: 'touchmove',
 			end: 'touchend',
 			cancel: 'touchcancel'
 		};
-	} else if (window.PointerEvent) {
+	} else if (self.PointerEvent) {
 		touchEvents = {
 			start: 'pointerdown',
 			move: 'pointermove',
@@ -36,7 +36,7 @@ define(function() {
 			cancel: 'pointercancel'
 		};
 		touchActionStyle = 'touchAction';
-	} else if (window.MSPointerEvent) {
+	} else if (self.MSPointerEvent) {
 		touchEvents = {
 			start: 'MSPointerDown',
 			move: 'MSPointerMove',
@@ -53,7 +53,7 @@ define(function() {
 	}
 
 	return function(dom, callback) {
-		let result = {
+		let peo = {
 			pointers: [],
 			destory: function() {
 				dom.removeEventListener(touchEvents.start, start, false);
@@ -63,23 +63,23 @@ define(function() {
 			dom.style[touchActionStyle] = 'none';
 		}
 		dom.addEventListener(touchEvents.start, start, false);
-		return result;
+		return peo;
 
 		function start(evt) {
-			pointerStart(evt, callback, result.pointers, result);
+			pointerStart(evt, callback, peo.pointers, peo);
 		}
 	};
 
-	function watchView(callback, pointers, self, win) {
+	function watchView(callback, pointers, peo, win) {
 		let o = {
 			move: function(evt) {
-				process(evt, callback, pointers, 'move', o, self);
+				process(evt, callback, pointers, 'move', o, peo);
 			},
 			end: function(evt) {
-				process(evt, callback, pointers, 'end', o, self);
+				process(evt, callback, pointers, 'end', o, peo);
 			},
 			cancel: function(evt) {
-				process(evt, callback, pointers, 'cancel', o, self);
+				process(evt, callback, pointers, 'cancel', o, peo);
 			}
 		};
 		win.addEventListener(touchEvents.move, o.move, {
@@ -111,10 +111,10 @@ define(function() {
 		}
 	}
 
-	function pointerStart(evt, callback, pointers, self) {
+	function pointerStart(evt, callback, pointers, peo) {
 		let i, t;
 		if ('pointerId' in evt) {
-			if (callback.call(self, {
+			if (callback.call(peo, {
 					type: 'start',
 					id: evt.pointerId,
 					x: evt.clientX,
@@ -123,13 +123,13 @@ define(function() {
 				})) {
 				pointers.push(evt.pointerId);
 				if (pointers.length === 1) {
-					watchView(callback, pointers, self, evt.view);
+					watchView(callback, pointers, peo, evt.view);
 				}
 			}
 		} else if ('changedTouches' in evt) {
 			for (i = 0; i < evt.changedTouches.length; i++) {
 				t = evt.changedTouches[i];
-				if (callback.call(self, {
+				if (callback.call(peo, {
 						type: 'start',
 						id: t.identifier,
 						x: t.clientX,
@@ -138,12 +138,12 @@ define(function() {
 					})) {
 					pointers.push(t.identifier);
 					if (pointers.length === 1) {
-						watchView(callback, pointers, self, evt.view);
+						watchView(callback, pointers, peo, evt.view);
 					}
 				}
 			}
 		} else {
-			if (callback.call(self, {
+			if (callback.call(peo, {
 					type: 'start',
 					id: undefined,
 					x: evt.clientX,
@@ -152,18 +152,18 @@ define(function() {
 				})) {
 				pointers.push(undefined);
 				if (pointers.length === 1) {
-					watchView(callback, pointers, self, evt.view);
+					watchView(callback, pointers, peo, evt.view);
 				}
 			}
 		}
 	}
 
-	function process(evt, callback, pointers, type, o, self) {
+	function process(evt, callback, pointers, type, o, peo) {
 		let i, j, t;
 		if ('pointerId' in evt) {
 			j = pointers.indexOf(evt.pointerId);
 			if (j >= 0) {
-				if (callback.call(self, {
+				if (callback.call(peo, {
 						type: type,
 						id: evt.pointerId,
 						x: evt.clientX,
@@ -181,7 +181,7 @@ define(function() {
 				t = evt.changedTouches[i];
 				j = pointers.indexOf(t.identifier);
 				if (j >= 0) {
-					if (callback.call(self, {
+					if (callback.call(peo, {
 							type: type,
 							id: t.identifier,
 							x: t.clientX,
@@ -199,7 +199,7 @@ define(function() {
 		} else {
 			j = pointers.indexOf(undefined);
 			if (j >= 0) {
-				if (callback.call(self, {
+				if (callback.call(peo, {
 						type: type,
 						id: undefined,
 						x: evt.clientX,

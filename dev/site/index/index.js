@@ -2,7 +2,7 @@
 define(['common/kernel/kernel'], function (kernel) {
 	//百度统计代码
 	if (location.host === 'your_production_host') {
-		window._hmt = document.createElement('script');
+		self._hmt = document.createElement('script');
 		_hmt.src = '//hm.baidu.com/hm.js?[your_hmid]';
 		document.head.appendChild(_hmt);
 		_hmt = [
