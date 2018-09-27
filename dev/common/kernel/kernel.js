@@ -72,7 +72,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				svg.setAttribute('viewBox', box.x + ' ' + box.y + ' ' + box.width + ' ' + box.height);
 			},
 			parseHash: function (hash) {
-				let i, a, s, nl = {
+				let a, s, nl = {
 					id: homePage,
 					args: {}
 				};
@@ -83,7 +83,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					if (pages.hasOwnProperty(a)) {
 						nl.id = a;
 					}
-					for (i = 1; i < s.length; i++) {
+					for (let i = 1; i < s.length; i++) {
 						a = s[i].match(/^([^=]+)(=)?(.+)?$/);
 						if (a) {
 							nl.args[decodeURIComponent(a[1])] = a[2] ? decodeURIComponent(a[3] || '') : undefined;
@@ -94,7 +94,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			},
 			// 后退行为
 			getDefaultBack: function (loc) {
-				let i, o, bk1, bk2;
+				let o, bk1, bk2;
 				if (!loc) {
 					loc = kernel.location;
 				}
@@ -106,7 +106,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					};
 					o = pages[pages[loc.id].back].alias ? pages[pages[pages[loc.id].back].alias] : pages[pages[loc.id].back];
 					if (o.args) {
-						for (i = 0; i < o.args.length; i++) {
+						for (let i = 0; i < o.args.length; i++) {
 							if (loc.args.hasOwnProperty(o.args[i])) {
 								bk2.args[o.args[i]] = loc.args[o.args[i]];
 							}
@@ -114,7 +114,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					}
 				}
 				if (bk1 && bk2) {
-					for (i in bk2.args) {
+					for (let i in bk2.args) {
 						if (bk2.args[i] !== bk1.args[i]) {
 							return bk2;
 						}
@@ -140,10 +140,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						f = from.split('-');
 						t = to.split('-');
 						j = Math.min(f.length, t.length);
-						for (i = 0; i < j; i++) {
-							if (f[i] !== t[i]) {
-								break;
-							}
+						while (i < j && f[i] === t[i]) {
+							i++;
 						}
 						if (i < Math.max(f.length, t.length) - 1) {
 							if (i < f.length - 1) {
@@ -187,7 +185,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		//icos是导航菜单的列表
 		//home是默认页
 		kernel.init = function (home, icos) {
-			let n;
 			if (pages.hasOwnProperty(home)) {
 				homePage = home;
 				if (kernel.hasOwnProperty('location')) {
@@ -208,7 +205,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					routerHistory = sessionStorage.getItem(historyName);
 					routerHistory = routerHistory ? JSON.parse(routerHistory) : {};
 					// 解析 routerHistory
-					for (n in routerHistory) {
+					for (let n in routerHistory) {
 						if (pages.hasOwnProperty(n)) {
 							pages[n].backLoc = routerHistory[n];
 						}
@@ -250,9 +247,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		};
 		kernel.destoryPage = function (id) {
-			let p = pages[id];
-			if (p) {
-				destory(p, 'page', id);
+			if (pages.hasOwnProperty(id)) {
+				destory(pages[id], 'page', id);
 			}
 		};
 		kernel.pageEvents = {};
@@ -271,13 +267,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		});
 
 		function initNavs(icos) {
-			let n;
 			while (navCtn.childNodes.length) {
 				navCtn.firstChild.remove();
 			}
 			navIcos = icos;
 			navs = {};
-			for (n in navIcos) {
+			for (let n in navIcos) {
 				if (pages.hasOwnProperty(n)) {
 					navs[n] = navCtn.appendChild(document.createElement('a'));
 					navs[n].href = '#!' + n;
@@ -322,13 +317,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				n = pageid.replace(/-.*$/, '');
 				m = kernel.lastLocation.id.replace(/-.*$/, '');
 				if (n !== m) {
-					if (n in navs) {
+					if (navs.hasOwnProperty(n)) {
 						navs[n].className = 'selected';
 						if (typeof navIcos[n] !== 'string') {
 							kernel.setSvgPath(navs[n].firstChild, navIcos[n].selected, 1);
 						}
 					}
-					if (m in navs) {
+					if (navs.hasOwnProperty(m)) {
 						navs[m].className = '';
 						if (typeof navIcos[m] !== 'string') {
 							kernel.setSvgPath(navs[m].firstChild, navIcos[m].normal, 1);
@@ -540,8 +535,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		//杂项功能
 		! function () {
 			kernel.buildHash = function (loc) {
-				let n, hash = '#!' + encodeURIComponent(loc.id);
-				for (n in loc.args) {
+				let hash = '#!' + encodeURIComponent(loc.id);
+				for (let n in loc.args) {
 					hash += loc.args[n] === undefined ? '&' + encodeURIComponent(n) : '&' + encodeURIComponent(n) + '=' + encodeURIComponent(loc.args[n]);
 				}
 				return hash;
@@ -549,9 +544,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			// 比较两个 location对象; 看 url 是否改变;
 			// 比较 key 和 args
 			kernel.isSameLocation = function (loc1, loc2) {
-				let n;
 				if (loc1.id === loc2.id && Object.keys(loc1.args).length === Object.keys(loc2.args).length) {
-					for (n in loc1.args) {
+					for (let n in loc1.args) {
 						if (loc2.args.hasOwnProperty(n)) {
 							if (loc1.args[n] === undefined) {
 								if (loc1.args[n] !== loc2.args[n]) {
@@ -678,7 +672,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					}
 				},
 				list: function (o, e) {
-					let r, n;
+					let r;
 					if (e) {
 						if (o.xEvents && o.xEvents[e]) {
 							r = o.xEvents[e].slice(0);
@@ -688,7 +682,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					} else {
 						r = {};
 						if (o.xEvents) {
-							for (n in o.xEvents) {
+							for (let n in o.xEvents) {
 								if (kernel.dataType(o.xEvents[n]) === 'array' && o.xEvents[n].length) {
 									r[n] = o.xEvents[n].slice(0);
 								}
@@ -698,7 +692,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					return r;
 				},
 				remove: function (o, e, f) {
-					let n, addRemoveMark, tmp;
+					let addRemoveMark, tmp;
 					if (o.xEvents) {
 						if (e) {
 							if (o.xEvents[e]) {
@@ -725,7 +719,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							}
 						} else {
 							if (!o.xEvents.removeMark) {
-								for (n in o.xEvents) {
+								for (let n in o.xEvents) {
 									if (!o.xEvents[n].locked) {
 										delete o.xEvents[n];
 										o['on' + n] = null;
@@ -745,9 +739,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			};
 
 			function xEventProcessor(o, evt) {
-				let i, tmp;
+				let tmp;
 				o.xEvents[evt.type].locked = true;
-				for (i = 0; i < o.xEvents[evt.type].length; i++) {
+				for (let i = 0; i < o.xEvents[evt.type].length; i++) {
 					o.xEvents[evt.type][i].call(o, evt);
 				}
 				o.xEvents[evt.type].locked = false;
@@ -774,7 +768,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 				if (o.xEvents.removeMark) {
 					delete o.xEvents.removeMark;
-					for (i in o.xEvents) {
+					for (let i in o.xEvents) {
 						delete o.xEvents[i];
 						o['on' + i] = null;
 					}
@@ -926,7 +920,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 
 			function setStep(step) {
-				let tmp, tmp1, i;
+				let tmp, tmp1;
 				img.src = step.img;
 				if ('right' in step) {
 					img.style.right = step.right;
@@ -946,7 +940,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if ('height' in step) {
 					img.style.height = step.height;
 				}
-				for (i = 0; i < tb.childNodes.length; i++) {
+				for (let i = 0; i < tb.childNodes.length; i++) {
 					tmp = tb.childNodes[i];
 					if (step.rows[i]) {
 						tmp.style.height = step.rows[i];
@@ -957,7 +951,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					}
 				}
 				tmp = tb.childNodes[1];
-				for (i = 0; i < tmp.childNodes.length; i++) {
+				for (let i = 0; i < tmp.childNodes.length; i++) {
 					tmp1 = tmp.childNodes[i];
 					if (step.cells[i]) {
 						tmp1.style.width = step.cells[i];
@@ -1279,13 +1273,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			guesture.onzoomstart = zoomstart;
 			guesture.ondragstart = dragstart;
 			kernel.showPhotoView = function (url, btns, cb) {
-				let i, tmp;
+				let tmp;
 				photoViewContent.src = url;
 				while (photoViewActions.childNodes.length) {
 					photoViewActions.firstChild.remove();
 				}
 				if (typeof cb === 'function' && btns && btns.length) {
-					for (i = 0; i < btns.length; i++) {
+					for (let i = 0; i < btns.length; i++) {
 						tmp = document.createElement('a');
 						tmp.href = 'javascript:;';
 						tmp.appendChild(document.createTextNode(btns[i]));
@@ -1312,9 +1306,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			});
 
 			kernel.showSliderView = function (doms, idx, className) {
-				let i;
 				sliderViewCtn.className = className || '';
-				for (i = 0; i < doms.length; i++) {
+				for (let i = 0; i < doms.length; i++) {
 					slider.add(doms[i]);
 				}
 				if (idx) {
@@ -1390,10 +1383,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			kernel.dialogEvents = {};
 
 			slider.onchange = function () {
-				let i, txt = '';
+				let txt = '';
 				if (this.children.length) {
 					if (this.children.length > 1) {
-						for (i = 0; i < this.children.length; i++) {
+						for (let i = 0; i < this.children.length; i++) {
 							txt += (i === this.current) ? '●' : '○';
 						}
 					}
