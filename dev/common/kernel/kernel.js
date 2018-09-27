@@ -583,58 +583,50 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			kernel.setAutoScale = function (v) {
 				minWidth = v;
 				if (minWidth > 0) {
-					if (self.visualViewport) {
-						visualViewport.dispatchEvent(new Event('resize'));
-					} else {
-						self.dispatchEvent(new Event('resize'));
-					}
+					self.dispatchEvent(new Event('resize'));
 				} else {
 					t.content = s;
 				}
 			};
-			if (self.visualViewport) {
-				visualViewport.addEventListener('resize', function () {
-					if (minWidth > 0) {
-						t.content = 'user-scalable=no, width=' + calcWidth(Math.round(visualViewport.width * visualViewport.scale), Math.round(visualViewport.height * visualViewport.scale));
-					}
-				});
-			} else {
-				self.addEventListener('resize', function () {
-					if (minWidth > 0) {
-						if (browser.name === 'IOS') {
-							if (t.content === s) {
-								t.content = 'user-scalable=no, width=' + calcWidth(innerWidth, innerHeight);
-							} else {
-								let w = innerWidth,
-									h = innerHeight,
-									rsz = function () {
-										if (innerWidth === w && innerHeight === h) {
-											requestAnimationFrame(rsz);
-										} else {
-											t.content = 'user-scalable=no, width=' + calcWidth(innerWidth, innerHeight);
-										}
-									};
-								t.content = s;
-								rsz();
-							}
+			self.addEventListener('resize', self.visualViewport ? function () {
+				if (minWidth > 0) {
+					t.content = 'user-scalable=no, width=' + calcWidth(Math.round(visualViewport.width * visualViewport.scale), Math.round(visualViewport.height * visualViewport.scale));
+				}
+			} : function () {
+				if (minWidth > 0) {
+					if (browser.name === 'IOS') {
+						if (t.content === s) {
+							t.content = 'user-scalable=no, width=' + calcWidth(innerWidth, innerHeight);
 						} else {
-							if (wait) {
-								wait = false;
-							} else {
-								if (t.content !== s) {
-									wait = true
-									t.content = s;
-								}
-								let width = calcWidth(innerWidth, innerHeight);
-								if (width !== innerWidth) {
-									wait = true;
-									t.content = 'user-scalable=no, width=' + width;
-								}
+							let w = innerWidth,
+								h = innerHeight,
+								rsz = function () {
+									if (innerWidth === w && innerHeight === h) {
+										requestAnimationFrame(rsz);
+									} else {
+										t.content = 'user-scalable=no, width=' + calcWidth(innerWidth, innerHeight);
+									}
+								};
+							t.content = s;
+							rsz();
+						}
+					} else {
+						if (wait) {
+							wait = false;
+						} else {
+							if (t.content !== s) {
+								wait = true
+								t.content = s;
+							}
+							let width = calcWidth(innerWidth, innerHeight);
+							if (width !== innerWidth) {
+								wait = true;
+								t.content = 'user-scalable=no, width=' + width;
 							}
 						}
 					}
-				});
-			}
+				}
+			});
 
 			function calcWidth(width, height) {
 				let sw = Math.min(width, height),
