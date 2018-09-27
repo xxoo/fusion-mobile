@@ -112,7 +112,6 @@ define(function() {
 	}
 
 	function pointerStart(evt, callback, pointers, peo) {
-		let i, t;
 		if ('pointerId' in evt) {
 			if (callback.call(peo, {
 					type: 'start',
@@ -127,8 +126,8 @@ define(function() {
 				}
 			}
 		} else if ('changedTouches' in evt) {
-			for (i = 0; i < evt.changedTouches.length; i++) {
-				t = evt.changedTouches[i];
+			for (let i = 0; i < evt.changedTouches.length; i++) {
+				let t = evt.changedTouches[i];
 				if (callback.call(peo, {
 						type: 'start',
 						id: t.identifier,
@@ -159,9 +158,8 @@ define(function() {
 	}
 
 	function process(evt, callback, pointers, type, o, peo) {
-		let i, j, t;
 		if ('pointerId' in evt) {
-			j = pointers.indexOf(evt.pointerId);
+			let j = pointers.indexOf(evt.pointerId);
 			if (j >= 0) {
 				if (callback.call(peo, {
 						type: type,
@@ -177,9 +175,9 @@ define(function() {
 				}
 			}
 		} else if ('changedTouches' in evt) {
-			for (i = 0; i < evt.changedTouches.length; i++) {
-				t = evt.changedTouches[i];
-				j = pointers.indexOf(t.identifier);
+			for (let i = 0; i < evt.changedTouches.length; i++) {
+				let t = evt.changedTouches[i],
+					j = pointers.indexOf(t.identifier);
 				if (j >= 0) {
 					if (callback.call(peo, {
 							type: type,
@@ -197,7 +195,7 @@ define(function() {
 				}
 			}
 		} else {
-			j = pointers.indexOf(undefined);
+			let j = pointers.indexOf(undefined);
 			if (j >= 0) {
 				if (callback.call(peo, {
 						type: type,
