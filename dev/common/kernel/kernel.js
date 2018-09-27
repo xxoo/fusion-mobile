@@ -44,7 +44,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			},
 			// 设置svg 内容
 			setSvgPath: function (svg, name, type) {
-				let box, tmp = kernel.makeSvg();
+				let tmp = kernel.makeSvg();
 				if (svgicos.hasOwnProperty(name)) {
 					name = svgicos[name];
 				}
@@ -53,7 +53,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				tmp.style.bottom = tmp.style.right = '100%';
 				tmp.firstChild.setAttribute('d', name);
 				document.body.appendChild(tmp);
-				box = tmp.firstChild.getBBox();
+				let box = tmp.firstChild.getBBox();
 				tmp.remove();
 				if (type == 2) {
 					box.width += box.x * 2;
@@ -72,14 +72,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				svg.setAttribute('viewBox', box.x + ' ' + box.y + ' ' + box.width + ' ' + box.height);
 			},
 			parseHash: function (hash) {
-				let a, s, nl = {
+				let nl = {
 					id: homePage,
 					args: {}
 				};
 				hash = hash.substr(1).replace(/[#?].*$/, '');
-				s = hash.match(/[^=&]+(=[^&]*)?/g);
+				let s = hash.match(/[^=&]+(=[^&]*)?/g);
 				if (s && s[0].charAt(0) === '!') {
-					a = decodeURIComponent(s[0].substr(1));
+					let a = decodeURIComponent(s[0].substr(1));
 					if (pages.hasOwnProperty(a)) {
 						nl.id = a;
 					}
@@ -94,17 +94,16 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			},
 			// 后退行为
 			getDefaultBack: function (loc) {
-				let o, bk1, bk2;
 				if (!loc) {
 					loc = kernel.location;
 				}
-				bk1 = pages[loc.id].backLoc;
+				let bk2, bk1 = pages[loc.id].backLoc;
 				if (pages[loc.id].back && pages[pages[loc.id].back]) {
 					bk2 = {
 						id: pages[loc.id].back,
 						args: {}
 					};
-					o = pages[pages[loc.id].back].alias ? pages[pages[pages[loc.id].back].alias] : pages[pages[loc.id].back];
+					let o = pages[pages[loc.id].back].alias ? pages[pages[pages[loc.id].back].alias] : pages[pages[loc.id].back];
 					if (o.args) {
 						for (let i = 0; i < o.args.length; i++) {
 							if (loc.args.hasOwnProperty(o.args[i])) {
@@ -126,7 +125,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			},
 			// 判断是否是后退
 			isGoingback: function (from, to) {
-				let i, j, t, f = from;
+				let f = from;
 				if (f !== to) {
 					if (to === homePage || (f.length > to.length + 1 && f.substr(0, to.length + 1) === to + '-')) {
 						return true;
@@ -138,8 +137,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							}
 						}
 						f = from.split('-');
-						t = to.split('-');
-						j = Math.min(f.length, t.length);
+						let t = to.split('-'),
+							j = Math.min(f.length, t.length),
+							i;
 						while (i < j && f[i] === t[i]) {
 							i++;
 						}
@@ -311,11 +311,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		}
 
 		function manageLocation() {
-			let n, m, pageid = kernel.location.id,
+			let pageid = kernel.location.id,
 				pagecfg = pages[pageid];
 			if (kernel.hasOwnProperty('lastLocation')) {
-				n = pageid.replace(/-.*$/, '');
-				m = kernel.lastLocation.id.replace(/-.*$/, '');
+				let n = pageid.replace(/-.*$/, ''),
+					m = kernel.lastLocation.id.replace(/-.*$/, '');
 				if (n !== m) {
 					if (navs.hasOwnProperty(n)) {
 						navs[n].className = 'selected';
@@ -338,19 +338,19 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				});
 			}
 			initLoad(pagecfg, pageid, true, function (firstLoad) {
-				let toshow, tohide, oldpageid, oldid, goingback, title, id, force;
 				if (animating) {
 					todo = true;
 				} else {
+					let force;
 					if (pageid === currentpage) { // 未发生转向, 但url有变化
 						// 相当于 刷新界面 或者是 改变了参数
 						// 不需要动画
 						noSwitchLoad(); // 直接触发页面事件 onload
 					} else { // 只有返回或未发生转向时允许页面缓存
-						id = pages[pageid].alias ? pages[pageid].alias : pageid;
+						let id = pages[pageid].alias ? pages[pageid].alias : pageid,
+							title = pages[pageid].title || pages[id].title;
 						pagesBox.classList.add(pageid);
 						// 重置 title
-						title = pages[pageid].title || pages[id].title;
 						pageTitle.data = title;
 						if (activities.classList.contains('clean') || activities.classList.contains('hidePageHeader')) {
 							document.title = title;
@@ -401,23 +401,21 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						}
 						// 设置 返回按钮URL
 						setBackButton(kernel.getDefaultBack());
-						toshow = pagesBox.querySelector(':scope>.content>.' + id);
-
+						let toshow = pagesBox.querySelector(':scope>.content>.' + id);
 						// 如果有 上一个pageID; 就动画切换
 						// 如果没有 就直接显示
 						if (currentpage) {
 							pagesBox.classList.remove(currentpage);
-							oldpageid = currentpage;
-							oldid = pages[oldpageid].alias ? pages[oldpageid].alias : oldpageid;
+							let oldpageid = currentpage,
+								oldid = pages[oldpageid].alias ? pages[oldpageid].alias : oldpageid;
 							currentpage = pageid;
 							if (id === oldid) {
 								force = true;
 								noSwitchLoad(force);
 							} else {
 								animating = true;
-								tohide = pagesBox.querySelector(':scope>.content>.' + oldid);
-								// kernel 判断是否是 返回操作; 处理不一样的动画
-								goingback = kernel.isGoingback(oldpageid, pageid);
+								let tohide = pagesBox.querySelector(':scope>.content>.' + oldid),
+									goingback = kernel.isGoingback(oldpageid, pageid);
 								force = !goingback || firstLoad;
 								// panelSwitch 动画
 								panelSwitch(toshow, tohide, goingback, function () {
@@ -503,9 +501,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		}
 
 		function setBackButton(loc) {
-			let txt;
 			if (loc && loc.id) {
-				txt = pages[loc.id].title;
+				let txt = pages[loc.id].title;
 				if (!txt && pages[loc.id].alias) {
 					txt = pages[pages[loc.id].alias].title;
 				}
@@ -610,7 +607,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							} else {
 								let w = innerWidth,
 									h = innerHeight,
-									rsz = function() {
+									rsz = function () {
 										if (innerWidth === w && innerHeight === h) {
 											requestAnimationFrame(rsz);
 										} else {
@@ -692,7 +689,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					return r;
 				},
 				remove: function (o, e, f) {
-					let addRemoveMark, tmp;
 					if (o.xEvents) {
 						if (e) {
 							if (o.xEvents[e]) {
@@ -704,7 +700,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 									}
 								} else {
 									if (f) {
-										tmp = o.xEvents[e].indexOf(f);
+										let tmp = o.xEvents[e].indexOf(f);
 										if (tmp >= 0) {
 											o.xEvents[e].splice(tmp, 1);
 										}
@@ -719,6 +715,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							}
 						} else {
 							if (!o.xEvents.removeMark) {
+								let addRemoveMark;
 								for (let n in o.xEvents) {
 									if (!o.xEvents[n].locked) {
 										delete o.xEvents[n];
@@ -739,7 +736,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			};
 
 			function xEventProcessor(o, evt) {
-				let tmp;
 				o.xEvents[evt.type].locked = true;
 				for (let i = 0; i < o.xEvents[evt.type].length; i++) {
 					o.xEvents[evt.type][i].call(o, evt);
@@ -747,7 +743,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				o.xEvents[evt.type].locked = false;
 				while (o.xEvents[evt.type].stack.length) {
 					if (o.xEvents[evt.type].stack[0]) {
-						tmp = o.xEvents[evt.type].indexOf(o.xEvents[evt.type].stack[0][1]);
+						let tmp = o.xEvents[evt.type].indexOf(o.xEvents[evt.type].stack[0][1]);
 						if (o.xEvents[evt.type].stack[0][0]) {
 							if (tmp >= 0) {
 								o.xEvents[evt.type].splice(tmp, 1);
@@ -920,7 +916,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 
 			function setStep(step) {
-				let tmp, tmp1;
 				img.src = step.img;
 				if ('right' in step) {
 					img.style.right = step.right;
@@ -941,7 +936,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					img.style.height = step.height;
 				}
 				for (let i = 0; i < tb.childNodes.length; i++) {
-					tmp = tb.childNodes[i];
+					let tmp = tb.childNodes[i];
 					if (step.rows[i]) {
 						tmp.style.height = step.rows[i];
 						tmp.className = 'unflexable';
@@ -950,9 +945,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						tmp.className = 'flexable';
 					}
 				}
-				tmp = tb.childNodes[1];
-				for (let i = 0; i < tmp.childNodes.length; i++) {
-					tmp1 = tmp.childNodes[i];
+				for (let i = 0; i < tb.childNodes[1].childNodes.length; i++) {
+					let tmp1 = tb.childNodes[1].childNodes[i];
 					if (step.cells[i]) {
 						tmp1.style.width = step.cells[i];
 						tmp1.className = 'unflexable';
@@ -991,14 +985,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			};
 			// 普通弹窗
 			kernel.showPopup = function (id, goBack) { //显示弹出窗口
-				let toshow, tohide, oldPopup;
 				if (animating) {
 					todo = function () {
 						kernel.showPopup(id, goBack);
 					};
 				} else {
 					goBack = activePopup && goBack;
-					toshow = popupsBox.querySelector(':scope>.content>.' + id);
+					let toshow = popupsBox.querySelector(':scope>.content>.' + id);
 					// 有 .in 表示正在显示中
 					// 如果没有 in class 就需要打开
 					if (!popupsBox.classList.contains('in')) {
@@ -1022,10 +1015,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						if (switchCanceled(id, goBack)) {
 							return true;
 						} else {
-							oldPopup = activePopup;
-							tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
+							let oldPopup = activePopup,
+								tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
 							panelSwitch(toshow, tohide, goBack, function () {
-								let tmp;
 								animating = false;
 								popupSwitched(id);
 								if (typeof popups[oldPopup].onunloadend === 'function') {
@@ -1038,7 +1030,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 									popups[activePopup].onloadend(goBack);
 								}
 								if (typeof todo === 'function') {
-									tmp = todo;
+									let tmp = todo;
 									todo = undefined;
 									tmp();
 								}
@@ -1057,13 +1049,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			};
 			//关闭弹窗, 如果未指定id则会关闭任何弹窗否则只有当前弹窗匹配id时才关闭
 			kernel.closePopup = function (id) {
-				let p;
 				if (animating) {
 					todo = function () {
 						kernel.closePopup(id);
 					};
 				} else {
-					p = kernel.getCurrentPopup();
+					let p = kernel.getCurrentPopup();
 					if (p && (!id || p === id || (kernel.dataType(id) === 'array' && id.indexOf(p) >= 0))) {
 						//onunload 返回 true可以阻止窗口关闭
 						if (typeof popups[p].onunload !== 'function' || !popups[p].onunload()) {
@@ -1123,9 +1114,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			};
 			kernel.destoryPopup = function (id) {
-				let p = popups[id];
-				if (p) {
-					destory(p, 'popup', id);
+				if (popups.hasOwnProperty(id)) {
+					destory(popups[id], 'popup', id);
 				}
 			};
 			// 包含onshow, onshowend, onhide, onhideend
@@ -1145,7 +1135,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			});
 			popupsBox.addEventListener('animationend', function (evt) {
-				let tohide, tmp;
 				if (evt.target === this) {
 					animating = false;
 					if (this.classList.contains('out')) {
@@ -1156,7 +1145,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 								id: activePopup
 							});
 						}
-						tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
+						let tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
 						tohide.style.left = tohide.style.visibility = '';
 						if (typeof popups[activePopup].onunloadend === 'function') {
 							popups[activePopup].onunloadend();
@@ -1178,7 +1167,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						}
 					}
 					if (typeof todo === 'function') {
-						tmp = todo;
+						let tmp = todo;
 						todo = undefined;
 						tmp();
 					}
@@ -1273,14 +1262,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			guesture.onzoomstart = zoomstart;
 			guesture.ondragstart = dragstart;
 			kernel.showPhotoView = function (url, btns, cb) {
-				let tmp;
 				photoViewContent.src = url;
 				while (photoViewActions.childNodes.length) {
 					photoViewActions.firstChild.remove();
 				}
 				if (typeof cb === 'function' && btns && btns.length) {
 					for (let i = 0; i < btns.length; i++) {
-						tmp = document.createElement('a');
+						let tmp = document.createElement('a');
 						tmp.href = 'javascript:;';
 						tmp.appendChild(document.createTextNode(btns[i]));
 						tmp.addEventListener('click', cb.bind(kernel, i));
@@ -1327,7 +1315,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				openDialog(className || '', html, callback);
 			};
 			kernel.closeDialog = function (param) { //通用对话框关闭方法
-				let a;
 				self.removeEventListener('resize', syncDialogSize, false);
 				dialogCtn.style.visibility = '';
 				if (typeof callback === 'function') {
@@ -1338,7 +1325,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 				callback = undefined;
 				if (dlgStack.length) {
-					a = dlgStack.shift();
+					let a = dlgStack.shift();
 					kernel[a.shift()].apply(kernel, a);
 				}
 			};
@@ -1567,7 +1554,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	}
 
 	function initLoad(oldcfg, id, isPage, callback) {
-		let ctn, family, n, m, url, xhr;
+		let ctn, family, n;
 		if (isPage && oldcfg.alias) {
 			id = oldcfg.alias;
 			oldcfg = pages[oldcfg.alias];
@@ -1584,14 +1571,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				family = 'popup';
 			}
 			n = family + '/' + id + '/';
-			m = require.toUrl(n);
+			let m = require.toUrl(n);
 			if (typeof oldcfg.css === 'string') {
 				oldcfg.css = kernel.appendCss(m + oldcfg.css);
 			}
 			if ('html' in oldcfg) {
 				kernel.showLoading();
-				url = m + oldcfg.html;
-				xhr = new XMLHttpRequest();
+				let url = m + oldcfg.html,
+					xhr = new XMLHttpRequest();
 				xhr.open('get', url, true);
 				xhr.onreadystatechange = function () {
 					if (this.readyState === 4) {
@@ -1615,12 +1602,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		}
 
 		function loadJs(html) {
-			let js;
 			ctn.querySelector(':scope>.content').insertAdjacentHTML('beforeEnd', '<div class="' + id + '">' + html + '</div>');
 			addPanelAnimationListener(ctn.querySelector(':scope>.content>.' + id));
 			if ('js' in oldcfg) {
 				kernel.showLoading();
-				js = n + oldcfg.js;
+				let js = n + oldcfg.js;
 				require([js], function (cfg) {
 					if (cfg) {
 						if (self.Reflect) {
