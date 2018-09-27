@@ -1,5 +1,5 @@
 'use strict';
-define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 'common/pointerevents/pointerevents', 'common/svgicos/svgicos', 'site/pages/pages', 'site/popups/popups'], function (touchslider, touchguesture, pointerevents, svgicos, pages, popups) {
+define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 'common/pointerevents/pointerevents', 'common/svgicos/svgicos', 'site/pages/pages', 'site/popups/popups', './lang'], function (touchslider, touchguesture, pointerevents, svgicos, pages, popups, lang) {
 	let homePage,
 		activities = document.body.querySelector('#activities'),
 		kernel = {
@@ -506,7 +506,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (!txt && pages[loc.id].alias) {
 					txt = pages[pages[loc.id].alias].title;
 				}
-				backbtn.lastChild.data = txt || '返回';
+				backbtn.lastChild.data = txt || lang.back;
 				backbtn.href = kernel.buildHash(loc);
 				backbtn.style.display = '';
 			} else {
@@ -982,8 +982,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						kernel.showPopup(id, goBack);
 					};
 				} else {
-					goBack = activePopup && goBack;
 					let toshow = popupsBox.querySelector(':scope>.content>.' + id);
+					goBack = activePopup && goBack;
 					// 有 .in 表示正在显示中
 					// 如果没有 in class 就需要打开
 					if (!popupsBox.classList.contains('in')) {
@@ -1075,7 +1075,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			kernel.setPopupBack = function (backid, param) {
 				if (popupsBox.classList.contains('in')) {
 					if (backid) {
-						back.lastChild.data = typeof backid === 'function' || !popups[backid].title ? '返回' : popups[backid].title;
+						back.lastChild.data = typeof backid === 'function' || !popups[backid].title ? lang.back : popups[backid].title;
 						tempBack = backid;
 						back.style.display = '';
 						tempBackParam = param;
@@ -1322,7 +1322,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			};
 			kernel.showLoading = function (text) { //loading提示框, 每次调用引用计数+1所以showLoading和hideLoading必须成对使用
-				loadingCtn.querySelector(':scope>div').lastChild.data = text ? text : '加载中...';
+				loadingCtn.querySelector(':scope>div').lastChild.data = text ? text : lang.loading;
 				if (loadingRT === 0) {
 					loadingCtn.style.visibility = 'inherit';
 					activities.classList.add('mask');
@@ -1398,12 +1398,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					} else if (type === 'confirm') {
 						if (typeof content === 'string') {
 							dialogContent.textContent = content;
-							yesbtn.textContent = '是';
-							nobtn.textContent = '否';
+							yesbtn.firstChild.data = lang.yes;
+							nobtn.firstChild.data = lang.no;
 						} else {
 							dialogContent.textContent = content[0];
-							yesbtn.textContent = content[1];
-							nobtn.textContent = content[2];
+							yesbtn.firstChild.data = content[1];
+							nobtn.firstChild.data = content[2];
 						}
 					} else {
 						if (typeof content === 'string') {
@@ -1627,7 +1627,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	}
 
 	function errorOccurs(res, msg, isPage) {
-		kernel.alert('加载' + res + '时发生了一个错误: ' + msg, isPage ? function () {
+		kernel.alert(lang.error.replace('${res}', res) + msg, isPage ? function () {
 			history.back();
 		} : undefined);
 	}
@@ -1636,7 +1636,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		if (isPage) {
 			location.reload();
 		} else {
-			kernel.confirm('网站已经更新, 使用该功能需要先重新加载. 是否立即刷新本页?', function (sure) {
+			kernel.confirm(lang.update, function (sure) {
 				if (sure) {
 					location.reload();
 				}
