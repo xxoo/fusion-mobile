@@ -30,10 +30,10 @@
 define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	let touchguesture = function(dom) {
 		if (this instanceof touchguesture) {
-			let self = this,
+			let that = this,
 				touchs = [];
 			this.destory = pointerevents(dom, function(evt) {
-				return touchstart(self, evt, touchs);
+				return touchstart(that, evt, touchs);
 			}).destory;
 		} else {
 			return new touchguesture(dom);
