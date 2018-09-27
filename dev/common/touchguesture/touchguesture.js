@@ -29,10 +29,9 @@
 'use strict';
 define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	let touchguesture = function(dom) {
-		let self, touchs;
 		if (this instanceof touchguesture) {
-			self = this;
-			touchs = [];
+			let self = this,
+				touchs = [];
 			this.destory = pointerevents(dom, function(evt) {
 				return touchstart(self, evt, touchs);
 			}).destory;
@@ -43,10 +42,9 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	return touchguesture;
 
 	function touchstart(obj, evt, touchs) {
-		let o;
 		if (evt.type === 'start') {
 			if (touchs.length < 2) {
-				o = {
+				let o = {
 					id: evt.id,
 					x: evt.x,
 					y: evt.y
@@ -78,7 +76,6 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	}
 
 	function mv(obj, evt, touchs) {
-		let i, j = 0;
 		evt.domEvent.preventDefault();
 		evt.domEvent.stopPropagation();
 		if (touchs.length === 1) {
@@ -101,9 +98,8 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	}
 
 	function ed(obj, evt, touchs) {
-		let j;
 		if (touchs.length === 2) {
-			j = evt.id === touchs[0].id ? 0 : 1;
+			let j = evt.id === touchs[0].id ? 0 : 1;
 			touchs[j].x = evt.x;
 			touchs[j].y = evt.y;
 			fireEvent(obj, 'zoomend', {

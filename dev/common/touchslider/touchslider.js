@@ -11,7 +11,7 @@
 
 'use strict';
 define(['common/pointerevents/pointerevents'], function(pointerevents) {
-	let touchslider, tmp, tmp1;
+	let tmp, tmp1, peo;
 	if ('transition' in document.documentElement.style) {
 		tmp1 = 'transition';
 		tmp = 'transitionend';
@@ -19,9 +19,8 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 		tmp1 = 'webkitTransition';
 		tmp = 'webkitTransitionEnd';
 	}
-	touchslider = function(container, contents, idx) {
-		let i, peo,
-			self = this,
+	let touchslider = function(container, contents, idx) {
+		let that = this,
 			vars = {};
 		if (this instanceof touchslider) {
 			this.pushStack = []; //for adding elements while sliding
@@ -46,7 +45,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 			this.subcontainer.style.height = '100%';
 			this.subcontainer.style.left = this.subcontainer.style.top = 0;
 			this.subcontainer.addEventListener(tmp, function(evt) {
-				slided.call(this, evt, self);
+				slided.call(this, evt, that);
 			}, false);
 			this.container.addEventListener('dragstart', cancelEvt, false);
 			this.container.addEventListener('scroll', noscroll, false);
@@ -59,7 +58,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 				} else {
 					this.current = 0;
 				}
-				for (i = 0; i < contents.length; i++) {
+				for (let i = 0; i < contents.length; i++) {
 					contents[i].style.width = '50%';
 					contents[i].style.height = '100%';
 					contents[i].style.display = 'inline-block';
@@ -78,11 +77,11 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 		}
 
 		function touchBegin(evt) {
-			return bg(evt, self, peo, vars);
+			return bg(evt, that, peo, vars);
 		}
 
 		function chkClick(evt) {
-			if (self.sliding) {
+			if (that.sliding) {
 				evt.preventDefault();
 				evt.stopPropagation();
 			}
@@ -207,7 +206,6 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 		return result;
 	};
 	touchslider.prototype.clear = function() {
-		let i;
 		if (this.sliding) {
 			this.removeStack = this.children.slice(0);
 			this.pushStack = [];
@@ -324,7 +322,6 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	}
 
 	function mv(evt, obj, vars) {
-		let v, n, n1;
 		if (obj.children.length > 1 && !obj.sliding) {
 			vars.ox = vars.nx;
 			vars.ot = vars.nt;
@@ -335,7 +332,8 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 				vars.sl();
 			}
 			if (obj.moving) {
-				v = vars.nx - vars.x;
+				let n, n1,
+					v = vars.nx - vars.x;
 				if (vars.nx > vars.x) {
 					n = Math.floor(v / obj.container.clientWidth);
 				} else {
@@ -394,10 +392,9 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	}
 
 	function ed(evt, obj, vars) {
-		let speed, s;
 		if (obj.subcontainer.childNodes.length === 2) {
-			speed = (evt.x - vars.ox) / (evt.domEvent.timeStamp - vars.ot);
-			s = Math.pow(speed, 2) * obj.rate;
+			let speed = (evt.x - vars.ox) / (evt.domEvent.timeStamp - vars.ot),
+				s = Math.pow(speed, 2) * obj.rate;
 			if (speed < 0) {
 				s = s * -1;
 			}
