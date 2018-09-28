@@ -46,9 +46,9 @@ console.log(svg.getAttribute('viewBox'));`
 					'isSameLocation(loc1:Object, loc2:Object):Bollean': {
 						desc: '判断loc1和loc2是否对应同一个地址',
 						code: `console.log(kernel.isSameLocation(kernel.location, {
-	id: 'doc',
+	id: 'list',
 	args: {
-		api: 'isSameLocation'
+		api: 'isSameLocation(loc1:Object, loc2:Object):Bollean'
 	}
 }));`
 					},
@@ -64,16 +64,12 @@ console.log(svg.getAttribute('viewBox'));`
 					'getDefaultBack(loc:Object):Object': {
 						desc: '获得loc的默认返回地址',
 						code: `console.log(kernel.getDefaultBack({
-	id: 'list'
+	id: 'user'
 }));`
 					},
-					'isGoingback(from:Object, to:Object):Boolean': {
+					'isGoingback(from:String, to:String):Boolean': {
 						desc: '判断从from跳转到to是否属于后退',
-						code: `console.log(kernel.isGoingback({
-	id: 'list'
-}, {
-	id: 'home'
-}));`
+						code: `console.log(kernel.isGoingback('user', 'list'));`
 					},
 					'setAutoScale(minWidth:Number):void': {
 						desc: '设置自动缩放功能. 当 minWidth > 0 时则启用, 否则禁用. 当窗口宽度小于 minWidth 时会(线性)缩小页面内容, 当窗口宽度大于 minWidth 时会(非线性)放大页面内容.',
