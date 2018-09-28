@@ -967,16 +967,15 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			kernel.openPopup = function (id, param, goBack) {
 				let popupcfg = popups[id];
 				if (popupcfg) {
-					initLoad(popupcfg, id, false, function (firstLoad) {
+					initLoad(popupcfg, id, false, function () {
 						if (typeof popupcfg.open === 'function') {
 							popupcfg.open(param, activePopup && goBack);
 						} else {
 							kernel.showPopup(id, goBack);
 						}
 					});
-					return true;
 				} else {
-					kernel.hint('popup config not found: ' + id);
+					kernel.hint(lang.popupNotFound + id);
 				}
 			};
 			// 普通弹窗
@@ -1004,7 +1003,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						}
 						popupSwitched(id);
 						kernel.hideReadable();
-					} else if (activePopup !== id) {
+					} else if (activePopup === id) {
+						if (typeof popups[id].onload !== 'function') {
+							popups[id].onload();
+						}
+						if (typeof popups[id].onloadend === 'function') {
+							popups[id].onloadend();
+						}
+					} else {
 						//onunload 返回 true 可以阻止弹窗切换
 						if (typeof popups[activePopup].onunload === 'function' && popups[activePopup].onunload()) {
 							return true;
@@ -1040,13 +1046,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							});
 							animating = id;
 						}
-					} else {
-						if (typeof popups[id].onload !== 'function') {
-							popups[id].onload();
-						}
-						if (typeof popups[id].onloadend === 'function') {
-							popups[id].onloadend();
-						}
 					}
 				}
 			};
@@ -1055,18 +1054,17 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (animating) {
 					todo = kernel.closePopup.bind(this, id);
 				} else {
-					let p = kernel.getCurrentPopup();
-					if (p && (!id || p === id || (kernel.dataType(id) === 'array' && id.indexOf(p) >= 0))) {
+					if (activePopup && (!id || activePopup === id || (kernel.dataType(id) === 'array' && id.indexOf(activePopup) >= 0))) {
 						//onunload 返回 true可以阻止窗口关闭
-						if (typeof popups[p].onunload !== 'function' || !popups[p].onunload()) {
-							popups[p].status--;
+						if (typeof popups[activePopup].onunload !== 'function' || !popups[activePopup].onunload()) {
+							popups[activePopup].status--;
 							popupsBox.classList.remove('in');
 							popupsBox.classList.add('out');
 							animating = true;
 							if (typeof kernel.popupEvents.onhide === 'function') {
 								kernel.popupEvents.onhide({
 									type: 'hide',
-									id: p
+									id: activePopup
 								});
 							}
 						} else {
@@ -1077,9 +1075,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			};
 			// 获取当前显示的 popup id
 			kernel.getCurrentPopup = function () {
-				if (popupsBox.classList.contains('in')) {
-					return activePopup;
-				}
+				return activePopup;
 			};
 			// 如果未指定id则临时改变当前弹窗的后退位置, 临时修改不能在loadend之前使用
 			// 参数1 需要返回的页面id
@@ -1409,14 +1405,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					if (type === 'alert') {
 						dialogContent.textContent = content;
 					} else if (type === 'confirm') {
-						if (typeof content === 'string') {
-							dialogContent.textContent = content;
-							yesbtn.firstChild.data = lang.yes;
-							nobtn.firstChild.data = lang.no;
-						} else {
+						if (kernel.dataType(content) === 'array') {
 							dialogContent.textContent = content[0];
 							yesbtn.firstChild.data = content[1];
 							nobtn.firstChild.data = content[2];
+						} else {
+							dialogContent.textContent = content;
+							yesbtn.firstChild.data = lang.yes;
+							nobtn.firstChild.data = lang.no;
 						}
 					} else {
 						if (typeof content === 'string') {
@@ -1564,7 +1560,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			id = oldcfg.alias;
 			oldcfg = pages[oldcfg.alias];
 		}
-		//status: 1=loading, 2=loaded, 3=showing, 4=shown
+		//status: 1=loading, 2=loaded but hidden, 3=showing or hiding, 4=shown
 		if (oldcfg.status > 1) {
 			callback();
 		} else if (!oldcfg.status) {
