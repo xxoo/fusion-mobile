@@ -246,9 +246,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			}
 		};
-		kernel.destoryPage = function (id) {
-			if (pages.hasOwnProperty(id)) {
-				destory(pages[id], 'page', id);
+		kernel.destroyPage = function (id) {
+			if (pages.hasOwnProperty(id) && pages[id].status === 2) {
+				destroy(pages[id], 'page', id);
+				return true;
 			}
 		};
 		kernel.pageEvents = {};
@@ -400,15 +401,25 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							headerLeftMenuBtn.style.display = 'none';
 						}
 						// 设置 返回按钮URL
-						setBackButton(kernel.getDefaultBack());
+						let loc = kernel.getDefaultBack();
+						if (loc) {
+							let txt = pages[loc.id].title;
+							if (!txt && pages[loc.id].alias) {
+								txt = pages[pages[loc.id].alias].title;
+							}
+							backbtn.lastChild.data = txt || lang.back;
+							backbtn.href = kernel.buildHash(loc);
+							backbtn.style.display = '';
+						} else {
+							backbtn.style.display = 'none';
+						}
 						let toshow = pagesBox.querySelector(':scope>.content>.' + id);
-						// 如果有 上一个pageID; 就动画切换
-						// 如果没有 就直接显示
 						if (currentpage) {
 							pagesBox.classList.remove(currentpage);
-							let oldpageid = currentpage,
-								oldid = pages[oldpageid].alias ? pages[oldpageid].alias : oldpageid;
+							let oldid = pages[currentpage].alias ? pages[currentpage].alias : currentpage,
+								oldpageid = currentpage;
 							currentpage = pageid;
+							//alias之间切换不需要动画
 							if (id === oldid) {
 								force = true;
 								noSwitchLoad(force);
@@ -417,24 +428,23 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 								let tohide = pagesBox.querySelector(':scope>.content>.' + oldid),
 									goingback = kernel.isGoingback(oldpageid, pageid);
 								force = !goingback || firstLoad;
-								// panelSwitch 动画
 								panelSwitch(toshow, tohide, goingback, function () {
 									animating = false;
-									// 切换完成后 就执行 对呀的方法;
 									if (typeof pages[oldid].onunloadend === 'function') {
-										// 如果是回退 就不强制刷新
 										pages[oldid].onunloadend();
 									}
-									if (document.activeElement && tohide.contains(document.activeElement)) {
+									pages[oldid].status--;
+									if (pages[oldid].autoDestroy) {
+										destroy(pages[oldid], 'page', oldid);
+									} else if (document.activeElement && tohide.contains(document.activeElement)) {
 										document.activeElement.blur();
 									}
-									// 当前页的加载
 									if (typeof pages[id].onloadend === 'function') {
 										pages[id].onloadend(force);
 									}
+									pages[id].status++;
 									if (todo) {
 										todo = false;
-										// toshow可能已被隐藏
 										toshow.style.visibility = 'inherit';
 										manageLocation();
 									}
@@ -445,7 +455,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 								if (typeof pages[oldid].onunload === 'function') {
 									pages[oldid].onunload();
 								}
+								pages[oldid].status--;
 								// 触发当前页面的加载事件
+								pages[id].status++;
 								if (typeof pages[id].onload === 'function') {
 									pages[id].onload(force);
 								}
@@ -492,25 +504,17 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 		function noSwitchLoad(force) {
 			let cfg = pages[currentpage].alias ? pages[pages[currentpage].alias] : pages[currentpage];
+			if (cfg.status < 3) {
+				cfg.status++;
+			}
 			if (typeof cfg.onload === 'function') {
 				cfg.onload(force);
 			}
 			if (typeof cfg.onloadend === 'function') {
 				cfg.onloadend(force);
 			}
-		}
-
-		function setBackButton(loc) {
-			if (loc && loc.id) {
-				let txt = pages[loc.id].title;
-				if (!txt && pages[loc.id].alias) {
-					txt = pages[pages[loc.id].alias].title;
-				}
-				backbtn.lastChild.data = txt || lang.back;
-				backbtn.href = kernel.buildHash(loc);
-				backbtn.style.display = '';
-			} else {
-				backbtn.style.display = 'none';
+			if (cfg.status < 4) {
+				cfg.status++;
 			}
 		}
 	}();
@@ -978,49 +982,56 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			// 普通弹窗
 			kernel.showPopup = function (id, goBack) { //显示弹出窗口
 				if (animating) {
-					todo = function () {
-						kernel.showPopup(id, goBack);
-					};
+					todo = kernel.showPopup.bind(this, id, goBack);
 				} else {
 					let toshow = popupsBox.querySelector(':scope>.content>.' + id);
-					goBack = activePopup && goBack;
 					// 有 .in 表示正在显示中
 					// 如果没有 in class 就需要打开
-					if (!popupsBox.classList.contains('in')) {
-						if (switchCanceled(id, goBack)) {
-							return true;
-						} else {
-							toshow.style.left = 0;
-							toshow.style.visibility = 'inherit';
-							popupsBox.classList.add('in');
-							animating = id;
-							if (typeof kernel.popupEvents.onshow === 'function') {
-								kernel.popupEvents.onshow({
-									type: 'show',
-									id: id
-								});
-							}
-							popupSwitched(id);
-							kernel.hideReadable();
+					if (!activePopup) {
+						popups[id].status++;
+						if (typeof popups[id].onload === 'fucntion') {
+							popups[id].onload();
 						}
+						toshow.style.left = 0;
+						toshow.style.visibility = 'inherit';
+						popupsBox.classList.add('in');
+						animating = id;
+						if (typeof kernel.popupEvents.onshow === 'function') {
+							kernel.popupEvents.onshow({
+								type: 'show',
+								id: id
+							});
+						}
+						popupSwitched(id);
+						kernel.hideReadable();
 					} else if (activePopup !== id) {
-						if (switchCanceled(id, goBack)) {
+						//onunload 返回 true 可以阻止弹窗切换
+						if (typeof popups[activePopup].onunload === 'function' && popups[activePopup].onunload()) {
 							return true;
 						} else {
-							let oldPopup = activePopup,
-								tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
+							let tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
+							popups[activePopup].status--;
+							popups[id].status++;
+							if (typeof popups[id].onload === 'function') {
+								popups[id].onload(goBack);
+							}
 							panelSwitch(toshow, tohide, goBack, function () {
+								let oldPopup = activePopup;
 								animating = false;
 								popupSwitched(id);
 								if (typeof popups[oldPopup].onunloadend === 'function') {
 									popups[oldPopup].onunloadend();
 								}
-								if (document.activeElement && tohide.contains(document.activeElement)) {
+								popups[oldPopup].status--;
+								if (popups[oldPopup].autoDestroy) {
+									destroy(popups[oldPopup], 'popup', oldPopup);
+								} else if (document.activeElement && tohide.contains(document.activeElement)) {
 									document.activeElement.blur();
 								}
 								if (typeof popups[activePopup].onloadend === 'function') {
 									popups[activePopup].onloadend(goBack);
 								}
+								popups[id].status++;
 								if (typeof todo === 'function') {
 									let tmp = todo;
 									todo = undefined;
@@ -1028,13 +1039,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 								}
 							});
 							animating = id;
-							return false;
 						}
 					} else {
-						if (typeof popups[id].onload !== 'function' || !popups[id].onload(goBack)) {
-							if (typeof popups[id].onloadend === 'function') {
-								popups[id].onloadend(goBack);
-							}
+						if (typeof popups[id].onload !== 'function') {
+							popups[id].onload();
+						}
+						if (typeof popups[id].onloadend === 'function') {
+							popups[id].onloadend();
 						}
 					}
 				}
@@ -1042,14 +1053,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			//关闭弹窗, 如果未指定id则会关闭任何弹窗否则只有当前弹窗匹配id时才关闭
 			kernel.closePopup = function (id) {
 				if (animating) {
-					todo = function () {
-						kernel.closePopup(id);
-					};
+					todo = kernel.closePopup.bind(this, id);
 				} else {
 					let p = kernel.getCurrentPopup();
 					if (p && (!id || p === id || (kernel.dataType(id) === 'array' && id.indexOf(p) >= 0))) {
 						//onunload 返回 true可以阻止窗口关闭
 						if (typeof popups[p].onunload !== 'function' || !popups[p].onunload()) {
+							popups[p].status--;
 							popupsBox.classList.remove('in');
 							popupsBox.classList.add('out');
 							animating = true;
@@ -1059,6 +1069,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 									id: p
 								});
 							}
+						} else {
+							return true;
 						}
 					}
 				}
@@ -1105,9 +1117,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					}
 				}
 			};
-			kernel.destoryPopup = function (id) {
-				if (popups.hasOwnProperty(id)) {
-					destory(popups[id], 'popup', id);
+			kernel.destroyPopup = function (id) {
+				if (popups.hasOwnProperty(id) && popups[id].status === 2) {
+					destroy(popups[id], 'popup', id);
+					return true;
 				}
 			};
 			// 包含onshow, onshowend, onhide, onhideend
@@ -1142,15 +1155,19 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						if (typeof popups[activePopup].onunloadend === 'function') {
 							popups[activePopup].onunloadend();
 						}
-						if (document.activeElement && tohide.contains(document.activeElement)) {
+						popups[activePopup].status--;
+						if (popups[activePopup].autoDestroy) {
+							destroy(popups[activePopup], 'popup', activePopup);
+						} else if (document.activeElement && tohide.contains(document.activeElement)) {
 							document.activeElement.blur();
 						}
 						popupsBox.classList.remove(activePopup);
 						activePopup = undefined;
 					} else {
 						if (typeof popups[activePopup].onloadend === 'function') {
-							popups[activePopup].onloadend(true);
+							popups[activePopup].onloadend();
 						}
+						popups[activePopup].status++;
 						if (typeof kernel.popupEvents.onshowend === 'function') {
 							kernel.popupEvents.onshowend({
 								type: 'showend',
@@ -1166,10 +1183,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			});
 
-			function switchCanceled(id, goBack) {
-				//onunload 或 onload 返回 true 可以阻止停止事件
-				return (activePopup && typeof popups[activePopup].onunload === 'function' && popups[activePopup].onunload()) || (typeof popups[id].onload === 'function' && popups[id].onload(goBack));
-			}
 			// 弹窗显示后要执行的工作
 			function popupSwitched(id) {
 				// activePopup 上一个显示的窗口;
@@ -1518,11 +1531,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 	return kernel;
 
-	function destory(cfg, type, id) {
+	function destroy(cfg, type, id) {
 		let n = type + '/' + id + '/',
 			o = document.body.querySelector('#' + type + '>.content>.' + id);
-		if (cfg.loaded === 2 && typeof cfg.ondestory === 'function') {
-			cfg.ondestory();
+		if (typeof cfg.ondestroy === 'function') {
+			cfg.ondestroy();
 		}
 		o.remove();
 		if (cfg.css && typeof cfg.css !== 'string') {
@@ -1542,7 +1555,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			}
 		}
-		cfg.loaded = 0;
+		delete cfg.status;
 	}
 
 	function initLoad(oldcfg, id, isPage, callback) {
@@ -1551,10 +1564,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			id = oldcfg.alias;
 			oldcfg = pages[oldcfg.alias];
 		}
-		if (oldcfg.loaded === 2) {
+		//status: 1=loading, 2=loaded, 3=showing, 4=shown
+		if (oldcfg.status > 1) {
 			callback();
-		} else if (oldcfg.loaded !== 1) {
-			oldcfg.loaded = 1;
+		} else if (!oldcfg.status) {
+			oldcfg.status = 1;
 			if (isPage) {
 				ctn = document.body.querySelector('#page');
 				family = 'page';
@@ -1577,7 +1591,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						if (this.status === 200) {
 							loadJs(this.responseText);
 						} else {
-							destory(oldcfg, family, id);
+							destroy(oldcfg, family, id);
 							if (VERSION === 'dev' || this.status !== 404) {
 								errorOccurs(url, this.status, isPage);
 							} else {
@@ -1607,11 +1621,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							oldcfg.__proto__ = cfg;
 						}
 					}
-					oldcfg.loaded = 2;
+					oldcfg.status++;
 					callback(true);
 					kernel.hideLoading();
 				}, VERSION === 'dev' ? undefined : function (error) {
-					destory(oldcfg, family, id);
+					destroy(oldcfg, family, id);
 					if ((error.requireType && error.requireType !== 'scripterror' && error.requireType !== 'nodefine') || (error.xhr && error.xhr.status !== 404)) {
 						errorOccurs(js, error.message, isPage);
 					} else {
@@ -1620,7 +1634,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					kernel.hideLoading();
 				});
 			} else {
-				oldcfg.loaded = 2;
+				oldcfg.status++;
 				callback(true);
 			}
 		}

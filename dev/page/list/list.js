@@ -164,9 +164,9 @@ function func(evt){
 						desc: '获取当前正在显示的弹窗id',
 						code: `console.log(kernel.getCurrentPopup());`
 					},
-					'destoryPopup(id:String):void': {
-						desc: '销毁已加载的指定弹窗, 不可销毁当前弹窗',
-						code: `kernel.destoryPopup('samplePopup');`
+					'destroyPopup(id:String):Bollean': {
+						desc: '销毁已加载的指定弹窗, 会出发弹窗的ondestroy事件. 不可销毁当前弹窗, 返回true表示销毁成功',
+						code: `console.log(kernel.destroyPopup('samplePopup2'));`
 					},
 					'setPopupBack(backid:String|Function, param:any):void': {
 						desc: '设置弹窗上的后退按钮点击行为，调用后会显示后退按钮。不能在loadend之前使用, 需要示例请查看samplePopup2源码'
@@ -265,8 +265,9 @@ function loaded(evt){
 						desc: '重新加载当前页',
 						code: `kernel.reloadPage();`
 					},
-					'destoryPage(id?:String):void': {
-						desc: '销毁制定页面, 会触发页面的ondestory事件, 无法销毁当前页'
+					'destroyPage(id:String):Bollean': {
+						desc: '销毁指定页面, 会触发页面的ondestroy事件. 无法销毁当前页, 返回true表示销毁成功',
+						code: `console.log(kernel.destroyPage('user'));`
 					}
 				},
 				properties: {
@@ -309,7 +310,7 @@ function loaded(evt){
 					'var events = pointerevents(dom:HTMLElement, callback:Function):Object': {
 						desc: '模块的导出方法, 用法请见源代码中的注释'
 					},
-					'events.destory():void': {
+					'events.destroy():void': {
 						desc: '销毁监听对象'
 					}
 				},
@@ -325,7 +326,7 @@ function loaded(evt){
 					'var guesture = touchguesture(dom:HTMLElement):Object': {
 						desc: '模块的导出方法, 用法请见源代码中的注释'
 					},
-					'guesture.destory():void': {
+					'guesture.destroy():void': {
 						desc: '销毁监听对象'
 					}
 				},
