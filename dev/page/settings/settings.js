@@ -6,4 +6,7 @@ define(['module', 'common/kernel/kernel'], function(module, kernel) {
 	dom.querySelector('a').addEventListener('click', function() {
 		kernel.openPopup('samplePopup', ++n);
 	}, false);
+	return {
+		autoDestroy: true
+	};
 });
