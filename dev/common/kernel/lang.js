@@ -26,25 +26,19 @@ define(function () {
 			popupNotFound: 'popup config not found: ',
 			error: 'An error occured while loading ${res}: ',
 			update: 'The service is just updated. This page requires a reload to be accessible. Would you like to continue?'
-		},
-		langs = {
-			zh: chs,
-			'zh-CN': chs,
-			'zh-TW': cht,
-			'zh-HK': cht,
-			en: eng,
-			'en-US': eng,
-			'en-AU': eng,
-			'en-CA': eng,
-			'en-IN': eng,
-			'en-NZ': eng,
-			'en-ZA': eng,
-			'en-GB': eng
 		};
-	for (let i = 0; i < navigator.languages.length; i++) {
-		if (langs.hasOwnProperty(navigator.languages[i])) {
-			return langs[navigator.languages[i]];
-		}
-	}
-	return eng;
+	return {
+		zh: chs,
+		'zh-CN': chs,
+		'zh-TW': cht,
+		'zh-HK': cht,
+		en: eng,
+		'en-US': eng,
+		'en-AU': eng,
+		'en-CA': eng,
+		'en-IN': eng,
+		'en-NZ': eng,
+		'en-ZA': eng,
+		'en-GB': eng
+	};
 });

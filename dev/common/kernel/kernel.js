@@ -163,368 +163,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			}
 		};
-	//页面加载相关功能
-	! function () {
-		//此处不能使用kernel.lastLocation.id, 因为currentpage仅在页面加载成功才会更新
-		//而kernel.lastLocation.id在页面加载前就已经更新, 无法确保成功加载
-		let routerHistory, currentpage, animating, todo, navIcos, navs,
-			historyName = location.pathname,
-			pagesBox = document.body.querySelector('#page'),
-			navCtn = pagesBox.querySelector(':scope>.navMenu'),
-			pageTitle = pagesBox.querySelector(':scope>.header>.title').firstChild,
-			backbtn = pagesBox.querySelector(':scope>.header>.back'),
-			headerLeftMenuBtn = pagesBox.querySelector(':scope>.header>.leftMenuBtn'),
-			headerRightMenuBtn = pagesBox.querySelector(':scope>.header>.rightMenuBtn');
-		//if private browsing is enabled, Safari will throw a stupid exception when calling setItem from sessionStorage or localStorage. the fallowing code can avoid this.
-		try {
-			sessionStorage.setItem(0, 0);
-			sessionStorage.removeItem(0);
-		} catch (e) {
-			Storage.prototype.setItem = function () {};
-		}
-		//icos是导航菜单的列表
-		//home是默认页
-		kernel.init = function (home, icos) {
-			if (pages.hasOwnProperty(home)) {
-				homePage = home;
-				if (kernel.hasOwnProperty('location')) {
-					if (icos) {
-						initNavs(icos);
-					}
-					hashchange();
-				} else {
-					// 当前URL
-					kernel.location = kernel.parseHash(location.hash);
-					// 如果带ui参数就把参数中样式加入body
-					if (kernel.location.args.ui) {
-						kernel.location.args.ui.split(',').forEach(function (item) {
-							activities.classList.add(item);
-						});
-					}
-					// 看是否有history
-					routerHistory = sessionStorage.getItem(historyName);
-					routerHistory = routerHistory ? JSON.parse(routerHistory) : {};
-					// 解析 routerHistory
-					for (let n in routerHistory) {
-						if (pages.hasOwnProperty(n)) {
-							pages[n].backLoc = routerHistory[n];
-						}
-					}
-					self.addEventListener('hashchange', hashchange);
-					initNavs(icos);
-					//禁止各种 long tap 菜单
-					//ios 中需使用样式 -webkit-touch-callout: none;
-					self.addEventListener('contextmenu', browser.name === 'Firefox' ? stopEvent : cancelEvent);
-					self.addEventListener('dragstart', cancelEvent);
-					manageLocation();
-					if (kernel.location.args.hasOwnProperty('autopopup') && kernel.openPopup(kernel.location.args.autopopup, kernel.location.args.autopopuparg ? JSON.parse(kernel.location.args.autopopuparg) : undefined)) {
-						document.body.querySelector('#popup').style.animationDuration = '1ms';
-						kernel.listeners.add(kernel.popupEvents, 'showend', removeLoading);
-					} else {
-						removeLoading();
-					}
-				}
-			}
-		};
-		//刷新当前页
-		kernel.reloadPage = function (id, silent) {
-			let thislocation;
-			// 是否有数据正在加载
-			if (kernel.isLoading()) {
-				thislocation = kernel.location;
-				// 注册监听 ; loaded
-				kernel.listeners.add(kernel.dialogEvents, 'loaded', listener);
-			} else {
-				reloadPage(id, silent);
-			}
-
-			function listener(evt) {
-				kernel.listeners.remove(this, evt.type, listener);
-				// url 是否改变
-				if (thislocation === kernel.location) {
-					reloadPage(id, silent);
-				}
-			}
-		};
-		kernel.destroyPage = function (id) {
-			if (pages.hasOwnProperty(id) && pages[id].status === 2) {
-				destroy(pages[id], 'page', id);
-				return true;
-			}
-		};
-		kernel.pageEvents = {};
-		backbtn.insertBefore(kernel.makeSvg('angle-left-light', 1), backbtn.firstChild);
-		headerRightMenuBtn.addEventListener('click', function (evt) {
-			let page = pages[pages[currentpage].alias ? pages[currentpage].alias : currentpage];
-			if (typeof page.onrightmenuclick === 'function') {
-				page.onrightmenuclick();
-			}
-		});
-		headerLeftMenuBtn.addEventListener('click', function (evt) {
-			let page = pages[pages[currentpage].alias ? pages[currentpage].alias : currentpage];
-			if (typeof page.onleftmenuclick === 'function') {
-				page.onleftmenuclick();
-			}
-		});
-
-		function initNavs(icos) {
-			while (navCtn.childNodes.length) {
-				navCtn.firstChild.remove();
-			}
-			navIcos = icos;
-			navs = {};
-			for (let n in navIcos) {
-				if (pages.hasOwnProperty(n)) {
-					navs[n] = navCtn.appendChild(document.createElement('a'));
-					navs[n].href = '#!' + n;
-					if (RegExp('^' + n + '(?:-|$)').test(kernel.location.id)) {
-						navs[n].className = 'selected';
-						navs[n].appendChild(kernel.makeSvg(typeof navIcos[n] === 'string' ? navIcos[n] : navIcos[n].selected, 1));
-					} else {
-						navs[n].appendChild(kernel.makeSvg(typeof navIcos[n] === 'string' ? navIcos[n] : navIcos[n].normal, 1));
-					}
-					navs[n].appendChild(document.createTextNode(pages[n].alias ? pages[n].title || pages[pages[n].alias].title : pages[n].title));
-				}
-			}
-		}
-
-		function hashchange() {
-			let newLocation = kernel.parseHash(location.hash);
-			// 如果url 发生改变 就执行
-			if (!kernel.isSameLocation(newLocation, kernel.location)) {
-				kernel.lastLocation = kernel.location;
-				kernel.location = newLocation;
-				// 如果是前进操作
-				if ((pages[kernel.location.id].back && (kernel.lastLocation.id === pages[kernel.location.id].back || pages[kernel.lastLocation.id].alias === pages[kernel.location.id].back))) {
-					// 把上一页赋值给他的后退页
-					routerHistory[kernel.location.id] = pages[kernel.location.id].backLoc = kernel.lastLocation;
-					// 记录到 sessionStorage
-					sessionStorage.setItem(historyName, JSON.stringify(routerHistory));
-				} // 如果是 后退操作
-				else if (pages[kernel.lastLocation.id].backLoc && (kernel.location.id === pages[kernel.lastLocation.id].back || (pages[kernel.location.id].alias && pages[kernel.location.id].alias === pages[kernel.lastLocation.id].back))) {
-					// 剔除最后一次 back 对象
-					delete pages[kernel.lastLocation.id].backLoc;
-					delete routerHistory[kernel.lastLocation.id];
-					sessionStorage.setItem(historyName, JSON.stringify(routerHistory));
-				}
-				manageLocation();
-			}
-		}
-
-		function manageLocation() {
-			let pageid = kernel.location.id,
-				pagecfg = pages[pageid];
-			if (kernel.hasOwnProperty('lastLocation')) {
-				let n = pageid.replace(/-.*$/, ''),
-					m = kernel.lastLocation.id.replace(/-.*$/, '');
-				if (n !== m) {
-					if (navs.hasOwnProperty(n)) {
-						navs[n].className = 'selected';
-						if (typeof navIcos[n] !== 'string') {
-							kernel.setSvgPath(navs[n].firstChild, navIcos[n].selected, 1);
-						}
-					}
-					if (navs.hasOwnProperty(m)) {
-						navs[m].className = '';
-						if (typeof navIcos[m] !== 'string') {
-							kernel.setSvgPath(navs[m].firstChild, navIcos[m].normal, 1);
-						}
-					}
-				}
-				clearWindow();
-			}
-			if (typeof kernel.pageEvents.onroute === 'function') {
-				kernel.pageEvents.onroute({
-					type: 'route'
-				});
-			}
-			initLoad(pagecfg, pageid, true, function (firstLoad) {
-				if (animating) {
-					todo = true;
-				} else {
-					let force;
-					if (pageid === currentpage) { // 未发生转向, 但url有变化
-						// 相当于 刷新界面 或者是 改变了参数
-						// 不需要动画
-						noSwitchLoad(); // 直接触发页面事件 onload
-					} else { // 只有返回或未发生转向时允许页面缓存
-						let id = pages[pageid].alias ? pages[pageid].alias : pageid,
-							title = pages[pageid].title || pages[id].title;
-						pagesBox.classList.add(pageid);
-						// 重置 title
-						pageTitle.data = title;
-						if (activities.classList.contains('clean') || activities.classList.contains('hidePageHeader')) {
-							document.title = title;
-						}
-						if (self.frameElement && frameElement.kernel && kernel.getCurrentPopup() === 'page') {
-							kernel.setPopupTitle(title);
-						}
-						// 重置 顶部按钮
-						while (headerRightMenuBtn.childNodes.length) {
-							headerRightMenuBtn.firstChild.remove();
-						}
-						headerRightMenuBtn.removeAttribute('href');
-						while (headerLeftMenuBtn.childNodes.length) {
-							headerLeftMenuBtn.firstChild.remove();
-						}
-						headerLeftMenuBtn.removeAttribute('href');
-						// init 顶部按钮事件 和 元素
-						// 如果没有 就隐藏
-						if (pages[id].rightMenuContent || pages[id].onrightmenuclick) {
-							if (typeof pages[id].rightMenuContent === 'string') {
-								headerRightMenuBtn.innerHTML = pages[id].rightMenuContent;
-							} else if (pages[id].rightMenuContent) {
-								headerRightMenuBtn.appendChild(pages[id].rightMenuContent);
-							}
-							if (typeof pages[id].onrightmenuclick === 'function') {
-								headerRightMenuBtn.href = 'javascript:;';
-							} else if (pages[id].onrightmenuclick) {
-								headerRightMenuBtn.href = pages[id].onrightmenuclick;
-							}
-							headerRightMenuBtn.style.display = '';
-						} else {
-							headerRightMenuBtn.style.display = 'none';
-						}
-						if (pages[id].leftMenuContent || pages[id].onleftmenuclick) {
-							if (typeof pages[id].leftMenuContent === 'string') {
-								headerLeftMenuBtn.innerHTML = pages[id].leftMenuContent;
-							} else if (pages[id].leftMenuContent) {
-								headerLeftMenuBtn.appendChild(pages[id].leftMenuContent);
-							}
-							if (typeof pages[id].onleftmenuclick === 'function') {
-								headerLeftMenuBtn.href = 'javascript:;';
-							} else if (pages[id].onleftmenuclick) {
-								headerLeftMenuBtn.href = pages[id].onleftmenuclick;
-							}
-							headerLeftMenuBtn.style.display = '';
-						} else {
-							headerLeftMenuBtn.style.display = 'none';
-						}
-						// 设置 返回按钮URL
-						let loc = kernel.getDefaultBack();
-						if (loc) {
-							let txt = pages[loc.id].title;
-							if (!txt && pages[loc.id].alias) {
-								txt = pages[pages[loc.id].alias].title;
-							}
-							backbtn.lastChild.data = txt || lang.back;
-							backbtn.href = kernel.buildHash(loc);
-							backbtn.style.display = '';
-						} else {
-							backbtn.style.display = 'none';
-						}
-						let toshow = pagesBox.querySelector(':scope>.content>.' + id);
-						if (currentpage) {
-							pagesBox.classList.remove(currentpage);
-							let oldid = pages[currentpage].alias ? pages[currentpage].alias : currentpage,
-								oldpageid = currentpage;
-							currentpage = pageid;
-							//alias之间切换不需要动画
-							if (id === oldid) {
-								force = true;
-								noSwitchLoad(force);
-							} else {
-								animating = true;
-								let tohide = pagesBox.querySelector(':scope>.content>.' + oldid),
-									goingback = kernel.isGoingback(oldpageid, pageid);
-								force = !goingback || firstLoad;
-								panelSwitch(toshow, tohide, goingback, function () {
-									animating = false;
-									if (typeof pages[oldid].onunloadend === 'function') {
-										pages[oldid].onunloadend();
-									}
-									pages[oldid].status--;
-									if (pages[oldid].autoDestroy) {
-										destroy(pages[oldid], 'page', oldid);
-									} else if (document.activeElement && tohide.contains(document.activeElement)) {
-										document.activeElement.blur();
-									}
-									if (typeof pages[id].onloadend === 'function') {
-										pages[id].onloadend(force);
-									}
-									pages[id].status++;
-									if (todo) {
-										todo = false;
-										toshow.style.visibility = 'inherit';
-										manageLocation();
-									}
-								});
-
-								// 加载页面的时候
-								// 触发上一个页面的卸载事件
-								if (typeof pages[oldid].onunload === 'function') {
-									pages[oldid].onunload();
-								}
-								pages[oldid].status--;
-								// 触发当前页面的加载事件
-								pages[id].status++;
-								if (typeof pages[id].onload === 'function') {
-									pages[id].onload(force);
-								}
-							}
-						} else { // 初次加载不显示动画
-							force = true;
-							currentpage = pageid; // 记录当前显示中的页面
-							toshow.style.left = 0;
-							toshow.style.visibility = 'inherit';
-							noSwitchLoad(force); // 触发当前页的 加载事件
-						}
-					}
-					if (typeof kernel.pageEvents.onroutend === 'function') {
-						kernel.pageEvents.onroutend({
-							type: 'routend',
-							force: force
-						});
-					}
-				}
-			});
-		}
-
-		function reloadPage(id, silent) {
-			let cfg = pages[currentpage].alias ? pages[pages[currentpage].alias] : pages[currentpage];
-			if (!id || id === currentpage || (kernel.dataType(id) === 'array' && id.indexOf(currentpage) >= 0)) {
-				if (!silent) {
-					clearWindow();
-				}
-				if (typeof cfg.onload === 'function') {
-					cfg.onload(true);
-				}
-				if (typeof cfg.onloadend === 'function') {
-					cfg.onloadend(true);
-				}
-			}
-		}
-
-		function clearWindow() {
-			if (!self.frameElement || !frameElement.kernel) {
-				kernel.hideReadable();
-				kernel.closePopup();
-			}
-		}
-
-		function noSwitchLoad(force) {
-			let cfg = pages[currentpage].alias ? pages[pages[currentpage].alias] : pages[currentpage];
-			if (cfg.status < 3) {
-				cfg.status++;
-			}
-			if (typeof cfg.onload === 'function') {
-				cfg.onload(force);
-			}
-			if (typeof cfg.onloadend === 'function') {
-				cfg.onloadend(force);
-			}
-			if (cfg.status < 4) {
-				cfg.status++;
-			}
-		}
-	}();
-
-	if (browser.name === 'IOS') {
-		self.addEventListener('gesturestart', cancelEvent);
-		self.addEventListener('touchmove', cancelEvent, {
-			passive: false
-		});
-	}
 
 	if (self.frameElement && frameElement.kernel) {
 		if (self.Reflect) {
@@ -578,6 +216,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				} else {
 					return t;
 				}
+			};
+			kernel.getLang = function (langs) {
+				for (let i = 0; i < navigator.languages.length; i++) {
+					if (langs.hasOwnProperty(navigator.languages[i])) {
+						return langs[navigator.languages[i]];
+					}
+				}
+				return langs.en;
 			};
 		}();
 		! function () {
@@ -1524,7 +1170,369 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		}();
 	}
+	//页面加载相关功能
+	! function () {
+		//此处不能使用kernel.lastLocation.id, 因为currentpage仅在页面加载成功才会更新
+		//而kernel.lastLocation.id在页面加载前就已经更新, 无法确保成功加载
+		let routerHistory, currentpage, animating, todo, navIcos, navs,
+			historyName = location.pathname,
+			pagesBox = document.body.querySelector('#page'),
+			navCtn = pagesBox.querySelector(':scope>.navMenu'),
+			pageTitle = pagesBox.querySelector(':scope>.header>.title').firstChild,
+			backbtn = pagesBox.querySelector(':scope>.header>.back'),
+			headerLeftMenuBtn = pagesBox.querySelector(':scope>.header>.leftMenuBtn'),
+			headerRightMenuBtn = pagesBox.querySelector(':scope>.header>.rightMenuBtn');
+		//if private browsing is enabled, Safari will throw a stupid exception when calling setItem from sessionStorage or localStorage. the fallowing code can avoid this.
+		try {
+			sessionStorage.setItem(0, 0);
+			sessionStorage.removeItem(0);
+		} catch (e) {
+			Storage.prototype.setItem = function () {};
+		}
+		//icos是导航菜单的列表
+		//home是默认页
+		kernel.init = function (home, icos) {
+			if (pages.hasOwnProperty(home)) {
+				homePage = home;
+				if (kernel.hasOwnProperty('location')) {
+					if (icos) {
+						initNavs(icos);
+					}
+					hashchange();
+				} else {
+					// 当前URL
+					kernel.location = kernel.parseHash(location.hash);
+					// 如果带ui参数就把参数中样式加入body
+					if (kernel.location.args.ui) {
+						kernel.location.args.ui.split(',').forEach(function (item) {
+							activities.classList.add(item);
+						});
+					}
+					// 看是否有history
+					routerHistory = sessionStorage.getItem(historyName);
+					routerHistory = routerHistory ? JSON.parse(routerHistory) : {};
+					// 解析 routerHistory
+					for (let n in routerHistory) {
+						if (pages.hasOwnProperty(n)) {
+							pages[n].backLoc = routerHistory[n];
+						}
+					}
+					self.addEventListener('hashchange', hashchange);
+					initNavs(icos);
+					//禁止各种 long tap 菜单
+					//ios 中需使用样式 -webkit-touch-callout: none;
+					self.addEventListener('contextmenu', browser.name === 'Firefox' ? stopEvent : cancelEvent);
+					self.addEventListener('dragstart', cancelEvent);
+					manageLocation();
+					if (kernel.location.args.hasOwnProperty('autopopup') && kernel.openPopup(kernel.location.args.autopopup, kernel.location.args.autopopuparg ? JSON.parse(kernel.location.args.autopopuparg) : undefined)) {
+						document.body.querySelector('#popup').style.animationDuration = '1ms';
+						kernel.listeners.add(kernel.popupEvents, 'showend', removeLoading);
+					} else {
+						removeLoading();
+					}
+				}
+			}
+		};
+		//刷新当前页
+		kernel.reloadPage = function (id, silent) {
+			let thislocation;
+			// 是否有数据正在加载
+			if (kernel.isLoading()) {
+				thislocation = kernel.location;
+				// 注册监听 ; loaded
+				kernel.listeners.add(kernel.dialogEvents, 'loaded', listener);
+			} else {
+				reloadPage(id, silent);
+			}
 
+			function listener(evt) {
+				kernel.listeners.remove(this, evt.type, listener);
+				// url 是否改变
+				if (thislocation === kernel.location) {
+					reloadPage(id, silent);
+				}
+			}
+		};
+		kernel.destroyPage = function (id) {
+			if (pages.hasOwnProperty(id) && pages[id].status === 2) {
+				destroy(pages[id], 'page', id);
+				return true;
+			}
+		};
+		kernel.pageEvents = {};
+		backbtn.insertBefore(kernel.makeSvg('angle-left-light', 1), backbtn.firstChild);
+		headerRightMenuBtn.addEventListener('click', function (evt) {
+			let page = pages[pages[currentpage].alias ? pages[currentpage].alias : currentpage];
+			if (typeof page.onrightmenuclick === 'function') {
+				page.onrightmenuclick();
+			}
+		});
+		headerLeftMenuBtn.addEventListener('click', function (evt) {
+			let page = pages[pages[currentpage].alias ? pages[currentpage].alias : currentpage];
+			if (typeof page.onleftmenuclick === 'function') {
+				page.onleftmenuclick();
+			}
+		});
+
+		function initNavs(icos) {
+			while (navCtn.childNodes.length) {
+				navCtn.firstChild.remove();
+			}
+			navIcos = icos;
+			navs = {};
+			for (let n in navIcos) {
+				if (pages.hasOwnProperty(n)) {
+					navs[n] = navCtn.appendChild(document.createElement('a'));
+					navs[n].href = '#!' + n;
+					if (RegExp('^' + n + '(?:-|$)').test(kernel.location.id)) {
+						navs[n].className = 'selected';
+						navs[n].appendChild(kernel.makeSvg(typeof navIcos[n] === 'string' ? navIcos[n] : navIcos[n].selected, 1));
+					} else {
+						navs[n].appendChild(kernel.makeSvg(typeof navIcos[n] === 'string' ? navIcos[n] : navIcos[n].normal, 1));
+					}
+					navs[n].appendChild(document.createTextNode(pages[n].alias ? pages[n].title || pages[pages[n].alias].title : pages[n].title));
+				}
+			}
+		}
+
+		function hashchange() {
+			let newLocation = kernel.parseHash(location.hash);
+			// 如果url 发生改变 就执行
+			if (!kernel.isSameLocation(newLocation, kernel.location)) {
+				kernel.lastLocation = kernel.location;
+				kernel.location = newLocation;
+				// 如果是前进操作
+				if ((pages[kernel.location.id].back && (kernel.lastLocation.id === pages[kernel.location.id].back || pages[kernel.lastLocation.id].alias === pages[kernel.location.id].back))) {
+					// 把上一页赋值给他的后退页
+					routerHistory[kernel.location.id] = pages[kernel.location.id].backLoc = kernel.lastLocation;
+					// 记录到 sessionStorage
+					sessionStorage.setItem(historyName, JSON.stringify(routerHistory));
+				} // 如果是 后退操作
+				else if (pages[kernel.lastLocation.id].backLoc && (kernel.location.id === pages[kernel.lastLocation.id].back || (pages[kernel.location.id].alias && pages[kernel.location.id].alias === pages[kernel.lastLocation.id].back))) {
+					// 剔除最后一次 back 对象
+					delete pages[kernel.lastLocation.id].backLoc;
+					delete routerHistory[kernel.lastLocation.id];
+					sessionStorage.setItem(historyName, JSON.stringify(routerHistory));
+				}
+				manageLocation();
+			}
+		}
+
+		function manageLocation() {
+			let pageid = kernel.location.id,
+				pagecfg = pages[pageid];
+			if (kernel.hasOwnProperty('lastLocation')) {
+				let n = pageid.replace(/-.*$/, ''),
+					m = kernel.lastLocation.id.replace(/-.*$/, '');
+				if (n !== m) {
+					if (navs.hasOwnProperty(n)) {
+						navs[n].className = 'selected';
+						if (typeof navIcos[n] !== 'string') {
+							kernel.setSvgPath(navs[n].firstChild, navIcos[n].selected, 1);
+						}
+					}
+					if (navs.hasOwnProperty(m)) {
+						navs[m].className = '';
+						if (typeof navIcos[m] !== 'string') {
+							kernel.setSvgPath(navs[m].firstChild, navIcos[m].normal, 1);
+						}
+					}
+				}
+				clearWindow();
+			}
+			if (typeof kernel.pageEvents.onroute === 'function') {
+				kernel.pageEvents.onroute({
+					type: 'route'
+				});
+			}
+			initLoad(pagecfg, pageid, true, function (firstLoad) {
+				if (animating) {
+					todo = true;
+				} else {
+					let force;
+					if (pageid === currentpage) { // 未发生转向, 但url有变化
+						// 相当于 刷新界面 或者是 改变了参数
+						// 不需要动画
+						noSwitchLoad(); // 直接触发页面事件 onload
+					} else { // 只有返回或未发生转向时允许页面缓存
+						let id = pages[pageid].alias ? pages[pageid].alias : pageid,
+							title = pages[pageid].title || pages[id].title;
+						pagesBox.classList.add(pageid);
+						// 重置 title
+						pageTitle.data = title;
+						if (activities.classList.contains('clean') || activities.classList.contains('hidePageHeader')) {
+							document.title = title;
+						}
+						if (self.frameElement && frameElement.kernel && kernel.getCurrentPopup() === 'page') {
+							kernel.setPopupTitle(title);
+						}
+						// 重置 顶部按钮
+						while (headerRightMenuBtn.childNodes.length) {
+							headerRightMenuBtn.firstChild.remove();
+						}
+						headerRightMenuBtn.removeAttribute('href');
+						while (headerLeftMenuBtn.childNodes.length) {
+							headerLeftMenuBtn.firstChild.remove();
+						}
+						headerLeftMenuBtn.removeAttribute('href');
+						// init 顶部按钮事件 和 元素
+						// 如果没有 就隐藏
+						if (pages[id].rightMenuContent || pages[id].onrightmenuclick) {
+							if (typeof pages[id].rightMenuContent === 'string') {
+								headerRightMenuBtn.innerHTML = pages[id].rightMenuContent;
+							} else if (pages[id].rightMenuContent) {
+								headerRightMenuBtn.appendChild(pages[id].rightMenuContent);
+							}
+							if (typeof pages[id].onrightmenuclick === 'function') {
+								headerRightMenuBtn.href = 'javascript:;';
+							} else if (pages[id].onrightmenuclick) {
+								headerRightMenuBtn.href = pages[id].onrightmenuclick;
+							}
+							headerRightMenuBtn.style.display = '';
+						} else {
+							headerRightMenuBtn.style.display = 'none';
+						}
+						if (pages[id].leftMenuContent || pages[id].onleftmenuclick) {
+							if (typeof pages[id].leftMenuContent === 'string') {
+								headerLeftMenuBtn.innerHTML = pages[id].leftMenuContent;
+							} else if (pages[id].leftMenuContent) {
+								headerLeftMenuBtn.appendChild(pages[id].leftMenuContent);
+							}
+							if (typeof pages[id].onleftmenuclick === 'function') {
+								headerLeftMenuBtn.href = 'javascript:;';
+							} else if (pages[id].onleftmenuclick) {
+								headerLeftMenuBtn.href = pages[id].onleftmenuclick;
+							}
+							headerLeftMenuBtn.style.display = '';
+						} else {
+							headerLeftMenuBtn.style.display = 'none';
+						}
+						// 设置 返回按钮URL
+						let loc = kernel.getDefaultBack();
+						if (loc) {
+							let txt = pages[loc.id].title;
+							if (!txt && pages[loc.id].alias) {
+								txt = pages[pages[loc.id].alias].title;
+							}
+							backbtn.lastChild.data = txt || lang.back;
+							backbtn.href = kernel.buildHash(loc);
+							backbtn.style.display = '';
+						} else {
+							backbtn.style.display = 'none';
+						}
+						let toshow = pagesBox.querySelector(':scope>.content>.' + id);
+						if (currentpage) {
+							pagesBox.classList.remove(currentpage);
+							let oldid = pages[currentpage].alias ? pages[currentpage].alias : currentpage,
+								oldpageid = currentpage;
+							currentpage = pageid;
+							//alias之间切换不需要动画
+							if (id === oldid) {
+								force = true;
+								noSwitchLoad(force);
+							} else {
+								animating = true;
+								let tohide = pagesBox.querySelector(':scope>.content>.' + oldid),
+									goingback = kernel.isGoingback(oldpageid, pageid);
+								force = !goingback || firstLoad;
+								panelSwitch(toshow, tohide, goingback, function () {
+									animating = false;
+									if (typeof pages[oldid].onunloadend === 'function') {
+										pages[oldid].onunloadend();
+									}
+									pages[oldid].status--;
+									if (pages[oldid].autoDestroy) {
+										destroy(pages[oldid], 'page', oldid);
+									} else if (document.activeElement && tohide.contains(document.activeElement)) {
+										document.activeElement.blur();
+									}
+									if (typeof pages[id].onloadend === 'function') {
+										pages[id].onloadend(force);
+									}
+									pages[id].status++;
+									if (todo) {
+										todo = false;
+										toshow.style.visibility = 'inherit';
+										manageLocation();
+									}
+								});
+
+								// 加载页面的时候
+								// 触发上一个页面的卸载事件
+								if (typeof pages[oldid].onunload === 'function') {
+									pages[oldid].onunload();
+								}
+								pages[oldid].status--;
+								// 触发当前页面的加载事件
+								pages[id].status++;
+								if (typeof pages[id].onload === 'function') {
+									pages[id].onload(force);
+								}
+							}
+						} else { // 初次加载不显示动画
+							force = true;
+							currentpage = pageid; // 记录当前显示中的页面
+							toshow.style.left = 0;
+							toshow.style.visibility = 'inherit';
+							noSwitchLoad(force); // 触发当前页的 加载事件
+						}
+					}
+					if (typeof kernel.pageEvents.onroutend === 'function') {
+						kernel.pageEvents.onroutend({
+							type: 'routend',
+							force: force
+						});
+					}
+				}
+			});
+		}
+
+		function reloadPage(id, silent) {
+			let cfg = pages[currentpage].alias ? pages[pages[currentpage].alias] : pages[currentpage];
+			if (!id || id === currentpage || (kernel.dataType(id) === 'array' && id.indexOf(currentpage) >= 0)) {
+				if (!silent) {
+					clearWindow();
+				}
+				if (typeof cfg.onload === 'function') {
+					cfg.onload(true);
+				}
+				if (typeof cfg.onloadend === 'function') {
+					cfg.onloadend(true);
+				}
+			}
+		}
+
+		function clearWindow() {
+			if (!self.frameElement || !frameElement.kernel) {
+				kernel.hideReadable();
+				kernel.closePopup();
+			}
+		}
+
+		function noSwitchLoad(force) {
+			let cfg = pages[currentpage].alias ? pages[pages[currentpage].alias] : pages[currentpage];
+			if (cfg.status < 3) {
+				cfg.status++;
+			}
+			if (typeof cfg.onload === 'function') {
+				cfg.onload(force);
+			}
+			if (typeof cfg.onloadend === 'function') {
+				cfg.onloadend(force);
+			}
+			if (cfg.status < 4) {
+				cfg.status++;
+			}
+		}
+	}();
+
+	lang = kernel.getLang(lang);
+	if (browser.name === 'IOS') {
+		self.addEventListener('gesturestart', cancelEvent);
+		self.addEventListener('touchmove', cancelEvent, {
+			passive: false
+		});
+	}
 	return kernel;
 
 	function destroy(cfg, type, id) {
