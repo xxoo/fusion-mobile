@@ -145,12 +145,12 @@ function func(evt){
 	console.log(evt);
 }`
 					},
-					'showPopup(id:String, back:Boolean):void': {
-						desc: '显示弹窗，只有在指定弹窗已经加载后才可使用',
+					'showPopup(id:String, back:Boolean):0|1|2': {
+						desc: '显示弹窗，只有在指定弹窗已经加载后才可使用. 返回0表示操作失败, 返回1表示操作成功, 返回2表示操作已队列. 若失败, 原因可能是当前弹窗的onunload方法返回true',
 						code: `kernel.showPopup('samplePopup');`
 					},
-					'closePopup(id:String|Array):void': {
-						desc: '关闭弹窗',
+					'closePopup(id:String|Array):0|1|2': {
+						desc: '关闭弹窗, 返回0表示操作失败, 返回1表示操作成功, 返回2表示操作已队列. 若失败, 原因可能是当前弹窗的onunload方法返回true',
 						code: `kernel.listeners.add(kernel.popupEvents, 'show', func);
 kernel.listeners.add(kernel.popupEvents, 'hide', func);
 kernel.openPopup('samplePopup', 'doc');
