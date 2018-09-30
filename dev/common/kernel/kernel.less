@@ -452,13 +452,20 @@ body {
 		>a {
 			display: inline-block;
 			vertical-align: top;
-			background-color: var(--photoViewBtnBackground);
-			color: var(--photoViewBtnText);
-			margin: 0 4px;
+			margin: 0 5px;
 			font-size: 14px;
-			padding: 8px 16px;
+			line-height: 30px;
+			padding: 0 10px;
+			min-width: 60px;
 			border-radius: 4px;
+			color: var(--photoViewBtnText);
+			background-color: var(--photoViewBtnBackground);
 			box-shadow: 0 0 2px var(--photoViewBtnShadow);
+			&:active{
+				color: var(--photoViewBtnActiveText);
+				background-color: var(--photoViewBtnActiveBackground);
+				box-shadow: 0 0 2px var(--photoViewBtnActiveShadow);
+			}
 		}
 	}
 }
