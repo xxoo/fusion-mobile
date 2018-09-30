@@ -626,100 +626,94 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			};
 			// 普通弹窗
 			kernel.showPopup = function (id, goBack) { //显示弹出窗口
+				let result = 0;
 				if (popups[id].status > 1) {
 					if (animating) {
 						todo = kernel.showPopup.bind(this, id, goBack);
-					} else {
-						let toshow = popupsBox.querySelector(':scope>.content>.' + id);
-						// 有 .in 表示正在显示中
-						// 如果没有 in class 就需要打开
-						if (!activePopup) {
-							popups[id].status++;
-							if (typeof popups[id].onload === 'fucntion') {
-								popups[id].onload();
-							}
-							toshow.style.left = 0;
-							toshow.style.visibility = 'inherit';
-							popupsBox.classList.add('in');
-							animating = id;
-							if (typeof kernel.popupEvents.onshow === 'function') {
-								kernel.popupEvents.onshow({
-									type: 'show',
-									id: id
-								});
-							}
-							popupSwitched(id);
-							kernel.hideReadable();
-						} else if (activePopup === id) {
-							if (typeof popups[id].onload !== 'function') {
-								popups[id].onload();
-							}
-							if (typeof popups[id].onloadend === 'function') {
-								popups[id].onloadend();
-							}
-						} else {
-							//onunload 返回 true 可以阻止弹窗切换
-							if (typeof popups[activePopup].onunload === 'function' && popups[activePopup].onunload()) {
-								return true;
-							} else {
-								let tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
-								popups[activePopup].status--;
-								popups[id].status++;
-								if (typeof popups[id].onload === 'function') {
-									popups[id].onload(goBack);
-								}
-								panelSwitch(toshow, tohide, goBack, function () {
-									let oldPopup = activePopup;
-									animating = false;
-									popupSwitched(id);
-									if (typeof popups[oldPopup].onunloadend === 'function') {
-										popups[oldPopup].onunloadend();
-									}
-									popups[oldPopup].status--;
-									if (popups[oldPopup].autoDestroy) {
-										destroy(popups[oldPopup], 'popup', oldPopup);
-									} else if (document.activeElement && tohide.contains(document.activeElement)) {
-										document.activeElement.blur();
-									}
-									if (typeof popups[activePopup].onloadend === 'function') {
-										popups[activePopup].onloadend(goBack);
-									}
-									popups[id].status++;
-									if (typeof todo === 'function') {
-										let tmp = todo;
-										todo = undefined;
-										tmp();
-									}
-								});
-								animating = id;
-							}
+						result = 2;
+					} else if (!activePopup) {
+						popups[id].status++;
+						if (typeof popups[id].onload === 'fucntion') {
+							popups[id].onload();
 						}
+						let toshow = popupsBox.querySelector(':scope>.content>.' + id);
+						toshow.style.left = 0;
+						toshow.style.visibility = 'inherit';
+						popupsBox.classList.add('in');
+						animating = id;
+						if (typeof kernel.popupEvents.onshow === 'function') {
+							kernel.popupEvents.onshow({
+								type: 'show',
+								id: id
+							});
+						}
+						popupSwitched(id);
+						kernel.hideReadable();
+						result = 1;
+					} else if (activePopup === id) {
+						if (typeof popups[id].onload !== 'function') {
+							popups[id].onload();
+						}
+						if (typeof popups[id].onloadend === 'function') {
+							popups[id].onloadend();
+						}
+						result = 1;
+					} else if (typeof popups[activePopup].onunload === 'function' || !popups[activePopup].onunload()) {//onunload 返回 true 可以阻止弹窗切换
+						let tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
+						popups[activePopup].status--;
+						popups[id].status++;
+						if (typeof popups[id].onload === 'function') {
+							popups[id].onload(goBack);
+						}
+						panelSwitch(popupsBox.querySelector(':scope>.content>.' + id), tohide, goBack, function () {
+							let oldPopup = activePopup;
+							animating = false;
+							popupSwitched(id);
+							if (typeof popups[oldPopup].onunloadend === 'function') {
+								popups[oldPopup].onunloadend();
+							}
+							popups[oldPopup].status--;
+							if (popups[oldPopup].autoDestroy) {
+								destroy(popups[oldPopup], 'popup', oldPopup);
+							} else if (document.activeElement && tohide.contains(document.activeElement)) {
+								document.activeElement.blur();
+							}
+							if (typeof popups[activePopup].onloadend === 'function') {
+								popups[activePopup].onloadend(goBack);
+							}
+							popups[id].status++;
+							if (typeof todo === 'function') {
+								let tmp = todo;
+								todo = undefined;
+								tmp();
+							}
+						});
+						animating = id;
+						result = 1;
 					}
 				}
+				return result;
 			};
 			//关闭弹窗, 如果未指定id则会关闭任何弹窗否则只有当前弹窗匹配id时才关闭
 			kernel.closePopup = function (id) {
+				let result = 0;
 				if (animating) {
 					todo = kernel.closePopup.bind(this, id);
-				} else {
-					if (activePopup && (!id || activePopup === id || (kernel.dataType(id) === 'array' && id.indexOf(activePopup) >= 0))) {
-						//onunload 返回 true可以阻止窗口关闭
-						if (typeof popups[activePopup].onunload !== 'function' || !popups[activePopup].onunload()) {
-							popups[activePopup].status--;
-							popupsBox.classList.remove('in');
-							popupsBox.classList.add('out');
-							animating = true;
-							if (typeof kernel.popupEvents.onhide === 'function') {
-								kernel.popupEvents.onhide({
-									type: 'hide',
-									id: activePopup
-								});
-							}
-						} else {
-							return true;
-						}
+					result = 2;
+				} else if (activePopup && (!id || activePopup === id || (kernel.dataType(id) === 'array' && id.indexOf(activePopup) >= 0)) && (typeof popups[activePopup].onunload !== 'function' || !popups[activePopup].onunload())) {//onunload 返回 true可以阻止窗口关闭
+					popups[activePopup].status--;
+					popupsBox.classList.remove('in');
+					popupsBox.classList.add('out');
+					animating = true;
+					if (typeof kernel.popupEvents.onhide === 'function') {
+						kernel.popupEvents.onhide({
+							type: 'hide',
+							id: activePopup
+						});
 					}
+					result = 1;
 				}
+				return result;
 			};
 			// 获取当前显示的 popup id
 			kernel.getCurrentPopup = function () {
