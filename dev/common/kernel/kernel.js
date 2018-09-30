@@ -611,17 +611,15 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			// 如果弹窗有自定义打开方式则直接调用该接口，否则会调用showPopup
 			// 如果定义了open请确保最终打开自己时调用的是showPopup而不是openPopup
 			kernel.openPopup = function (id, param, goBack) {
-				let popupcfg = popups[id];
-				if (popupcfg) {
-					initLoad(popupcfg, id, false, function () {
-						if (typeof popupcfg.open === 'function') {
-							popupcfg.open(param, activePopup && goBack);
+				if (popups.hasOwnProperty(id)) {
+					initLoad(false, id, function () {
+						if (typeof popups[id].open === 'function') {
+							popups[id].open(param, activePopup && goBack);
 						} else {
 							kernel.showPopup(id, goBack);
 						}
 					});
-				} else {
-					kernel.hint(lang.popupNotFound + id);
+					return true;
 				}
 			};
 			// 普通弹窗
@@ -756,7 +754,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			};
 			kernel.destroyPopup = function (id) {
-				if (popups.hasOwnProperty(id) && popups[id].status === 2) {
+				if (popups[id].status === 2) {
 					destroy(popups[id], 'popup', id);
 					return true;
 				}
@@ -1189,13 +1187,20 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		//home是默认页
 		kernel.init = function (home, icos) {
 			if (pages.hasOwnProperty(home)) {
-				homePage = home;
-				if (kernel.hasOwnProperty('location')) {
+				if (homePage) {
 					if (icos) {
 						initNavs(icos);
 					}
-					hashchange();
+					if (homePage !== home) {
+						let oldHome = homePage;
+						homePage = home;
+						if (kernel.location.id === oldHome) {
+							hashchange();
+							return true;
+						}
+					}
 				} else {
+					homePage = home;
 					// 当前URL
 					kernel.location = kernel.parseHash(location.hash);
 					// 如果带ui参数就把参数中样式加入body
@@ -1215,16 +1220,37 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					}
 					self.addEventListener('hashchange', hashchange);
 					initNavs(icos);
-					//禁止各种 long tap 菜单
-					//ios 中需使用样式 -webkit-touch-callout: none;
-					self.addEventListener('contextmenu', browser.name === 'Firefox' ? stopEvent : cancelEvent);
-					self.addEventListener('dragstart', cancelEvent);
 					manageLocation();
-					if (kernel.location.args.hasOwnProperty('autopopup') && kernel.openPopup(kernel.location.args.autopopup, kernel.location.args.autopopuparg ? JSON.parse(kernel.location.args.autopopuparg) : undefined)) {
-						document.body.querySelector('#popup').style.animationDuration = '1ms';
-						kernel.listeners.add(kernel.popupEvents, 'showend', removeLoading);
+					if (kernel.location.args.hasOwnProperty('autopopup')) {
+						let tmp;
+						if (kernel.location.args.hasOwnProperty('autopopuparg')) {
+							try {
+								tmp = JSON.parse(kernel.location.args.autopopuparg);
+							} catch(e){}
+						}
+						if (kernel.openPopup(kernel.location.args.autopopup, tmp)) {
+							document.body.querySelector('#popup').style.animationDuration = '1ms';
+							kernel.listeners.add(kernel.popupEvents, 'showend', removeLoading);
+						} else {
+							removeLoading();
+						}
 					} else {
 						removeLoading();
+					}
+
+					function removeLoading(evt) {
+						if (evt) {
+							kernel.listeners.remove(this, evt.type, removeLoading);
+							setTimeout(function () {
+								document.body.querySelector('#popup').style.animationDuration = '';
+							}, 400);
+						}
+						document.body.addEventListener('transitionend', function (evt) {
+							if (evt.target === this) {
+								document.body.style.transition = '';
+							}
+						});
+						document.documentElement.classList.remove('loading');
 					}
 				}
 			}
@@ -1250,7 +1276,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		};
 		kernel.destroyPage = function (id) {
-			if (pages.hasOwnProperty(id) && pages[id].status === 2) {
+			if (pages[id].status === 2) {
 				destroy(pages[id], 'page', id);
 				return true;
 			}
@@ -1315,8 +1341,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		}
 
 		function manageLocation() {
-			let pageid = kernel.location.id,
-				pagecfg = pages[pageid];
+			let pageid = kernel.location.id;
 			if (kernel.hasOwnProperty('lastLocation')) {
 				let n = pageid.replace(/-.*$/, ''),
 					m = kernel.lastLocation.id.replace(/-.*$/, '');
@@ -1341,7 +1366,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					type: 'route'
 				});
 			}
-			initLoad(pagecfg, pageid, true, function (firstLoad) {
+			initLoad(true, pageid, function (firstLoad) {
 				if (animating) {
 					todo = true;
 				} else {
@@ -1473,9 +1498,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							noSwitchLoad(force); // 触发当前页的 加载事件
 						}
 					}
-					if (typeof kernel.pageEvents.onroutend === 'function') {
-						kernel.pageEvents.onroutend({
-							type: 'routend',
+					if (typeof kernel.pageEvents.onrouteend === 'function') {
+						kernel.pageEvents.onrouteend({
+							type: 'routeend',
 							force: force
 						});
 					}
@@ -1523,6 +1548,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	}();
 
 	lang = kernel.getLang(lang);
+	//禁止各种 long tap 菜单
+	//ios 中需使用样式 -webkit-touch-callout: none;
+	self.addEventListener('contextmenu', browser.name === 'Firefox' ? stopEvent : cancelEvent);
+	self.addEventListener('dragstart', cancelEvent);
 	if (browser.name === 'IOS') {
 		self.addEventListener('gesturestart', cancelEvent);
 		self.addEventListener('touchmove', cancelEvent, {
@@ -1558,24 +1587,25 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		delete cfg.status;
 	}
 
-	function initLoad(oldcfg, id, isPage, callback) {
-		let ctn, family, n;
-		if (isPage && oldcfg.alias) {
-			id = oldcfg.alias;
-			oldcfg = pages[oldcfg.alias];
+	function initLoad(isPage, id, callback) {
+		let oldcfg, ctn, family, n;
+		if (isPage) {
+			family = 'page';
+			oldcfg = pages[id];
+			if (oldcfg.alias) {
+				id = oldcfg.alias;
+				oldcfg = pages[oldcfg.alias];
+			}
+		} else {
+			family = 'popup';
+			oldcfg = popups[id];
 		}
 		//status: 1=loading, 2=loaded but hidden, 3=showing or hiding, 4=shown
 		if (oldcfg.status > 1) {
 			callback();
 		} else if (!oldcfg.status) {
 			oldcfg.status = 1;
-			if (isPage) {
-				ctn = document.body.querySelector('#page');
-				family = 'page';
-			} else {
-				ctn = document.body.querySelector('#popup');
-				family = 'popup';
-			}
+			ctn = document.body.querySelector('#' + family);
 			n = family + '/' + id + '/';
 			let m = require.toUrl(n);
 			if (typeof oldcfg.css === 'string') {
@@ -1593,9 +1623,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						} else {
 							destroy(oldcfg, family, id);
 							if (VERSION === 'dev' || this.status !== 404) {
-								errorOccurs(url, this.status, isPage);
+								errorOccurs(url, this.status);
 							} else {
-								updated(isPage);
+								updated();
 							}
 						}
 						kernel.hideLoading();
@@ -1605,56 +1635,56 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			} else {
 				loadJs('');
 			}
-		}
 
-		function loadJs(html) {
-			ctn.querySelector(':scope>.content').insertAdjacentHTML('beforeEnd', '<div class="' + id + '">' + html + '</div>');
-			addPanelAnimationListener(ctn.querySelector(':scope>.content>.' + id));
-			if ('js' in oldcfg) {
-				kernel.showLoading();
-				let js = n + oldcfg.js;
-				require([js], function (cfg) {
-					if (cfg) {
-						if (self.Reflect) {
-							Reflect.setPrototypeOf(oldcfg, cfg);
-						} else {
-							oldcfg.__proto__ = cfg;
+			function loadJs(html) {
+				ctn.querySelector(':scope>.content').insertAdjacentHTML('beforeEnd', '<div class="' + id + '">' + html + '</div>');
+				addPanelAnimationListener(ctn.querySelector(':scope>.content>.' + id));
+				if ('js' in oldcfg) {
+					kernel.showLoading();
+					let js = n + oldcfg.js;
+					require([js], function (cfg) {
+						if (cfg) {
+							if (self.Reflect) {
+								Reflect.setPrototypeOf(oldcfg, cfg);
+							} else {
+								oldcfg.__proto__ = cfg;
+							}
 						}
-					}
+						oldcfg.status++;
+						callback(true);
+						kernel.hideLoading();
+					}, VERSION === 'dev' ? undefined : function (error) {
+						destroy(oldcfg, family, id);
+						if ((error.requireType && error.requireType !== 'scripterror' && error.requireType !== 'nodefine') || (error.xhr && error.xhr.status !== 404)) {
+							errorOccurs(js, error.message);
+						} else {
+							updated();
+						}
+						kernel.hideLoading();
+					});
+				} else {
 					oldcfg.status++;
 					callback(true);
-					kernel.hideLoading();
-				}, VERSION === 'dev' ? undefined : function (error) {
-					destroy(oldcfg, family, id);
-					if ((error.requireType && error.requireType !== 'scripterror' && error.requireType !== 'nodefine') || (error.xhr && error.xhr.status !== 404)) {
-						errorOccurs(js, error.message, isPage);
-					} else {
-						updated(isPage);
-					}
-					kernel.hideLoading();
-				});
-			} else {
-				oldcfg.status++;
-				callback(true);
-			}
-		}
-	}
-
-	function errorOccurs(res, msg, isPage) {
-		kernel.alert(lang.error.replace('${res}', res) + msg, isPage ? function () {
-			history.back();
-		} : undefined);
-	}
-
-	function updated(isPage) {
-		if (isPage) {
-			location.reload();
-		} else {
-			kernel.confirm(lang.update, function (sure) {
-				if (sure) {
-					location.reload();
 				}
-			});
+			}
+	
+			function errorOccurs(res, msg) {
+				kernel.alert(lang.error.replace('${res}', res) + msg, isPage ? function () {
+					history.back();
+				} : undefined);
+			}
+	
+			function updated() {
+				if (isPage) {
+					location.reload();
+				} else {
+					kernel.confirm(lang.update, function (sure) {
+						if (sure) {
+							location.reload();
+						}
+					});
+				}
+			}
 		}
 	}
 	//启动左右滑动的动画
@@ -1701,20 +1731,5 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 	function stopEvent(evt) {
 		evt.stopPropagation();
-	}
-
-	function removeLoading(evt) {
-		if (evt) {
-			kernel.listeners.remove(this, evt.type, removeLoading);
-			setTimeout(function () {
-				document.body.querySelector('#popup').style.animationDuration = '';
-			}, 400);
-		}
-		document.body.addEventListener('transitionend', function (evt) {
-			if (evt.target === this) {
-				document.body.style.transition = '';
-			}
-		});
-		document.documentElement.classList.remove('loading');
 	}
 });
