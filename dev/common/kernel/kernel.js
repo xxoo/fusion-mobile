@@ -658,7 +658,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							popups[id].onloadend();
 						}
 						result = 1;
-					} else if (typeof popups[activePopup].onunload === 'function' || !popups[activePopup].onunload()) {//onunload 返回 true 可以阻止弹窗切换
+					} else if (typeof popups[activePopup].onunload !== 'function' || !popups[activePopup].onunload()) {//onunload 返回 true 可以阻止弹窗切换
 						let tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
 						popups[activePopup].status--;
 						popups[id].status++;
