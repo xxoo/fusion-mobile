@@ -360,23 +360,18 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 								}
 							}
 						} else {
-							if (!o.xEventsRemoveMark) {
-								let addRemoveMark;
-								for (let i in o.xEvents) {
-									if (!o.xEvents[i].locked) {
-										delete o.xEvents[i];
-										o['on' + i] = null;
-									} else {
-										addRemoveMark = true;
-									}
-								}
-								if (addRemoveMark) {
-									o.xEventsRemoveMark = true;
+							for (let i in o.xEvents) {
+								if (o.xEvents[i].locked) {
+									o.xEvents[i].stack.push(undefined);
+									result = 2;
 								} else {
-									delete o.xEvents;
+									delete o.xEvents[i];
+									o['on' + i] = null;
 								}
 							}
-							result = o.hasOwnProperty('xEvents') ? 2 : 1;
+							if (!result) {
+								result = 1;
+							}
 						}
 					}
 					return result;
@@ -409,14 +404,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (!this.xEvents[evt.type].heap.length) {
 					delete this.xEvents[evt.type];
 					this['on' + evt.type] = null;
-				}
-				if (this.xEventsRemoveMark) {
-					delete this.xEventsRemoveMark;
-					for (let i in this.xEvents) {
-						delete this.xEvents[i];
-						this['on' + i] = null;
-					}
-					delete this.xEvents;
 				}
 			}
 		}();
