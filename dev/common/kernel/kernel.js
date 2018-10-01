@@ -366,6 +366,8 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 									if (!o.xEvents[i].locked) {
 										delete o.xEvents[i];
 										o['on' + i] = null;
+									} else {
+										addRemoveMark = true;
 									}
 								}
 								if (addRemoveMark) {
