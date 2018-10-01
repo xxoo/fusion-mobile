@@ -291,126 +291,130 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		! function () {
 			kernel.listeners = {
 				add: function (o, e, f) {
-					if (!o.xEvents) {
-						o.xEvents = function (evt) { //override internal event manager
-							xEventProcessor(o, evt);
-						};
+					let result;
+					if (!o.hasOwnProperty('xEvents')) {
+						o.xEvents = {};
 					}
-					if (!o.xEvents[e]) {
-						o.xEvents[e] = [];
-						o.xEvents[e].stack = [];
-						o.xEvents[e].locked = false;
-						o['on' + e] = o.xEvents;
+					if (!o.xEvents.hasOwnProperty(e)) {
+						o.xEvents[e] = {
+							stack: [],
+							heap: [],
+							locked: false
+						};
+						o['on' + e] = xEventProcessor;
 					}
 					if (o.xEvents[e].locked) {
-						o.xEvents[e].stack.push([false, f]);
+						o.xEvents[e].stack.push([f]);
+						result = 2;
 					} else {
-						if (o.xEvents[e].indexOf(f) < 0) {
-							o.xEvents[e].push(f);
+						if (o.xEvents[e].heap.indexOf(f) < 0) {
+							o.xEvents[e].heap.push(f);
+							result = 1;
+						} else {
+							result = 0;
 						}
 					}
+					return result;
 				},
 				list: function (o, e) {
-					let r;
+					let result;
 					if (e) {
-						if (o.xEvents && o.xEvents[e]) {
-							r = o.xEvents[e].slice(0);
+						if (o.hasOwnProperty('xEvents') && o.xEvents.hasOwnProperty(e)) {
+							result = o.xEvents[e].heap.slice(0);
 						} else {
-							r = [];
+							result = [];
 						}
 					} else {
-						r = {};
-						if (o.xEvents) {
-							for (let n in o.xEvents) {
-								if (kernel.dataType(o.xEvents[n]) === 'array' && o.xEvents[n].length) {
-									r[n] = o.xEvents[n].slice(0);
-								}
+						result = {};
+						if (o.hasOwnProperty('xEvents')) {
+							for (let i in o.xEvents) {
+								result[i] = o.xEvents[i].heap.slice(0);
 							}
 						}
 					}
-					return r;
+					return result;
 				},
 				remove: function (o, e, f) {
-					if (o.xEvents) {
+					let result = 0;
+					if (o.hasOwnProperty('xEvents')) {
 						if (e) {
-							if (o.xEvents[e]) {
+							if (o.xEvents.hasOwnProperty(e)) {
 								if (o.xEvents[e].locked) {
-									if (f) {
-										o.xEvents[e].stack.push([true, f]);
-									} else {
-										o.xEvents[e].stack.push(null);
-									}
+									o.xEvents[e].stack.push(f);
+									result = 2;
 								} else {
 									if (f) {
-										let tmp = o.xEvents[e].indexOf(f);
-										if (tmp >= 0) {
-											o.xEvents[e].splice(tmp, 1);
+										let i = o.xEvents[e].heap.indexOf(f);
+										if (i >= 0) {
+											o.xEvents[e].heap.splice(i, 1);
+											result = 1;
 										}
 									} else {
-										o.xEvents[e].splice(0, o.xEvents[e].length);
+										o.xEvents[e].heap.splice(0);
+										result = 1;
 									}
-								}
-								if (o.xEvents[e].length === 0) {
-									delete o.xEvents[e];
-									o['on' + e] = null;
+									if (!o.xEvents[e].heap.length) {
+										delete o.xEvents[e];
+										o['on' + e] = null;
+									}
 								}
 							}
 						} else {
-							if (!o.xEvents.removeMark) {
+							if (!o.xEventsRemoveMark) {
 								let addRemoveMark;
-								for (let n in o.xEvents) {
-									if (!o.xEvents[n].locked) {
-										delete o.xEvents[n];
-										o['on' + n] = null;
-									} else {
-										addRemoveMark = true;
+								for (let i in o.xEvents) {
+									if (!o.xEvents[i].locked) {
+										delete o.xEvents[i];
+										o['on' + i] = null;
 									}
 								}
 								if (addRemoveMark) {
-									o.xEvents.removeMark = true;
+									o.xEventsRemoveMark = true;
 								} else {
 									delete o.xEvents;
 								}
 							}
+							result = o.hasOwnProperty('xEvents') ? 2 : 1;
 						}
 					}
+					return result;
 				}
 			};
 
-			function xEventProcessor(o, evt) {
-				o.xEvents[evt.type].locked = true;
-				for (let i = 0; i < o.xEvents[evt.type].length; i++) {
-					o.xEvents[evt.type][i].call(o, evt);
+			function xEventProcessor(evt) {
+				this.xEvents[evt.type].locked = true;
+				for (let i = 0; i < this.xEvents[evt.type].heap.length; i++) {
+					this.xEvents[evt.type].heap[i].call(this, evt);
 				}
-				o.xEvents[evt.type].locked = false;
-				while (o.xEvents[evt.type].stack.length) {
-					if (o.xEvents[evt.type].stack[0]) {
-						let tmp = o.xEvents[evt.type].indexOf(o.xEvents[evt.type].stack[0][1]);
-						if (o.xEvents[evt.type].stack[0][0]) {
-							if (tmp >= 0) {
-								o.xEvents[evt.type].splice(tmp, 1);
+				this.xEvents[evt.type].locked = false;
+				while (this.xEvents[evt.type].stack.length) {
+					if (this.xEvents[evt.type].stack[0]) {
+						if (typeof this.xEvents[evt.type].stack[0] === 'function') {
+							let i = this.xEvents[evt.type].heap.indexOf(this.xEvents[evt.type].stack[0]);
+							if (i >= 0) {
+								this.xEvents[evt.type].heap.splice(i, 1);
 							}
 						} else {
-							if (tmp < 0) {
-								o.xEvents[evt.type].push(o.xEvents[evt.type].stack[0][1]);
+							if (this.xEvents[evt.type].heap.indexOf(this.xEvents[evt.type].stack[0][0]) < 0) {
+								this.xEvents[evt.type].heap.push(this.xEvents[evt.type].stack[0][0]);
 							}
 						}
 					} else {
-						o.xEvents[evt.type].splice(0, o.xEvents[evt.type].length);
+						this.xEvents[evt.type].heap.splice(0);
 					}
-					o.xEvents[evt.type].stack.shift();
+					this.xEvents[evt.type].stack.shift();
 				}
-				if (!o.xEvents[evt.type].length) {
-					delete o.xEvents[evt.type];
-					o['on' + evt.type] = null;
+				if (!this.xEvents[evt.type].heap.length) {
+					delete this.xEvents[evt.type];
+					this['on' + evt.type] = null;
 				}
-				if (o.xEvents.removeMark) {
-					delete o.xEvents.removeMark;
-					for (let i in o.xEvents) {
-						delete o.xEvents[i];
-						o['on' + i] = null;
+				if (this.xEventsRemoveMark) {
+					delete this.xEventsRemoveMark;
+					for (let i in this.xEvents) {
+						delete this.xEvents[i];
+						this['on' + i] = null;
 					}
-					delete o.xEvents;
+					delete this.xEvents;
 				}
 			}
 		}();
@@ -656,7 +660,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							popups[id].onloadend();
 						}
 						result = 1;
-					} else if (typeof popups[activePopup].onunload !== 'function' || !popups[activePopup].onunload()) {//onunload 返回 true 可以阻止弹窗切换
+					} else if (typeof popups[activePopup].onunload !== 'function' || !popups[activePopup].onunload()) { //onunload 返回 true 可以阻止弹窗切换
 						let tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
 						popups[activePopup].status--;
 						popups[id].status++;
@@ -698,7 +702,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (animating) {
 					todo = kernel.closePopup.bind(this, id);
 					result = 2;
-				} else if (activePopup && (!id || activePopup === id || (kernel.dataType(id) === 'array' && id.indexOf(activePopup) >= 0)) && (typeof popups[activePopup].onunload !== 'function' || !popups[activePopup].onunload())) {//onunload 返回 true可以阻止窗口关闭
+				} else if (activePopup && (!id || activePopup === id || (kernel.dataType(id) === 'array' && id.indexOf(activePopup) >= 0)) && (typeof popups[activePopup].onunload !== 'function' || !popups[activePopup].onunload())) { //onunload 返回 true可以阻止窗口关闭
 					popups[activePopup].status--;
 					popupsBox.classList.remove('in');
 					popupsBox.classList.add('out');
@@ -1226,7 +1230,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						if (kernel.location.args.hasOwnProperty('autopopuparg')) {
 							try {
 								tmp = JSON.parse(kernel.location.args.autopopuparg);
-							} catch(e){}
+							} catch (e) {}
 						}
 						if (kernel.openPopup(kernel.location.args.autopopup, tmp)) {
 							document.body.querySelector('#popup').style.animationDuration = '1ms';
@@ -1667,13 +1671,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					callback(true);
 				}
 			}
-	
+
 			function errorOccurs(res, msg) {
 				kernel.alert(lang.error.replace('${res}', res) + msg, isPage ? function () {
 					history.back();
 				} : undefined);
 			}
-	
+
 			function updated() {
 				if (isPage) {
 					location.reload();
