@@ -315,11 +315,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				list: function (o, e) {
 					let result;
 					if (e) {
-						if (o.hasOwnProperty('xEvents') && o.xEvents.hasOwnProperty(e)) {
-							result = o.xEvents[e].heap.slice(0);
-						} else {
-							result = [];
-						}
+						result = o.hasOwnProperty('xEvents') && o.xEvents.hasOwnProperty(e) ? o.xEvents[e].heap.slice(0) : [];
 					} else {
 						result = {};
 						if (o.hasOwnProperty('xEvents')) {
