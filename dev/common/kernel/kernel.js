@@ -292,23 +292,25 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			kernel.listeners = {
 				add: function (o, e, f) {
 					let result = 0;
-					if (!o.hasOwnProperty('xEvents')) {
-						o.xEvents = {};
-					}
-					if (!o.xEvents.hasOwnProperty(e)) {
-						o.xEvents[e] = {
-							stack: [],
-							heap: [],
-							locked: false
-						};
-						o['on' + e] = xEventProcessor;
-					}
-					if (o.xEvents[e].locked) {
-						o.xEvents[e].stack.push([f]);
-						result = 2;
-					} else if (o.xEvents[e].heap.indexOf(f) < 0) {
-						o.xEvents[e].heap.push(f);
-						result = 1;
+					if (typeof f === 'function') {
+						if (!o.hasOwnProperty('xEvents')) {
+							o.xEvents = {};
+						}
+						if (!o.xEvents.hasOwnProperty(e)) {
+							o.xEvents[e] = {
+								stack: [],
+								heap: [],
+								locked: false
+							};
+							o['on' + e] = xEventProcessor;
+						}
+						if (o.xEvents[e].locked) {
+							o.xEvents[e].stack.push([f]);
+							result = 2;
+						} else if (o.xEvents[e].heap.indexOf(f) < 0) {
+							o.xEvents[e].heap.push(f);
+							result = 1;
+						}
 					}
 					return result;
 				},
@@ -334,7 +336,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 								if (o.xEvents[e].locked) {
 									o.xEvents[e].stack.push(f);
 									result = 2;
-								} else if (f) {
+								} else if (typeof f === 'function') {
 									let i = o.xEvents[e].heap.indexOf(f);
 									if (i >= 0) {
 										o.xEvents[e].heap.splice(i, 1);
