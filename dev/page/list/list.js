@@ -299,7 +299,7 @@ function loaded(evt){
 					'pageEvents.onroute': {
 						desc: '页面路由开始时触发'
 					},
-					'pageEvents.onroutend': {
+					'pageEvents.onrouteend': {
 						desc: '页面路由开始后页面资源加载成功后触发'
 					}
 				}
