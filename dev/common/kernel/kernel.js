@@ -291,7 +291,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		! function () {
 			kernel.listeners = {
 				add: function (o, e, f) {
-					let result;
+					let result = 0;
 					if (!o.hasOwnProperty('xEvents')) {
 						o.xEvents = {};
 					}
@@ -306,13 +306,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					if (o.xEvents[e].locked) {
 						o.xEvents[e].stack.push([f]);
 						result = 2;
-					} else {
-						if (o.xEvents[e].heap.indexOf(f) < 0) {
-							o.xEvents[e].heap.push(f);
-							result = 1;
-						} else {
-							result = 0;
-						}
+					} else if (o.xEvents[e].heap.indexOf(f) < 0) {
+						o.xEvents[e].heap.push(f);
+						result = 1;
 					}
 					return result;
 				},
@@ -342,21 +338,16 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 								if (o.xEvents[e].locked) {
 									o.xEvents[e].stack.push(f);
 									result = 2;
-								} else {
-									if (f) {
-										let i = o.xEvents[e].heap.indexOf(f);
-										if (i >= 0) {
-											o.xEvents[e].heap.splice(i, 1);
-											result = 1;
-										}
-									} else {
-										o.xEvents[e].heap.splice(0);
+								} else if (f) {
+									let i = o.xEvents[e].heap.indexOf(f);
+									if (i >= 0) {
+										o.xEvents[e].heap.splice(i, 1);
+										cleanup(o, e);
 										result = 1;
 									}
-									if (!o.xEvents[e].heap.length) {
-										delete o.xEvents[e];
-										o['on' + e] = null;
-									}
+								} else {
+									cleanup(o, e, true);
+									result = 1;
 								}
 							}
 						} else {
@@ -365,8 +356,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 									o.xEvents[i].stack.push(undefined);
 									result = 2;
 								} else {
-									delete o.xEvents[i];
-									o['on' + i] = null;
+									cleanup(o, i, true);
 								}
 							}
 							if (!result) {
@@ -391,19 +381,21 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							if (i >= 0) {
 								this.xEvents[evt.type].heap.splice(i, 1);
 							}
-						} else {
-							if (this.xEvents[evt.type].heap.indexOf(this.xEvents[evt.type].stack[0][0]) < 0) {
-								this.xEvents[evt.type].heap.push(this.xEvents[evt.type].stack[0][0]);
-							}
+						} else if (this.xEvents[evt.type].heap.indexOf(this.xEvents[evt.type].stack[0][0]) < 0) {
+							this.xEvents[evt.type].heap.push(this.xEvents[evt.type].stack[0][0]);
 						}
 					} else {
 						this.xEvents[evt.type].heap.splice(0);
 					}
 					this.xEvents[evt.type].stack.shift();
 				}
-				if (!this.xEvents[evt.type].heap.length) {
-					delete this.xEvents[evt.type];
-					this['on' + evt.type] = null;
+				cleanup(this, evt.type);
+			}
+
+			function cleanup(o, e, force) {
+				if (force || !o.xEvents[e].heap.length) {
+					delete o.xEvents[e];
+					o['on' + e] = null;
 				}
 			}
 		}();
