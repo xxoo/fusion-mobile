@@ -12,7 +12,6 @@ define(['common/kernel/kernel'], function (kernel) {
 			_hmt.push(['_trackPageview', location.pathname + kernel.buildHash(kernel.location)]);
 		});
 	}
-	kernel.setAutoScale(375);
 	kernel.init('list', {
 		list: {
 			normal: 'home-regular',
