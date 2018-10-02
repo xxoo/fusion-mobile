@@ -244,7 +244,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			} : function () {
 				if (minWidth > 0) {
-					if (browser.name === 'IOS') {
+					if (browser.name === 'IOS' && browser.version === 11 && browser.version === 12) {
 						if (t.content === s) {
 							t.content = 'user-scalable=no, width=' + calcWidth(innerWidth, innerHeight);
 						} else {
