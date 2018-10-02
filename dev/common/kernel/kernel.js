@@ -238,13 +238,15 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					t.content = s;
 				}
 			};
-			self.addEventListener('resize', self.visualViewport ? function () {
-				if (minWidth > 0) {
-					t.content = 'user-scalable=no, width=' + calcWidth(Math.round(visualViewport.width * visualViewport.scale), Math.round(visualViewport.height * visualViewport.scale));
-				}
-			} : function () {
-				if (minWidth > 0) {
-					if (browser.name === 'IOS' && browser.version === 11 && browser.version === 12) {
+			if (self.visualViewport) {
+				self.addEventListener('resize', function () {
+					if (minWidth > 0) {
+						t.content = 'user-scalable=no, width=' + calcWidth(Math.round(visualViewport.width * visualViewport.scale), Math.round(visualViewport.height * visualViewport.scale));
+					}
+				});
+			} else {
+				if (browser.name === 'IOS') {
+					self.addEventListener('resize', browser.version > 10 || /Safari/.test(navigator.userAgent) ? function () {
 						if (t.content === s) {
 							t.content = 'user-scalable=no, width=' + calcWidth(innerWidth, innerHeight);
 						} else {
@@ -260,13 +262,29 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							t.content = s;
 							rsz();
 						}
-					} else {
+					} : function () {
+						if (wait) {
+							wait = false;
+						} else {
+							if (t.content === s) {
+								let width = calcWidth(innerWidth, innerHeight);
+								if (width !== innerWidth) {
+									wait = true;
+									t.content = 'user-scalable=no, width=' + width;
+								}
+							} else {
+								t.content = s;
+							}
+						}
+					});
+				} else {
+					self.addEventListener('resize', function () {
 						if (wait) {
 							wait = false;
 						} else {
 							if (t.content !== s) {
-								wait = true
 								t.content = s;
+								wait = true;
 							}
 							let width = calcWidth(innerWidth, innerHeight);
 							if (width !== innerWidth) {
@@ -274,9 +292,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 								t.content = 'user-scalable=no, width=' + width;
 							}
 						}
-					}
+					});
 				}
-			});
+			}
 
 			function calcWidth(width, height) {
 				let sw = Math.min(width, height),
