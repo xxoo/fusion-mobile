@@ -53,7 +53,7 @@
 		l = document.querySelector('meta[name="viewport"]');
 		m = l.content;
 		l.content = '';
-		setTimeout(function(){
+		setTimeout(function () {
 			l.content = m;
 		}, 0);
 	}
