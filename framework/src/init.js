@@ -49,7 +49,7 @@
 	}
 	document.head.appendChild(m);
 	document.head.appendChild(l);
-	if (/Safari/.test(navigator.userAgent)) {
+	if (browser.name === 'IOS' && /Safari/.test(navigator.userAgent)) {
 		l = document.querySelector('meta[name="viewport"]');
 		m = l.content;
 		l.content = '';
