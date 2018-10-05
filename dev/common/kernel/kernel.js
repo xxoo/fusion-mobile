@@ -1196,7 +1196,15 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					}
 					// 看是否有history
 					routerHistory = sessionStorage.getItem(historyName);
-					routerHistory = routerHistory ? JSON.parse(routerHistory) : {};
+					if (routerHistory) {
+						routerHistory = routerHistory.parseJsex();
+						if (routerHistory) {
+							routerHistory = routerHistory.value;
+						}
+					}
+					if (!routerHistory) {
+						routerHistory = {};
+					}
 					// 解析 routerHistory
 					for (let n in routerHistory) {
 						if (pages.hasOwnProperty(n)) {
@@ -1210,7 +1218,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						let tmp;
 						if (kernel.location.args.hasOwnProperty('autopopuparg')) {
 							try {
-								tmp = JSON.parse(kernel.location.args.autopopuparg);
+								tmp = kernel.location.args.autopopuparg.parseJsex();
 							} catch (e) {}
 						}
 						if (kernel.openPopup(kernel.location.args.autopopup, tmp)) {
@@ -1313,13 +1321,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					// 把上一页赋值给他的后退页
 					routerHistory[kernel.location.id] = pages[kernel.location.id].backLoc = kernel.lastLocation;
 					// 记录到 sessionStorage
-					sessionStorage.setItem(historyName, JSON.stringify(routerHistory));
+					sessionStorage.setItem(historyName, toJsex(routerHistory));
 				} // 如果是 后退操作
 				else if (pages[kernel.lastLocation.id].backLoc && (kernel.location.id === pages[kernel.lastLocation.id].back || (pages[kernel.location.id].alias && pages[kernel.location.id].alias === pages[kernel.lastLocation.id].back))) {
 					// 剔除最后一次 back 对象
 					delete pages[kernel.lastLocation.id].backLoc;
 					delete routerHistory[kernel.lastLocation.id];
-					sessionStorage.setItem(historyName, JSON.stringify(routerHistory));
+					sessionStorage.setItem(historyName, toJsex(routerHistory));
 				}
 				manageLocation();
 			}
