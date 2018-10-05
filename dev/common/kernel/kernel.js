@@ -210,9 +210,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				} else {
 					let t = typeof a;
 					if (t === 'object') {
-						t = Object.prototype.toString.call(a).replace(/^\[object |\]$/g, '').toLowerCase();
-						if (['array', 'date', 'regexp', 'error', 'arraybuffer', 'sharedarraybuffer', 'dataview', 'int8array', 'uint8array', 'uint8clampedarray', 'int16array', 'uint16array', 'int32array', 'uint32array', 'bigint64array', 'biguint64array', 'float32array', 'float64array', 'promise', 'map', 'weakmap', 'set', 'weakset'].indexOf(t) < 0) {
-							t = 'object';
+						a = Object.prototype.toString.call(a).replace(/^\[object |\]$/g, '').toLowerCase();
+						if (['date', 'regexp', 'error', 'promise', 'map', 'weakmap', 'set', 'weakset', 'dataview', 'arraybuffer', 'sharedarraybuffer', 'array', 'int8array', 'uint8array', 'uint8clampedarray', 'int16array', 'uint16array', 'int32array', 'uint32array', 'bigint64array', 'biguint64array', 'float32array', 'float64array'].indexOf(a) >= 0) {
+							t = a;
 						}
 					}
 					return t;
@@ -308,26 +308,27 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		}();
 		//事件处理
 		! function () {
+			let key = Symbol('xEvents');
 			kernel.listeners = {
 				add: function (o, e, f) {
 					let result = 0;
 					if (typeof f === 'function') {
-						if (!o.hasOwnProperty('xEvents')) {
-							o.xEvents = {};
+						if (!o.hasOwnProperty(key)) {
+							o[key] = {};
 						}
-						if (!o.xEvents.hasOwnProperty(e)) {
-							o.xEvents[e] = {
+						if (!o[key].hasOwnProperty(e)) {
+							o[key][e] = {
 								stack: [],
 								heap: [],
 								locked: false
 							};
 							o['on' + e] = xEventProcessor;
 						}
-						if (o.xEvents[e].locked) {
-							o.xEvents[e].stack.push([f]);
+						if (o[key][e].locked) {
+							o[key][e].stack.push([f]);
 							result = 2;
-						} else if (o.xEvents[e].heap.indexOf(f) < 0) {
-							o.xEvents[e].heap.push(f);
+						} else if (o[key][e].heap.indexOf(f) < 0) {
+							o[key][e].heap.push(f);
 							result = 1;
 						}
 					}
@@ -336,12 +337,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				list: function (o, e) {
 					let result;
 					if (e) {
-						result = o.hasOwnProperty('xEvents') && o.xEvents.hasOwnProperty(e) ? o.xEvents[e].heap.slice(0) : [];
+						result = o.hasOwnProperty(key) && o[key].hasOwnProperty(e) ? o[key][e].heap.slice(0) : [];
 					} else {
 						result = {};
-						if (o.hasOwnProperty('xEvents')) {
-							for (let i in o.xEvents) {
-								result[i] = o.xEvents[i].heap.slice(0);
+						if (o.hasOwnProperty(key)) {
+							for (let i in o[key]) {
+								result[i] = o[key][i].heap.slice(0);
 							}
 						}
 					}
@@ -349,16 +350,16 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				},
 				remove: function (o, e, f) {
 					let result = 0;
-					if (o.hasOwnProperty('xEvents')) {
+					if (o.hasOwnProperty(key)) {
 						if (e) {
-							if (o.xEvents.hasOwnProperty(e)) {
-								if (o.xEvents[e].locked) {
-									o.xEvents[e].stack.push(f);
+							if (o[key].hasOwnProperty(e)) {
+								if (o[key][e].locked) {
+									o[key][e].stack.push(f);
 									result = 2;
 								} else if (typeof f === 'function') {
-									let i = o.xEvents[e].heap.indexOf(f);
+									let i = o[key][e].heap.indexOf(f);
 									if (i >= 0) {
-										o.xEvents[e].heap.splice(i, 1);
+										o[key][e].heap.splice(i, 1);
 										cleanup(o, e);
 										result = 1;
 									}
@@ -368,9 +369,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 								}
 							}
 						} else {
-							for (let i in o.xEvents) {
-								if (o.xEvents[i].locked) {
-									o.xEvents[i].stack.push(undefined);
+							for (let i in o[key]) {
+								if (o[key][i].locked) {
+									o[key][i].stack.push(undefined);
 									result = 2;
 								} else {
 									cleanup(o, i, true);
@@ -386,32 +387,32 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			};
 
 			function xEventProcessor(evt) {
-				this.xEvents[evt.type].locked = true;
-				for (let i = 0; i < this.xEvents[evt.type].heap.length; i++) {
-					this.xEvents[evt.type].heap[i].call(this, evt);
+				this[key][evt.type].locked = true;
+				for (let i = 0; i < this[key][evt.type].heap.length; i++) {
+					this[key][evt.type].heap[i].call(this, evt);
 				}
-				this.xEvents[evt.type].locked = false;
-				while (this.xEvents[evt.type].stack.length) {
-					if (this.xEvents[evt.type].stack[0]) {
-						if (typeof this.xEvents[evt.type].stack[0] === 'function') {
-							let i = this.xEvents[evt.type].heap.indexOf(this.xEvents[evt.type].stack[0]);
+				this[key][evt.type].locked = false;
+				while (this[key][evt.type].stack.length) {
+					if (this[key][evt.type].stack[0]) {
+						if (typeof this[key][evt.type].stack[0] === 'function') {
+							let i = this[key][evt.type].heap.indexOf(this[key][evt.type].stack[0]);
 							if (i >= 0) {
-								this.xEvents[evt.type].heap.splice(i, 1);
+								this[key][evt.type].heap.splice(i, 1);
 							}
-						} else if (this.xEvents[evt.type].heap.indexOf(this.xEvents[evt.type].stack[0][0]) < 0) {
-							this.xEvents[evt.type].heap.push(this.xEvents[evt.type].stack[0][0]);
+						} else if (this[key][evt.type].heap.indexOf(this[key][evt.type].stack[0][0]) < 0) {
+							this[key][evt.type].heap.push(this[key][evt.type].stack[0][0]);
 						}
 					} else {
-						this.xEvents[evt.type].heap.splice(0);
+						this[key][evt.type].heap.splice(0);
 					}
-					this.xEvents[evt.type].stack.shift();
+					this[key][evt.type].stack.shift();
 				}
 				cleanup(this, evt.type);
 			}
 
 			function cleanup(o, e, force) {
-				if (force || !o.xEvents[e].heap.length) {
-					delete o.xEvents[e];
+				if (force || !o[key][e].heap.length) {
+					delete o[key][e];
 					o['on' + e] = null;
 				}
 			}
