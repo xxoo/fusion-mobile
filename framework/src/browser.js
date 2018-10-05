@@ -30,6 +30,8 @@ var browser = function () {
 		browser.app = 'WeChat';
 	} else if (navigator.userAgent.match(/WeiBo/i)) {
 		browser.app = 'WeiBo';
+	} else if (browser.name === 'IOS' && navigator.userAgent.match(/Safari/)) {
+		browser.app = 'Safari';
 	}
 	return browser;
 }();
