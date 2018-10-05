@@ -76,8 +76,8 @@ console.log(svg.getAttribute('viewBox'));`
 						code: `kernel.setAutoScale(375);`
 					},
 					'dataType(a:any):String': {
-						desc: '获得a的数据类型, 和jQuery.type类似',
-						code: `console.log(kernel.dataType([]));`
+						desc: '获得a的数据类型, 支持所有ECMA内置类型',
+						code: `console.log(kernel.dataType(new Set));`
 					},
 					'listeners.add(o:Object, e:String, f:Function):void': {
 						desc: '注册监听事件',

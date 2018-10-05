@@ -1718,7 +1718,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	}
 	//左右滑动的动画完成后要执行的操作
 	function panelAnimationEnd(evt) {
-		if (evt.target === this) { //ios中this的子节点也会触发该事件
+		if (evt.target === this) {
 			if (this.style.animationName.substr(this.style.animationName.length - 1) === '1') {
 				this.style.left = this.style.visibility = '';
 			} else {
