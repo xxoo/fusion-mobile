@@ -1217,9 +1217,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					if (kernel.location.args.hasOwnProperty('autopopup')) {
 						let tmp;
 						if (kernel.location.args.hasOwnProperty('autopopuparg')) {
-							try {
-								tmp = kernel.location.args.autopopuparg.parseJsex();
-							} catch (e) {}
+							tmp = kernel.location.args.autopopuparg.parseJsex();
+							if (tmp) {
+								tmp = tmp.value
+							}
 						}
 						if (kernel.openPopup(kernel.location.args.autopopup, tmp)) {
 							document.body.querySelector('#popup').style.animationDuration = '1ms';
