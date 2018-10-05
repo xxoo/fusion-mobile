@@ -75,10 +75,6 @@ console.log(svg.getAttribute('viewBox'));`
 						desc: '设置自动缩放功能. 当 minWidth > 0 时则启用, 否则禁用. 当窗口宽度小于 minWidth 时会(线性)缩小页面内容, 当窗口宽度大于 minWidth 时会(非线性)放大页面内容.',
 						code: `kernel.setAutoScale(375);`
 					},
-					'dataType(a:any):String': {
-						desc: '获得a的数据类型, 支持所有ECMA内置类型',
-						code: `console.log(kernel.dataType(new Set));`
-					},
 					'listeners.add(o:Object, e:String, f:Function):void': {
 						desc: '注册监听事件',
 						code: `kernel.listeners.add(kernel.popupEvents, 'show', func);

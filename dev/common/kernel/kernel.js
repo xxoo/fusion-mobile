@@ -204,20 +204,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					return false;
 				}
 			};
-			kernel.dataType = function (a) {
-				if (a == null) {
-					return String(a);
-				} else {
-					let t = typeof a;
-					if (t === 'object') {
-						a = Object.prototype.toString.call(a).replace(/^\[object |\]$/g, '').toLowerCase();
-						if (['date', 'regexp', 'error', 'promise', 'map', 'weakmap', 'set', 'weakset', 'dataview', 'arraybuffer', 'sharedarraybuffer', 'array', 'int8array', 'uint8array', 'uint8clampedarray', 'int16array', 'uint16array', 'int32array', 'uint32array', 'bigint64array', 'biguint64array', 'float32array', 'float64array'].indexOf(a) >= 0) {
-							t = a;
-						}
-					}
-					return t;
-				}
-			};
 			kernel.getLang = function (langs) {
 				for (let i = 0; i < navigator.languages.length; i++) {
 					if (langs.hasOwnProperty(navigator.languages[i])) {
@@ -537,11 +523,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				allSteps;
 			helper.addEventListener('click', nextStep);
 			kernel.showHelper = function (steps) {
-				if (kernel.dataType(steps) === 'array') {
-					allSteps = steps;
-				} else {
-					allSteps = [steps];
-				}
+				allSteps = dataType(steps) === 'array' ? steps : [steps];
 				setStep(allSteps[0]);
 				helper.style.display = 'block';
 			};
@@ -701,7 +683,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (animating) {
 					todo = kernel.closePopup.bind(this, id);
 					result = 2;
-				} else if (activePopup && (!id || activePopup === id || (kernel.dataType(id) === 'array' && id.indexOf(activePopup) >= 0)) && (typeof popups[activePopup].onunload !== 'function' || !popups[activePopup].onunload())) { //onunload 返回 true可以阻止窗口关闭
+				} else if (activePopup && (!id || activePopup === id || (dataType(id) === 'array' && id.indexOf(activePopup) >= 0)) && (typeof popups[activePopup].onunload !== 'function' || !popups[activePopup].onunload())) { //onunload 返回 true可以阻止窗口关闭
 					popups[activePopup].status--;
 					popupsBox.classList.remove('in');
 					popupsBox.classList.add('out');
@@ -1048,7 +1030,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					if (type === 'alert') {
 						dialogContent.textContent = content;
 					} else if (type === 'confirm') {
-						if (kernel.dataType(content) === 'array') {
+						if (dataType(content) === 'array') {
 							dialogContent.textContent = content[0];
 							yesbtn.firstChild.data = content[1];
 							nobtn.firstChild.data = content[2];
@@ -1214,7 +1196,15 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					}
 					// 看是否有history
 					routerHistory = sessionStorage.getItem(historyName);
-					routerHistory = routerHistory ? JSON.parse(routerHistory) : {};
+					if (routerHistory) {
+						routerHistory = routerHistory.parseJsex();
+						if (routerHistory) {
+							routerHistory = routerHistory.value;
+						}
+					}
+					if (!routerHistory) {
+						routerHistory = {};
+					}
 					// 解析 routerHistory
 					for (let n in routerHistory) {
 						if (pages.hasOwnProperty(n)) {
@@ -1228,7 +1218,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						let tmp;
 						if (kernel.location.args.hasOwnProperty('autopopuparg')) {
 							try {
-								tmp = JSON.parse(kernel.location.args.autopopuparg);
+								tmp = kernel.location.args.autopopuparg.parseJsex();
 							} catch (e) {}
 						}
 						if (kernel.openPopup(kernel.location.args.autopopup, tmp)) {
@@ -1331,13 +1321,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					// 把上一页赋值给他的后退页
 					routerHistory[kernel.location.id] = pages[kernel.location.id].backLoc = kernel.lastLocation;
 					// 记录到 sessionStorage
-					sessionStorage.setItem(historyName, JSON.stringify(routerHistory));
+					sessionStorage.setItem(historyName, toJsex(routerHistory));
 				} // 如果是 后退操作
 				else if (pages[kernel.lastLocation.id].backLoc && (kernel.location.id === pages[kernel.lastLocation.id].back || (pages[kernel.location.id].alias && pages[kernel.location.id].alias === pages[kernel.lastLocation.id].back))) {
 					// 剔除最后一次 back 对象
 					delete pages[kernel.lastLocation.id].backLoc;
 					delete routerHistory[kernel.lastLocation.id];
-					sessionStorage.setItem(historyName, JSON.stringify(routerHistory));
+					sessionStorage.setItem(historyName, toJsex(routerHistory));
 				}
 				manageLocation();
 			}
@@ -1513,7 +1503,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 		function reloadPage(id, silent) {
 			let cfg = pages[currentpage].alias ? pages[pages[currentpage].alias] : pages[currentpage];
-			if (!id || id === currentpage || (kernel.dataType(id) === 'array' && id.indexOf(currentpage) >= 0)) {
+			if (!id || id === currentpage || (dataType(id) === 'array' && id.indexOf(currentpage) >= 0)) {
 				if (!silent) {
 					clearWindow();
 				}
