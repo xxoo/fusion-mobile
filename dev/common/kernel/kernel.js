@@ -205,15 +205,16 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			};
 			kernel.dataType = function (a) {
-				let t = typeof a;
-				if (['boolean', 'string', 'symbol', 'number', 'bigint', 'function', 'undefined'].indexOf(t) < 0) {
-					t = Object.prototype.toString.call(a).replace(/^\[object |\]$/g, '').toLowerCase();
-					if (['date', 'array', 'regexp', 'error', 'null'].indexOf(t) < 0) {
-						return 'object';
-					} else {
-						return t;
-					}
+				if (a == null) {
+					return String(a);
 				} else {
+					let t = typeof a;
+					if (t === 'object') {
+						t = Object.prototype.toString.call(a).replace(/^\[object |\]$/g, '').toLowerCase();
+						if (['array', 'date', 'regexp', 'error', 'arraybuffer', 'sharedarraybuffer', 'dataview', 'int8array', 'uint8array', 'uint8clampedarray', 'int16array', 'uint16array', 'int32array', 'uint32array', 'bigint64array', 'biguint64array', 'float32array', 'float64array', 'promise', 'map', 'weakmap', 'set', 'weakset'].indexOf(t) < 0) {
+							t = 'object';
+						}
+					}
 					return t;
 				}
 			};
@@ -246,7 +247,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				});
 			} else {
 				if (browser.name === 'IOS') {
-					self.addEventListener('resize', browser.version > 10 || /Safari/.test(navigator.userAgent) ? function () {
+					self.addEventListener('resize', browser.app === 'Safari' && browser.version > 10 ? function () {
 						if (t.content === s) {
 							t.content = 'user-scalable=no, width=' + calcWidth(innerWidth, innerHeight);
 						} else {
