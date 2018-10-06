@@ -1,5 +1,5 @@
 'use strict';
-define(['module', 'common/kernel/kernel', 'common/touchslider/touchslider'], function(module, kernel, touchslider) {
+define(['module', 'common/kernel/kernel', 'common/touchslider/touchslider'], function (module, kernel, touchslider) {
 	var thispage = module.id.replace(/^[^/]+\/|\/[^/]+/g, ''),
 		dom = document.querySelector('#page>.content>.' + thispage),
 		tree = {
@@ -366,7 +366,7 @@ function loaded(evt){
 						desc: '停止轮播, 并返回当前的轮播延时'
 					}
 				},
-				properties:{
+				properties: {
 					'slider.rate:Number': {
 						desc: '惯性比率, 默认值4000'
 					},
@@ -399,12 +399,12 @@ function loaded(evt){
 		},
 		mod, type, api, i, tmp;
 
-	content.addEventListener('click', function(evt){
+	content.addEventListener('click', function (evt) {
 		if (evt.target.className === 'code') {
 			eval('var kernel = require("common/kernel/kernel");' + evt.target.textContent);
 		}
 	});
-	sld.onchange = function() {
+	sld.onchange = function () {
 		nav.firstChild.data = navFormat(this.current, this.children.length);
 		if (mod && mod !== mods[this.current]) {
 			location.hash = '!' + thispage + '&mod=' + encodeURIComponent(mods[this.current]);
@@ -419,7 +419,7 @@ function loaded(evt){
 	sld.onchange();
 	kernel.fixIosScrolling(dom);
 	return {
-		onload: function(force) {
+		onload: function (force) {
 			var types, apis,
 				m = mod,
 				t = type,
@@ -439,16 +439,18 @@ function loaded(evt){
 			} else {
 				type = types[0];
 			}
-			if (kernel.location.args.api in tree[mod][type]) {
-				api = kernel.location.args.api;
-			} else {
-				api = '';
+			api = '';
+			apis = [];
+			for (i in tree[mod][type]) {
+				apis.push(getShotTitle(i));
+				if (apis[apis.length - 1] === kernel.location.args.api) {
+					api = kernel.location.args.api;
+				}
 			}
-			apis = Object.keys(tree[mod][type]);
 			if (m !== mod) {
 				t = '';
 				sld.slideTo(mods.indexOf(mod));
-				while(tabs.childNodes.length) {
+				while (tabs.childNodes.length) {
 					tabs.removeChild(tabs.firstChild);
 				}
 				for (i = 0; i < types.length; i++) {
@@ -464,12 +466,12 @@ function loaded(evt){
 				if (t) {
 					tabs.querySelector('a:nth-child(' + (types.indexOf(t) + 1) + ')').classList.remove('active');
 				}
-				while(content.childNodes.length) {
+				while (content.childNodes.length) {
 					content.removeChild(content.firstChild);
 				}
 				for (i in tree[mod][type]) {
 					tmp = `<div class="item">
-						<a href="#!${thispage}&mod=${encodeURIComponent(mod)}&type=${encodeURIComponent(type)}&api=${encodeURIComponent(i)}">${i}</a><div class="desc">${tree[mod][type][i].desc}</div>`;
+						<a href="#!${thispage}&mod=${encodeURIComponent(mod)}&type=${encodeURIComponent(type)}&api=${encodeURIComponent(getShotTitle(i))}">${i}</a><div class="desc">${tree[mod][type][i].desc}</div>`;
 					if (tree[mod][type][i].code) {
 						tmp += `<div class="code">${tree[mod][type][i].code}</div>`;
 					}
@@ -484,26 +486,26 @@ function loaded(evt){
 				content.querySelector('.item:nth-child(' + (apis.indexOf(api) + 1) + ')').classList.add('active');
 			}
 		},
-		onloadend: function() {
+		onloadend: function () {
 			tmp = content.querySelector('.item.active');
 			tmp && tmp.scrollIntoView({
 				block: 'start',
 				behavior: 'smooth'
 			});
 		},
-		onunload: function() {
-				//leveing this page
+		onunload: function () {
+			//leveing this page
 		},
-		onunloadend: function() {
-				//left this page
+		onunloadend: function () {
+			//left this page
 		}
-    // 除以上事件外还可包含以下属性
+		// 除以上事件外还可包含以下属性
 		// * onleftmenuclick 左上角dom点击事件
 		// * leftMenuDomContent 左上角dom对象, 字符串表示只显示相应文本
 		// * onrightmenuclick 右上角dom点击事件
 		// * rightMenuDomContent 右上角dom对象, 字符串表示只显示相应文本
 	};
-	
+
 	function navFormat(t, num) {
 		var a = '●',
 			b = '○',
@@ -512,5 +514,9 @@ function loaded(evt){
 			txt += (i === t) ? a : b;
 		}
 		return txt;
+	}
+
+	function getShotTitle(title) {
+		return title.replace(/[(:].+$/, '');
 	}
 });
