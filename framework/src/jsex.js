@@ -2,7 +2,8 @@
 	'use strict';
 	var g = typeof self === 'undefined' ? global : self,
 		arrays = ['array', 'int8array', 'uint8array', 'uint8clampedarray', 'int16array', 'uint16array', 'int32array', 'uint32array', 'bigint64array', 'biguint64array', 'float32array', 'float64array'],
-		esobjs = ['date', 'regexp', 'error', 'promise', 'map', 'weakmap', 'set', 'weakset', 'dataview', 'arraybuffer', 'sharedarraybuffer'].concat(arrays);
+		esobjs = ['date', 'regexp', 'error', 'promise', 'map', 'weakmap', 'set', 'weakset', 'dataview', 'arraybuffer', 'sharedarraybuffer'].concat(arrays),
+		wksbls = ['iterator', 'asyncIterator', 'match', 'replace', 'search', 'split', 'hasInstance', 'isConcatSpreadable', 'unscopables', 'species', 'toPrimitive', 'toStringTag'];
 	String.prototype.JsEncode = function (q) {
 		var s = this.replace(/[\\"\b\n\v\f\r]/g, function (a) {
 			if (a === '\\') {
@@ -130,6 +131,16 @@
 					value: new Date(parseFloat(m.value)),
 					length: l + 1
 				};
+			}
+		} else if (this.substr(0, l = 7) === 'Symbol.') {
+			for (m = 0; m < wksbls.length; m++) {
+				if (this.substr(l, wksbls[m].length) === wksbls[m]) {
+					r = {
+						value: Symbol[wksbls[m]],
+						length: l + wksbls[m].length
+					};
+					break;
+				}
 			}
 		} else if (this.substr(0, l = 7) === 'Symbol(') {
 			if (this.charAt(l) === ')') {
@@ -300,10 +311,20 @@
 			i = dataType(d);
 			if (i === 'string') {
 				s = d.JsEncode(true);
-			} else if (['number', 'boolean', 'symbol'].indexOf(i) >= 0) {
+			} else if (['number', 'boolean'].indexOf(i) >= 0) {
 				s = d.toString();
-				if (i === 'symbol' && s.length > 8) {
-					s = 'Symbol(' + s.substr(7, s.length - 8).JsEncode(true) + ')';
+			} else if (i === 'symbol') {
+				for (i = 0; i < wksbls.length; i++) {
+					if (d === Symbol[wksbls[i]]) {
+						s = 'Symbol.' + wksbls[i];
+						break;
+					}
+				}
+				if (!s) {
+					s = d.toString();
+					if (s.length > 8) {
+						s = 'Symbol(' + s.substr(7, s.length - 8).JsEncode(true) + ')';
+					}
 				}
 			} else if (i === 'bigint') {
 				s = d + 'n';
