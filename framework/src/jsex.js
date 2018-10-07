@@ -408,7 +408,7 @@
 				} else if (['map', 'set'].indexOf(t) >= 0) {
 					if (o1.size === o2.size) {
 						i = o1.entries();
-						n = t.next();
+						n = i.next();
 						while (n.value) {
 							if (!o2.has(n.value[0]) || (t === 'map' && !isEqual(n.value[1], o2.get(n.value[0])))) {
 								return false;
