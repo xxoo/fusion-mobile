@@ -112,7 +112,7 @@
 				value: BigInt(m[1]),
 				length: m[0].length
 			};
-		} else if (m = this.match(/^(?:-?(?:[1-9](?:\.\d*[1-9])?[eE][\+\-][1-9]\d*|0\.\d*[1-9]?|[1-9]\d*(?:\.\d*[1-9])?)|0)/)) {
+		} else if (m = this.match(/^(?:-?(?:[1-9](?:\.\d*[1-9])?[eE][-+]?[1-9]\d*|0\.\d*[1-9]?|[1-9]\d*(?:\.\d*[1-9])?)|0)/)) {
 			r = {
 				value: +m[0],
 				length: m[0].length
@@ -332,7 +332,7 @@
 			} else if (i === 'bigint') {
 				s = d + 'n';
 			} else if (i === 'date') {
-				s = 'new Date(' + d.valueOf() + ')';
+				s = 'new Date(' + d.getTime() + ')';
 			} else if (i === 'regexp') {
 				s = '/' + d.source.RegEncode(true) + '/';
 				if (d.global) {
@@ -351,9 +351,10 @@
 					s += 'y';
 				}
 			} else if (i === 'error') {
-				s = d.name + '(';
+				s = ['RangeError','ReferenceError', 'SyntaxError', 'TypeError', 'URIError', 'EvalError'].indexOf(d.name) < 0 ? 'Error' : d.name;
+				s += '(';
 				if (d.message) {
-					s += toJsex(d.message);
+					s += String(d.message).JsEncode(true);
 				}
 				s += ')';
 			} else if (arrays.indexOf(i) >= 0) {
@@ -368,10 +369,12 @@
 			} else {
 				s = '{';
 				for (i in d) {
-					if (s.length > 1) {
-						s += ',';
+					if (d.hasOwnProperty(i)) {
+						if (s.length > 1) {
+							s += ',';
+						}
+						s += i.JsEncode(true) + ':' + toJsex(d[i]);
 					}
-					s += toJsex(i) + ':' + toJsex(d[i]);
 				}
 				s += '}';
 			}
