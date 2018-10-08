@@ -4,7 +4,7 @@
 		arrays = ['array', 'int8array', 'uint8array', 'uint8clampedarray', 'int16array', 'uint16array', 'int32array', 'uint32array', 'bigint64array', 'biguint64array', 'float32array', 'float64array'],
 		esobjs = {
 			'function': ['asyncfunction', 'generatorfunction', 'asyncgeneratorfunction'],
-			'object': ['date', 'regexp', 'error', 'promise', 'map', 'weakmap', 'set', 'weakset', 'proxy', 'generator', 'dataview', 'arraybuffer', 'sharedarraybuffer'].concat(arrays)
+			'object': ['date', 'regexp', 'error', 'promise', 'map', 'weakmap', 'set', 'weakset', 'proxy', 'generator', 'asyncgenerator', 'dataview', 'arraybuffer', 'sharedarraybuffer'].concat(arrays)
 		},
 		wksbls = ['iterator', 'asyncIterator', 'match', 'replace', 'search', 'split', 'hasInstance', 'isConcatSpreadable', 'unscopables', 'species', 'toPrimitive', 'toStringTag'];
 	String.prototype.JsEncode = function (q) {
