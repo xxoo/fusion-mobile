@@ -1233,24 +1233,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					}
 				}
 			}
-
-			function removeLoading(evt) {
-				if (evt) {
-					kernel.listeners.remove(this, evt.type, removeLoading);
-					setTimeout(function () {
-						document.body.querySelector('#popup').style.animationDuration = '';
-					}, 400);
-				}
-				document.body.addEventListener('transitionend', tsend);
-				document.documentElement.classList.remove('loading');
-			}
-
-			function tsend(evt) {
-				if (evt.target === this) {
-					document.body.removeEventListener(evt.type, tsend);
-					document.body.style.transition = '';
-				}
-			}
 		};
 		//刷新当前页
 		kernel.reloadPage = function (id, silent) {
@@ -1292,6 +1274,24 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				page.onleftmenuclick();
 			}
 		});
+
+		function removeLoading(evt) {
+			if (evt) {
+				kernel.listeners.remove(this, evt.type, removeLoading);
+				setTimeout(function () {
+					document.body.querySelector('#popup').style.animationDuration = '';
+				}, 400);
+			}
+			document.body.addEventListener('transitionend', tsend);
+			document.documentElement.classList.remove('loading');
+		}
+
+		function tsend(evt) {
+			if (evt.target === this) {
+				this.removeEventListener(evt.type, tsend);
+				this.style.transition = '';
+			}
+		}
 
 		function initNavs(icos) {
 			while (navCtn.childNodes.length) {
