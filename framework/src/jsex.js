@@ -132,35 +132,35 @@
 		} else if (m = this.match(/^(Range|Reference|Syntax|Type|URI|Eval)?Error\(/)) {
 			l = m[0].length;
 			m = {
-				t: m[1]
+				g: m[1]
 			};
-			if (m.t === 'Range') {
-				m.t = RangeError;
-			} else if (m.t === 'Reference') {
-				m.t = ReferenceError;
-			} else if (m.t === 'Syntax') {
-				m.t = SyntaxError;
-			} else if (m.t === 'Type') {
-				m.t = TypeError;
-			} else if (m.t === 'URI') {
-				m.t = URIError;
-			} else if (m.t === 'Eval') {
-				m.t = EvalError;
+			if (m.g === 'Range') {
+				m.g = RangeError;
+			} else if (m.g === 'Reference') {
+				m.g = ReferenceError;
+			} else if (m.g === 'Syntax') {
+				m.g = SyntaxError;
+			} else if (m.g === 'Type') {
+				m.g = TypeError;
+			} else if (m.g === 'URI') {
+				m.g = URIError;
+			} else if (m.g === 'Eval') {
+				m.g = EvalError;
 			} else {
-				m.t = Error;
+				m.g = Error;
 			}
 			if (this.charAt(l) === ')') {
 				r = {
-					value: m.t(),
+					value: m.g(),
 					length: l + 1
 				};
 			} else {
-				m.l = this.substr(l).parseJsex();
-				l += m.l.length;
-				if (m.l && typeof m.l.value === 'string') {
+				m.f = this.substr(l).parseJsex();
+				if (m.f && typeof m.f.value === 'string') {
+					l += m.f.length;
 					if (this.charAt(l) === ')') {
 						r = {
-							value: m.t(m.l.value),
+							value: m.g(m.f.value),
 							length: l + 1
 						};
 					}
