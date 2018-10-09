@@ -1231,21 +1231,24 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					} else {
 						removeLoading();
 					}
+				}
+			}
 
-					function removeLoading(evt) {
-						if (evt) {
-							kernel.listeners.remove(this, evt.type, removeLoading);
-							setTimeout(function () {
-								document.body.querySelector('#popup').style.animationDuration = '';
-							}, 400);
-						}
-						document.body.addEventListener('transitionend', function (evt) {
-							if (evt.target === this) {
-								document.body.style.transition = '';
-							}
-						});
-						document.documentElement.classList.remove('loading');
-					}
+			function removeLoading(evt) {
+				if (evt) {
+					kernel.listeners.remove(this, evt.type, removeLoading);
+					setTimeout(function () {
+						document.body.querySelector('#popup').style.animationDuration = '';
+					}, 400);
+				}
+				document.body.addEventListener('transitionend', tsend);
+				document.documentElement.classList.remove('loading');
+			}
+
+			function tsend(evt) {
+				if (evt.target === this) {
+					document.body.removeEventListener(evt.type, tsend);
+					document.body.style.transition = '';
 				}
 			}
 		};
