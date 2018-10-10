@@ -2,8 +2,10 @@
 	'use strict';
 	var g = typeof self === 'undefined' ? global : self,
 		pmtobjs = ['String', 'Number', 'Boolean', 'Symbol', 'BigInt'],
-		arrays = ['Array', 'Int8Array', 'Uint8Array', 'Uint8ClampedArray', 'Int16Array', 'Uint16Array', 'Int32Array', 'Uint32Array', 'Float32Array', 'Float64Array', 'BigInt64Array', 'BigUint64array'],
+		arrays = ['Array', 'Int8Array', 'Uint8Array', 'Uint8ClampedArray', 'Int16Array', 'Uint16Array', 'Int32Array', 'Uint32Array', 'Float32Array', 'Float64Array', 'BigInt64Array', 'BigUint64Array'],
+		stricts = ['string', 'number', 'boolean', 'bigint'],
 		wksbls = ['iterator', 'asyncIterator', 'match', 'replace', 'search', 'split', 'hasInstance', 'isConcatSpreadable', 'unscopables', 'species', 'toPrimitive', 'toStringTag'];
+	//deserialize jsex to js data, support JSON string
 	String.prototype.parseJsex = function () {
 		var m, l, r;
 		if (this.substr(0, l = 4) === 'null') {
@@ -247,8 +249,8 @@
 		}
 		return r;
 	};
+	//reference types are the names of their constructor, such as String, Uint8Array, AsyncFunction
 	//primitive types are lowercased, such as string, bigint, null
-	//reference types use the name of their constructor, such as String, Uint8Array, AsyncFunction
 	g.dataType = function (a) {
 		var t;
 		if (a == null) {
@@ -261,6 +263,7 @@
 			return t;
 		}
 	};
+	//serialize js data to jsex
 	g.toJsex = function (d) {
 		var s, i;
 		if (d == null) {
@@ -272,7 +275,7 @@
 				i = i.toLowerCase();
 			}
 			if (i === 'string') {
-				s = jsEncode(d);
+				s = strEncode(d);
 			} else if (['number', 'boolean'].indexOf(i) >= 0) {
 				s = d.toString();
 			} else if (i === 'symbol') {
@@ -285,7 +288,7 @@
 				if (!s) {
 					s = d.toString();
 					if (s.length > 8) {
-						s = 'Symbol(' + jsEncode(s.substr(7, s.length - 8)) + ')';
+						s = 'Symbol(' + strEncode(s.substr(7, s.length - 8)) + ')';
 					}
 				}
 			} else if (i === 'bigint') {
@@ -327,7 +330,7 @@
 				s = ['RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', 'URIError', 'EvalError'].indexOf(d.name) < 0 ? 'Error' : d.name;
 				s += '(';
 				if (d.message) {
-					s += jsEncode(String(d.message));
+					s += strEncode(String(d.message));
 				}
 				s += ')';
 			} else if (arrays.indexOf(i) >= 0) {
@@ -346,7 +349,7 @@
 						if (s.length > 1) {
 							s += ',';
 						}
-						s += jsEncode(i) + ':' + toJsex(d[i]);
+						s += strEncode(i) + ':' + toJsex(d[i]);
 					}
 				}
 				s += '}';
@@ -354,6 +357,8 @@
 		}
 		return s;
 	};
+	//isEqual returns true if toJsex(o1) equals toJsex(o2)
+	//object key order does not matter
 	g.isEqual = function (o1, o2) {
 		var i, n,
 			t = dataType(o1),
@@ -368,63 +373,33 @@
 		}
 		if (o1 === o2) {
 			return true;
-		} else {
+		} else if (['Date', 'RegExp', 'Error', 'symbol'].indexOf(t) >= 0) {
 			if (t === t2) {
-				if (t === 'symbol') {
-					return toJsex(o1) === toJsex(o2);
-				} else if (t === 'RegExp') {
-					return o1.source === o2.source && o1.global === o2.global && o1.ignoreCase === o2.ignoreCase && o1.multiline === o2.multiline && o1.unicode === o2.unicode && o1.sticky === o2.sticky;
-				} else if (t === 'Error') {
-					return o1.message = o2.message && o1.name === o2.name;
-				} else if (t === 'Date') {
-					return o1.getTime() === o2.getTime();
-				} else if (['Map', 'Set'].indexOf(t) >= 0) {
-					if (o1.size === o2.size) {
-						i = o1.entries();
-						n = i.next();
-						while (n.value) {
-							if (!o2.has(n.value[0]) || (t === 'Map' && !isEqual(n.value[1], o2.get(n.value[0])))) {
-								return false;
-							}
-							n = i.next();
-						}
-						return true;
-					} else {
+				return t === 'Date' ? o1.getTime() === o2.getTime() : toJsex(o1) === toJsex(o2);
+			}
+		} else if (arrays.indexOf(t) >= 0) {
+			if (arrays.indexOf(t2) >= 0 && o1.length === o2.length) {
+				for (n = 0; n < o1.length; n++) {
+					if (!isEqual(o1[n], o2[n])) {
 						return false;
 					}
-				} else if (arrays.indexOf(t) >= 0) {
-					if (o1.length === o2.length) {
-						for (n = 0; n < o1.length; n++) {
-							if (!isEqual(o1[n], o2[n])) {
-								return false;
-							}
-						}
-						return true;
-					} else {
-						return false;
-					}
-				} else if (t === 'Object') {
-					n = Object.keys(o1);
-					if (n.length === Object.keys(o2).length) {
-						for (i = 0; i < n.length; i++) {
-							if (!o2.hasOwnProperty(n[i]) || !isEqual(o1[n[i]], o2[n[i]])) {
-								return false;
-							}
-						}
-						return true;
-					} else {
-						return false;
-					}
-				} else {
-					return false;
 				}
-			} else {
-				return false;
+				return true;
+			}
+		} else if (stricts.indexOf(t) < 0 && stricts.indexOf(t2) < 0) {
+			n = Object.keys(o1);
+			if (n.length === Object.keys(o2).length) {
+				for (i = 0; i < n.length; i++) {
+					if (!o2.hasOwnProperty(n[i]) || !isEqual(o1[n[i]], o2[n[i]])) {
+						return false;
+					}
+				}
+				return true;
 			}
 		}
 	};
 
-	function jsEncode(str) {
+	function strEncode(str) {
 		return '"' + str.replace(/[\\"\x00-\x1f]/g, function (a) {
 			var c;
 			if (a === '\\') {
