@@ -57,7 +57,7 @@ console.log(svg.getAttribute('viewBox'));`
 						code: `kernel.replaceLocation({
 	id: 'doc',
 	args: {
-		api: 'replaceLocation(loc:Object):void'
+		api: 'replaceLocation'
 	}
 });`
 					},
@@ -86,7 +86,7 @@ function func(evt){
 	console.log(evt);
 }`
 					},
-					'listeners.list(o:Object, e:String):Array|Object': {
+					'listeners.list(o:Object, e?:String):Array|Object': {
 						desc: '列出已注册的监听事件',
 						code: `kernel.listeners.add(kernel.popupEvents, 'show', func);
 kernel.listeners.add(kernel.popupEvents, 'hide', func);
