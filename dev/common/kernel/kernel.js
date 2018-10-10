@@ -523,7 +523,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				allSteps;
 			helper.addEventListener('click', nextStep);
 			kernel.showHelper = function (steps) {
-				allSteps = dataType(steps) === 'array' ? steps : [steps];
+				allSteps = dataType(steps) === 'Array' ? steps : [steps];
 				setStep(allSteps[0]);
 				helper.style.display = 'block';
 			};
@@ -683,7 +683,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (animating) {
 					todo = kernel.closePopup.bind(this, id);
 					result = 2;
-				} else if (activePopup && (!id || activePopup === id || (dataType(id) === 'array' && id.indexOf(activePopup) >= 0)) && (typeof popups[activePopup].onunload !== 'function' || !popups[activePopup].onunload())) { //onunload 返回 true可以阻止窗口关闭
+				} else if (activePopup && (!id || activePopup === id || (dataType(id) === 'Array' && id.indexOf(activePopup) >= 0)) && (typeof popups[activePopup].onunload !== 'function' || !popups[activePopup].onunload())) { //onunload 返回 true可以阻止窗口关闭
 					popups[activePopup].status--;
 					popupsBox.classList.remove('in');
 					popupsBox.classList.add('out');
@@ -1030,7 +1030,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					if (type === 'alert') {
 						dialogContent.textContent = content;
 					} else if (type === 'confirm') {
-						if (dataType(content) === 'array') {
+						if (dataType(content) === 'Array') {
 							dialogContent.textContent = content[0];
 							yesbtn.firstChild.data = content[1];
 							nobtn.firstChild.data = content[2];
@@ -1507,7 +1507,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 		function reloadPage(id, silent) {
 			let cfg = pages[currentpage].alias ? pages[pages[currentpage].alias] : pages[currentpage];
-			if (!id || id === currentpage || (dataType(id) === 'array' && id.indexOf(currentpage) >= 0)) {
+			if (!id || id === currentpage || (dataType(id) === 'Array' && id.indexOf(currentpage) >= 0)) {
 				if (!silent) {
 					clearWindow();
 				}

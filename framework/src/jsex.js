@@ -1,11 +1,8 @@
 ! function () {
 	'use strict';
 	var g = typeof self === 'undefined' ? global : self,
-		arrays = ['array', 'int8array', 'uint8array', 'uint8clampedarray', 'int16array', 'uint16array', 'int32array', 'uint32array', 'bigint64array', 'biguint64array', 'float32array', 'float64array'],
-		esobjs = {
-			'function': ['asyncfunction', 'generatorfunction', 'asyncgeneratorfunction'],
-			'object': ['date', 'regexp', 'error', 'promise', 'map', 'weakmap', 'set', 'weakset', 'proxy', 'generator', 'asyncgenerator', 'dataview', 'arraybuffer', 'sharedarraybuffer'].concat(arrays)
-		},
+		pmtobjs = ['String', 'Number', 'Boolean', 'Symbol', 'BigInt'],
+		arrays = ['Array', 'Int8Array', 'Uint8Array', 'Uint8ClampedArray', 'Int16Array', 'Uint16Array', 'Int32Array', 'Uint32Array', 'Float32Array', 'Float64Array', 'BigInt64Array', 'BigUint64array'],
 		wksbls = ['iterator', 'asyncIterator', 'match', 'replace', 'search', 'split', 'hasInstance', 'isConcatSpreadable', 'unscopables', 'species', 'toPrimitive', 'toStringTag'];
 	String.prototype.parseJsex = function () {
 		var m, l, r;
@@ -250,17 +247,16 @@
 		}
 		return r;
 	};
+	//primitive types are lowercased, such as string, bigint, null
+	//reference types use the name of their constructor, such as String, Uint8Array, AsyncFunction
 	g.dataType = function (a) {
 		var t;
 		if (a == null) {
 			return String(a);
 		} else {
 			t = typeof a;
-			if (esobjs.hasOwnProperty(t)) {
-				a = Object.prototype.toString.call(a).replace(/^\[object |\]$/g, '').toLowerCase();
-				if (esobjs[t].indexOf(a) >= 0) {
-					t = a;
-				}
+			if (['function', 'object'].indexOf(t) >= 0) {
+				t = Object.prototype.toString.call(a).replace(/^\[object |\]$/g, '');
 			}
 			return t;
 		}
@@ -271,6 +267,10 @@
 			s = String(d);
 		} else {
 			i = dataType(d);
+			if (pmtobjs.indexOf(i) >= 0) {
+				d = d.valueOf();
+				i = i.toLowerCase();
+			}
 			if (i === 'string') {
 				s = jsEncode(d);
 			} else if (['number', 'boolean'].indexOf(i) >= 0) {
@@ -290,9 +290,9 @@
 				}
 			} else if (i === 'bigint') {
 				s = d + 'n';
-			} else if (i === 'date') {
+			} else if (i === 'Date') {
 				s = 'new Date(' + d.getTime() + ')';
-			} else if (i === 'regexp') {
+			} else if (i === 'RegExp') {
 				s = '/' + (d.source ? d.source.replace(/[\x00-\x1f]/g, function (a) {
 					var c;
 					if (a === '\n') {
@@ -323,7 +323,7 @@
 				if (d.sticky) {
 					s += 'y';
 				}
-			} else if (i === 'error') {
+			} else if (i === 'Error') {
 				s = ['RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', 'URIError', 'EvalError'].indexOf(d.name) < 0 ? 'Error' : d.name;
 				s += '(';
 				if (d.message) {
@@ -355,38 +355,35 @@
 		return s;
 	};
 	g.isEqual = function (o1, o2) {
-		var i, n, t;
+		var i, n,
+			t = dataType(o1),
+			t2 = dataType(o2);
+		if (pmtobjs.indexOf(t) >= 0) {
+			o1 = o1.valueOf();
+			t = t.toLowerCase();
+		}
+		if (pmtobjs.indexOf(t2) >= 0) {
+			o2 = o2.valueOf();
+			t2 = t2.toLowerCase();
+		}
 		if (o1 === o2) {
 			return true;
 		} else {
-			t = dataType(o1);
-			if (t === dataType(o2)) {
-				if (t === 'regexp') {
+			if (t === t2) {
+				if (t === 'symbol') {
+					return toJsex(o1) === toJsex(o2);
+				} else if (t === 'RegExp') {
 					return o1.source === o2.source && o1.global === o2.global && o1.ignoreCase === o2.ignoreCase && o1.multiline === o2.multiline && o1.unicode === o2.unicode && o1.sticky === o2.sticky;
-				} else if (t === 'error') {
+				} else if (t === 'Error') {
 					return o1.message = o2.message && o1.name === o2.name;
-				} else if (t === 'date') {
+				} else if (t === 'Date') {
 					return o1.getTime() === o2.getTime();
-				} else if (t === 'symbol') {
-					return o1.toString() === o2.toString();
-				} else if (t === 'object') {
-					n = Object.keys(o1);
-					if (n.length === Object.keys(o2).length) {
-						for (i = 0; i < n.length; i++) {
-							if (!o2.hasOwnProperty(n[i]) || !isEqual(o1[n[i]], o2[n[i]])) {
-								return false;
-							}
-						}
-						return true;
-					} else {
-						return false;
-					}
-				} else if (['map', 'set'].indexOf(t) >= 0) {
+				} else if (['Map', 'Set'].indexOf(t) >= 0) {
 					if (o1.size === o2.size) {
 						i = o1.entries();
 						n = i.next();
 						while (n.value) {
-							if (!o2.has(n.value[0]) || (t === 'map' && !isEqual(n.value[1], o2.get(n.value[0])))) {
+							if (!o2.has(n.value[0]) || (t === 'Map' && !isEqual(n.value[1], o2.get(n.value[0])))) {
 								return false;
 							}
 							n = i.next();
@@ -399,6 +396,18 @@
 					if (o1.length === o2.length) {
 						for (n = 0; n < o1.length; n++) {
 							if (!isEqual(o1[n], o2[n])) {
+								return false;
+							}
+						}
+						return true;
+					} else {
+						return false;
+					}
+				} else if (t === 'Object') {
+					n = Object.keys(o1);
+					if (n.length === Object.keys(o2).length) {
+						for (i = 0; i < n.length; i++) {
+							if (!o2.hasOwnProperty(n[i]) || !isEqual(o1[n[i]], o2[n[i]])) {
 								return false;
 							}
 						}
