@@ -247,13 +247,15 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 		restartTimer(this);
 	};
 	touchslider.prototype.stopPlay = function() {
-		if (this.delay) {
+		let result = this.delay;
+		if (result) {
 			delete this.delay;
 			if (this.timer) {
 				clearTimeout(this.timer);
 				delete this.timer;
 			}
 		}
+		return result;
 	};
 	return touchslider;
 

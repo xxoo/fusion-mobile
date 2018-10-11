@@ -362,8 +362,8 @@ function loaded(evt){
 					'slider.startPlay(delay:number):undefined': {
 						desc: '以delay毫秒为延时来自动轮播'
 					},
-					'slider.stopPlay():undefined': {
-						desc: '停止轮播'
+					'slider.stopPlay():boolean': {
+						desc: '停止自动轮播'
 					}
 				},
 				properties: {
