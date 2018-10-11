@@ -6,7 +6,7 @@ define(['module', 'common/kernel/kernel', 'common/touchslider/touchslider'], fun
 			'common/kernel/kernel': {
 				desc: '核心模块，包含框架中的主要接口',
 				methods: {
-					'appendCss(url:String):HTMLLinkElement': {
+					'appendCss(url:string):HTMLLinkElement': {
 						desc: '用于加载样式，会自动根据当前环境来选择加载less或者由less编译成的css',
 						code: `var a = kernel.appendCss(require.toUrl('common/kernel/kernel.less'));
 console.log(a.href);
@@ -14,7 +14,7 @@ setTimeout(function(){
 	console.log(kernel.removeCss(a));
 }, 1000);`
 					},
-					'removeCss(lnk:HTMLLinkElement):String': {
+					'removeCss(lnk:HTMLLinkElement):string': {
 						desc: '移除已加载的less或者css',
 						code: `var a = kernel.appendCss(require.toUrl('common/kernel/kernel.less'));
 console.log(a.href);
@@ -22,11 +22,11 @@ setTimeout(function(){
 	console.log(kernel.removeCss(a));
 }, 1000);`
 					},
-					'makeSvg(name:String, type?:0|1|2):SVGSVGElement': {
+					'makeSvg(name:string, type?:0|1|2):SVGSVGElement': {
 						desc: '使用common/svgicos模块中name索引的内容作为path创建一个svg图标. type为0时图标的空白填充区域为0, 为1时图标会以最小的空白填充来使其成为正方形，为2时图标的空白填充区域为设计时指定的尺寸',
 						code: `console.log(kernel.makeSvg('home-regular'));`
 					},
-					'setSvgPath(svg:SVGSVGElement, name:String, type?:0|1|2):void': {
+					'setSvgPath(svg:SVGSVGElement, name:string, type?:0|1|2):undefined': {
 						desc: '修改由makeSvg创建的图标. type为0时图标的空白填充区域为0, 为1时图标会以最小的空白填充来使其成为正方形，为2时图标的空白填充区域为设计时指定的尺寸',
 						code: `var svg = kernel.makeSvg('home-regular');
 console.log(svg.getAttribute('viewBox'));
@@ -35,24 +35,24 @@ console.log(svg.getAttribute('viewBox'));
 kernel.setSvgPath(svg, 'home-regular', 2);
 console.log(svg.getAttribute('viewBox'));`
 					},
-					'buildHash(loc:Object):String': {
+					'buildHash(loc:Object):string': {
 						desc: '将loc对象转换为锚点链接字符串',
 						code: `console.log(kernel.buildHash(kernel.location));`
 					},
-					'parseHash(hash:String):Object': {
+					'parseHash(hash:string):Object': {
 						desc: '将锚点链接字符串转换为loc对象',
 						code: `console.log(kernel.parseHash(location.hash));`
 					},
-					'isSameLocation(loc1:Object, loc2:Object):Bollean': {
+					'isSameLocation(loc1:Object, loc2:Object):boolean': {
 						desc: '判断loc1和loc2是否对应同一个地址',
 						code: `console.log(kernel.isSameLocation(kernel.location, {
 	id: 'list',
 	args: {
-		api: 'isSameLocation(loc1:Object, loc2:Object):Bollean'
+		api: 'isSameLocation(loc1:Object, loc2:Object):boolean'
 	}
 }));`
 					},
-					'replaceLocation(loc:Object):void': {
+					'replaceLocation(loc:Object):undefined': {
 						desc: '改变当前地址，若loc和当前地址相同，则调用reloadPage',
 						code: `kernel.replaceLocation({
 	id: 'doc',
@@ -67,15 +67,15 @@ console.log(svg.getAttribute('viewBox'));`
 	id: 'user'
 }));`
 					},
-					'isGoingback(from:String, to:String):Boolean': {
+					'isGoingback(from:string, to:string):boolean': {
 						desc: '判断从from跳转到to是否属于后退',
 						code: `console.log(kernel.isGoingback('user', 'list'));`
 					},
-					'setAutoScale(minWidth:Number):void': {
+					'setAutoScale(minWidth:number):undefined': {
 						desc: '设置自动缩放功能. 当 minWidth > 0 时则启用, 否则禁用. 当窗口宽度小于 minWidth 时会(线性)缩小页面内容, 当窗口宽度大于 minWidth 时会(非线性)放大页面内容.',
 						code: `kernel.setAutoScale(375);`
 					},
-					'listeners.add(o:Object, e:String, f:Function):void': {
+					'listeners.add(o:Object, e:string, f:Function):undefined': {
 						desc: '注册监听事件',
 						code: `kernel.listeners.add(kernel.popupEvents, 'show', func);
 kernel.listeners.add(kernel.popupEvents, 'hide', func);
@@ -86,7 +86,7 @@ function func(evt){
 	console.log(evt);
 }`
 					},
-					'listeners.list(o:Object, e?:String):Array|Object': {
+					'listeners.list(o:Object, e?:string):Array|Object': {
 						desc: '列出已注册的监听事件',
 						code: `kernel.listeners.add(kernel.popupEvents, 'show', func);
 kernel.listeners.add(kernel.popupEvents, 'hide', func);
@@ -97,7 +97,7 @@ function func(evt){
 	console.log(evt);
 }`
 					},
-					'listeners.remove(o:Object, e?:String, f?:Function):void': {
+					'listeners.remove(o:Object, e?:string, f?:Function):undefined': {
 						desc: '解除已注册的监听',
 						code: `kernel.listeners.add(kernel.popupEvents, 'show', func);
 kernel.listeners.add(kernel.popupEvents, 'hide', func);
@@ -108,29 +108,29 @@ function func(evt){
 	console.log(evt);
 }`
 					},
-					'fixIosScrolling(dom:HTMLElement):void': {
+					'fixIosScrolling(dom:HTMLElement):undefined': {
 						desc: '修复在ios中某元素上下滚动时会导致整个viewport一起滚动的问题, 调用此方法后会讲dom元素的padding-top和padding-bottom设置为1, 需要示例请查看首页源码'
 					},
-					'scrollReload(dom:HTMLElement, func?:Function):void': {
+					'scrollReload(dom:HTMLElement, func?:Function):undefined': {
 						desc: '在dom元素上启用下拉刷新, 当未指定刷新时调用的func时会调用reloadPage, 此方法会调用fixIosScrolling, 需要示例请查看本页源码'
 					},
-					'getScrollTop(dom:HTMLElement):Number': {
+					'getScrollTop(dom:HTMLElement):number': {
 						desc: '当对dom元素使用过fixIosScrolling后需要用这个方法来获取其scrollTop',
 						code: `console.log(kernel.getScrollTop(document.querySelector('#page>.content>.list')))`
 					},
-					'getScrollHeight(dom:HTMLElement):Number': {
+					'getScrollHeight(dom:HTMLElement):number': {
 						desc: '当对dom元素使用过fixIosScrolling后需要用这个方法来获取其scrollHeight',
 						code: `console.log(kernel.getScrollHeight(document.querySelector('#page>.content>.list')))`
 					},
-					'setScrollTop(dom:HTMLElement, n:Number):void': {
+					'setScrollTop(dom:HTMLElement, n:number):undefined': {
 						desc: '当对dom元素使用过fixIosScrolling后需要用这个方法来设置其scrollTop',
 						code: `kernel.setScrollTop(document.querySelector('#page>.content>.list'), 0)`
 					},
-					'showHelper(steps:Object|Array):void': {
+					'showHelper(steps:Object|Array):undefined': {
 						desc: '显示遮罩帮助指引',
 						code: ``
 					},
-					'openPopup(id:String, param:any, back:Boolean):void': {
+					'openPopup(id:string, param:any, back:boolean):undefined': {
 						desc: '打开弹窗',
 						code: `kernel.listeners.add(kernel.popupEvents, 'show', func);
 kernel.listeners.add(kernel.popupEvents, 'hide', func);
@@ -141,11 +141,11 @@ function func(evt){
 	console.log(evt);
 }`
 					},
-					'showPopup(id:String, back:Boolean):0|1|2': {
+					'showPopup(id:string, back:boolean):0|1|2': {
 						desc: '显示弹窗，只有在指定弹窗已经加载后才可使用. 返回0表示操作失败, 返回1表示操作成功, 返回2表示操作已队列. 若失败, 原因可能是当前弹窗的onunload方法返回true',
 						code: `kernel.showPopup('samplePopup');`
 					},
-					'closePopup(id:String|Array):0|1|2': {
+					'closePopup(id:string|Array):0|1|2': {
 						desc: '关闭弹窗, 返回0表示操作失败, 返回1表示操作成功, 返回2表示操作已队列. 若失败, 原因可能是当前弹窗的onunload方法返回true',
 						code: `kernel.listeners.add(kernel.popupEvents, 'show', func);
 kernel.listeners.add(kernel.popupEvents, 'hide', func);
@@ -156,68 +156,68 @@ function func(evt){
 	console.log(evt);
 }`
 					},
-					'getCurrentPopup():String': {
+					'getCurrentPopup():string': {
 						desc: '获取当前正在显示的弹窗id',
 						code: `console.log(kernel.getCurrentPopup());`
 					},
-					'destroyPopup(id:String):Bollean': {
+					'destroyPopup(id:string):boolean': {
 						desc: '销毁已加载的指定弹窗, 会出发弹窗的ondestroy事件. 不可销毁当前弹窗, 返回true表示销毁成功',
 						code: `console.log(kernel.destroyPopup('samplePopup2'));`
 					},
-					'setPopupBack(backid:String|Function, param:any):void': {
+					'setPopupBack(backid:string|Function, param:any):undefined': {
 						desc: '设置弹窗上的后退按钮点击行为，调用后会显示后退按钮。不能在loadend之前使用, 需要示例请查看samplePopup2源码'
 					},
-					'setPopupTitle(newTitle:String, id?:String):void': {
+					'setPopupTitle(newTitle:string, id?:string):undefined': {
 						desc: '设置弹窗的标题, 若未指定id则会修改当前显示的弹窗, 并且为临时修改, 临时修改不能在loadend之前使用, 需要示例请查看samplePopup2源码'
 					},
-					'showReadable(html:String|HTMLElement, callback?:Function, className?:String):void': {
+					'showReadable(html:string|HTMLElement, callback?:Function, className?:string):undefined': {
 						desc: '显示内容展示窗',
 						code: `kernel.showReadable('&lt;h1>title&lt;/h1>&lt;p>content&lt;/p>', function(){
 	console.log('readable window closed');
 });`
 					},
-					'showForeign(url:String, callback?:Function):void': {
+					'showForeign(url:string, callback?:Function):undefined': {
 						desc: '将外部链接作为iframe显示在内容展示窗内',
 						code: `kernel.showForeign('https://xxoo.github.io/fusion/', function(){
 	console.log('foreign window closed');
 });`
 					},
-					'hideReadable():void': {
+					'hideReadable():undefined': {
 						desc: '隐藏当前内容展示窗或外部链接窗, 一般不需要手动调用'
 					},
-					'showPhotoView(url:String, btns?:Array, func?:Function):void': {
+					'showPhotoView(url:string, btns?:Array, func?:Function):undefined': {
 						desc: '显示图片查看器, btns是显示在底部的按钮文字, func是点击这些按钮是会执行的回调, 接受一个参数i, 为按钮的索引',
 						code: ``
 					},
-					'hidePhotoView():void': {
+					'hidePhotoView():undefined': {
 						desc: '关闭图片查看器, 一般不需要手动调用'
 					},
-					'showSliderView(doms:Array, idx?:Number, className?:String):void': {
+					'showSliderView(doms:Array, idx?:number, className?:string):undefined': {
 						desc: '显示轮播视图, doms为包含一系列HTMLElement的数组, idx为默认展示的HTMLElement索引, className为添加到视图的css class',
 						code: ``
 					},
-					'hideSliderView():void': {
+					'hideSliderView():undefined': {
 						desc: '隐藏轮播视图, 一般不需要手动调用'
 					},
-					'alert(text:String, callback?:Function):void': {
+					'alert(text:string, callback?:Function):undefined': {
 						desc: '显示提示框',
 						code: `kernel.alert('this is an alert box.');`
 					},
-					'confirm(text:String, callback:Function):void': {
+					'confirm(text:string, callback:Function):undefined': {
 						desc: '显示需确认的提示框',
 						code: `kernel.confirm('is this a confirm box?', function(sure){
 	console.log(sure);
 });`
 					},
-					'htmlDialog(html:String|HTMLElement, className?:String, callback?:Function):void': {
+					'htmlDialog(html:string|HTMLElement, className?:string, callback?:Function):undefined': {
 						desc: '显示自定义内容的对话框',
 						code: ``
 					},
-					'closeDialog():void': {
+					'closeDialog():undefined': {
 						desc: '关闭当前对话框, 一般不需要手动调用'
 					},
-					'showLoading(text?:String):void': {
-						title: 'showLoading(text?:String):void',
+					'showLoading(text?:string):undefined': {
+						title: 'showLoading(text?:string):undefined',
 						desc: '显示加载中界面, 这个方法包含一个引用计数, 每次调用会+1，所以此方法必须和hideLoading成对使用',
 						code: `kernel.showLoading();
 console.log(kernel.isLoading());
@@ -228,7 +228,7 @@ function loaded(evt){
 	console.log(kernel.isLoading());
 }`
 					},
-					'hideLoading():void': {
+					'hideLoading():undefined': {
 						desc: '使showLoading的引用计数-1, 当到达0时才会关闭加载中界面, 并触发dialogEvents.onloaded事件',
 						code: `kernel.showLoading();
 console.log(kernel.isLoading());
@@ -239,7 +239,7 @@ function loaded(evt){
 	console.log(kernel.isLoading());
 }`
 					},
-					'isLoading():Boolean': {
+					'isLoading():boolean': {
 						desc: '判断加载中界面是否在显示',
 						code: `kernel.showLoading();
 console.log(kernel.isLoading());
@@ -250,18 +250,18 @@ function loaded(evt){
 	console.log(kernel.isLoading());
 }`
 					},
-					'hint(text:String, t?:Number):void': {
+					'hint(text:string, t?:number):undefined': {
 						desc: '显示简易文本提示',
 						code: `kernel.hint('文本提示');`
 					},
-					'init(home:String, icos:Array):void': {
+					'init(home:string, icos:Array):undefined': {
 						desc: '启动路由或者修改默认页及导航按钮, 需要示例请查看site/index/index中的代码'
 					},
-					'reloadPage(id?:String, silent?:Boolean):void': {
+					'reloadPage(id?:string, silent?:boolean):undefined': {
 						desc: '重新加载当前页',
 						code: `kernel.reloadPage();`
 					},
-					'destroyPage(id:String):Bollean': {
+					'destroyPage(id:string):boolean': {
 						desc: '销毁指定页面, 会触发页面的ondestroy事件. 无法销毁当前页, 返回true表示销毁成功',
 						code: `console.log(kernel.destroyPage('user'));`
 					}
@@ -306,7 +306,7 @@ function loaded(evt){
 					'var events = pointerevents(dom:HTMLElement, callback:Function):Object': {
 						desc: '模块的导出方法, 用法请见源代码中的注释'
 					},
-					'events.destroy():void': {
+					'events.destroy():undefined': {
 						desc: '销毁监听对象'
 					}
 				},
@@ -322,7 +322,7 @@ function loaded(evt){
 					'var guesture = touchguesture(dom:HTMLElement):Object': {
 						desc: '模块的导出方法, 用法请见源代码中的注释'
 					},
-					'guesture.destroy():void': {
+					'guesture.destroy():undefined': {
 						desc: '销毁监听对象'
 					}
 				},
@@ -344,36 +344,36 @@ function loaded(evt){
 			'common/touchslider/touchslider': {
 				desc: '支持触摸的滚动轮播',
 				methods: {
-					'var slider = touchslider(container:HTMLElement, contents?:Array, idx?:Number):touchslider': {
+					'var slider = touchslider(container:HTMLElement, contents?:Array, idx?:number):touchslider': {
 						desc: '模块的导出方法, 用法请见源代码中的注释'
 					},
-					'slider.add(o:HTMLElement):Number|void': {
+					'slider.add(o:HTMLElement):number|undefined': {
 						desc: '添加元素, 并返回该元素的索引, 若动在移动中则会在移动结束后执行, 并返回undefined'
 					},
-					'slider.remove(i:Number|HTMLElement):HTMLElement|void': {
+					'slider.remove(i:number|HTMLElement):HTMLElement|undefined': {
 						desc: '删除指定元素或指定索引的元素, 并返回该元素, 若动在移动中则会在移动结束后执行, 并返回undefined'
 					},
-					'slider.clear():void': {
+					'slider.clear():undefined': {
 						desc: '清空所有元素, 若动在移动中则会在移动结束后执行'
 					},
-					'slider.slideTo(i:Number|HTMLElement, direction:Number):Boolean': {
+					'slider.slideTo(i:number|HTMLElement, direction:number):boolean': {
 						desc: '滚动到指定元素或指定索引的元素, direction>0则动画为左移, direction<0则动画为右移, 其他情况无动画'
 					},
-					'slider.startPlay(delay:Number):void': {
+					'slider.startPlay(delay:number):undefined': {
 						desc: '以delay毫秒为延时来自动轮播'
 					},
-					'slider.stopPlay():Number|void': {
-						desc: '停止轮播, 并返回当前的轮播延时'
+					'slider.stopPlay():undefined': {
+						desc: '停止轮播'
 					}
 				},
 				properties: {
-					'slider.rate:Number': {
+					'slider.rate:number': {
 						desc: '惯性比率, 默认值4000'
 					},
-					'slider.duration:Number': {
+					'slider.duration:number': {
 						desc: '动画长度, 单位毫秒, 默认值400'
 					},
-					'slider.minVal:Number': {
+					'slider.minVal:number': {
 						desc: '手动触发移动的最小距离, 单位px, 默认值5'
 					}
 				},
