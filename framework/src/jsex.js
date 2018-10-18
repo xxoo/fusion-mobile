@@ -93,31 +93,47 @@
 					length: l + 1
 				};
 			}
-		} else if (this.substr(0, l = 7) === 'Symbol.') {
-			for (m = 0; m < wksbls.length; m++) {
-				if (this.substr(l, wksbls[m].length) === wksbls[m]) {
+		} else if (this.substr(0, l = 6) === 'Symbol') {
+			if (this.charAt(l) === '(') {
+				l += 1;
+				if (this.charAt(l) === ')') {
 					r = {
-						value: Symbol[wksbls[m]],
-						length: l + wksbls[m].length
+						value: Symbol(),
+						length: l + 1
 					};
-					break;
+				} else {
+					m = this.substr(l).parseJsex();
+					if (m && typeof m.value === 'string') {
+						l += m.length;
+						if (this.charAt(l) === ')') {
+							r = {
+								value: Symbol(m.value),
+								length: l + 1
+							};
+						}
+					}
 				}
-			}
-		} else if (this.substr(0, l = 7) === 'Symbol(') {
-			if (this.charAt(l) === ')') {
-				r = {
-					value: Symbol(),
-					length: l + 1
-				};
-			} else {
+			} else if(this.substr(l, 5) === '.for(') {
+				l += 5;
 				m = this.substr(l).parseJsex();
 				if (m && typeof m.value === 'string') {
 					l += m.length;
 					if (this.charAt(l) === ')') {
 						r = {
-							value: Symbol(m.value),
+							value: Symbol.for(m.value),
 							length: l + 1
 						};
+					}
+				}
+			} else if (this.charAt(l) === '.') {
+				l += 1;
+				for (m = 0; m < wksbls.length; m++) {
+					if (this.substr(l, wksbls[m].length) === wksbls[m]) {
+						r = {
+							value: Symbol[wksbls[m]],
+							length: l + wksbls[m].length
+						};
+						break;
 					}
 				}
 			}
@@ -286,9 +302,20 @@
 					}
 				}
 				if (!s) {
-					s = d.toString();
-					if (s.length > 8) {
-						s = 'Symbol(' + strEncode(s.substr(7, s.length - 8)) + ')';
+					s = Symbol.keyFor(d);
+					if (typeof s === 'string') {
+						s = 'Symbol.for(' + strEncode(s) + ')';
+					} else if (Symbol.prototype.hasOwnProperty('description')) {
+						s = 'Symbol(';
+						if (d.description) {
+							s += strEncode(s.description);
+						}
+						s += ')'
+					} else {
+						s = d.toString();
+						if (s.length > 8) {
+							s = 'Symbol(' + strEncode(s.substr(7, s.length - 8)) + ')';
+						}
 					}
 				}
 			} else if (i === 'bigint') {
