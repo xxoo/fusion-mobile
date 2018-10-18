@@ -43,48 +43,6 @@
 				value: false,
 				length: l
 			};
-		} else if (m = this.match(/^(-?[1-9]\d*|0)n/)) {
-			r = {
-				value: BigInt(m[1]),
-				length: m[0].length
-			};
-		} else if (m = this.match(/^(?:-?(?:[1-9](?:\.\d*[1-9])?[eE][-+]?[1-9]\d*|0\.\d*[1-9]?|[1-9]\d*(?:\.\d*[1-9])?)|0)/)) {
-			r = {
-				value: +m[0],
-				length: m[0].length
-			};
-		} else if (m = this.match(/^"(?:(?:[^\x00-\x1f"]|\\")*?[^\\])??(?:\\\\)*"/)) {
-			try {
-				r = m[0].replace(/^"|\\[\\bnvfr"]|\\x[0-f]{2}|\\u[0-f]{4}|"$|\\/g, function (a) {
-					if (a === '"') {
-						return '';
-					} else if (a === '\\\\') {
-						return '\\';
-					} else if (a === '\\"') {
-						return '"';
-					} else if (a === '\\b') {
-						return '\b';
-					} else if (a === '\\n') {
-						return '\n';
-					} else if (a === '\\v') {
-						return '\v';
-					} else if (a === '\\f') {
-						return '\f';
-					} else if (a === '\\r') {
-						return '\r';
-					} else if (a.length > 3) {
-						return String.fromCharCode('0x' + a.substr(2));
-					} else {
-						throw SyntaxError('bad escape');
-					}
-				});
-			} catch (e) {}
-			if (r) {
-				r = {
-					value: r,
-					length: m[0].length
-				};
-			}
 		} else if (this.substr(0, l = 9) === 'new Date(') {
 			m = this.substr(l).parseJsex();
 			if (m && typeof m.value === 'number' && this.charAt(l += m.length) === ')') {
@@ -134,50 +92,6 @@
 							length: l + wksbls[m].length
 						};
 						break;
-					}
-				}
-			}
-		} else if (m = this.match(/^\/((?:\\\\)+|(?:[^\\\/]|[^\/][^\x00-\x1f]*?[^\\])(?:\\\\)*)\/(g?i?m?u?y?)/)) {
-			try {
-				r = {
-					value: RegExp(m[1], m[2]),
-					length: m[0].length
-				};
-			} catch (e) {}
-		} else if (m = this.match(/^(Range|Reference|Syntax|Type|URI|Eval)?Error\(/)) {
-			l = m[0].length;
-			m = {
-				g: m[1]
-			};
-			if (m.g === 'Range') {
-				m.g = RangeError;
-			} else if (m.g === 'Reference') {
-				m.g = ReferenceError;
-			} else if (m.g === 'Syntax') {
-				m.g = SyntaxError;
-			} else if (m.g === 'Type') {
-				m.g = TypeError;
-			} else if (m.g === 'URI') {
-				m.g = URIError;
-			} else if (m.g === 'Eval') {
-				m.g = EvalError;
-			} else {
-				m.g = Error;
-			}
-			if (this.charAt(l) === ')') {
-				r = {
-					value: m.g(),
-					length: l + 1
-				};
-			} else {
-				m.f = this.substr(l).parseJsex();
-				if (m.f && typeof m.f.value === 'string') {
-					l += m.f.length;
-					if (this.charAt(l) === ')') {
-						r = {
-							value: m.g(m.f.value),
-							length: l + 1
-						};
 					}
 				}
 			}
@@ -261,6 +175,92 @@
 					value: m.g,
 					length: l + 1
 				};
+			}
+		} else if (m = this.match(/^(-?[1-9]\d*|0)n/)) {
+			r = {
+				value: BigInt(m[1]),
+				length: m[0].length
+			};
+		} else if (m = this.match(/^(?:-?(?:[1-9](?:\.\d*[1-9])?[eE][-+]?[1-9]\d*|0\.\d*[1-9]?|[1-9]\d*(?:\.\d*[1-9])?)|0)/)) {
+			r = {
+				value: +m[0],
+				length: m[0].length
+			};
+		} else if (m = this.match(/^"(?:(?:[^\x00-\x1f"]|\\")*?[^\\])??(?:\\\\)*"/)) {
+			try {
+				r = m[0].replace(/^"|\\[\\bnvfr"]|\\x[0-f]{2}|\\u[0-f]{4}|"$|\\/g, function (a) {
+					if (a === '"') {
+						return '';
+					} else if (a === '\\\\') {
+						return '\\';
+					} else if (a === '\\"') {
+						return '"';
+					} else if (a === '\\b') {
+						return '\b';
+					} else if (a === '\\n') {
+						return '\n';
+					} else if (a === '\\v') {
+						return '\v';
+					} else if (a === '\\f') {
+						return '\f';
+					} else if (a === '\\r') {
+						return '\r';
+					} else if (a.length > 3) {
+						return String.fromCharCode('0x' + a.substr(2));
+					} else {
+						throw SyntaxError('bad escape');
+					}
+				});
+			} catch (e) {}
+			if (r) {
+				r = {
+					value: r,
+					length: m[0].length
+				};
+			}
+		} else if (m = this.match(/^\/((?:\\\\)+|(?:[^\\\/]|[^\/][^\x00-\x1f]*?[^\\])(?:\\\\)*)\/(g?i?m?u?y?)/)) {
+			try {
+				r = {
+					value: RegExp(m[1], m[2]),
+					length: m[0].length
+				};
+			} catch (e) {}
+		} else if (m = this.match(/^(Range|Reference|Syntax|Type|URI|Eval)?Error\(/)) {
+			l = m[0].length;
+			m = {
+				g: m[1]
+			};
+			if (m.g === 'Range') {
+				m.g = RangeError;
+			} else if (m.g === 'Reference') {
+				m.g = ReferenceError;
+			} else if (m.g === 'Syntax') {
+				m.g = SyntaxError;
+			} else if (m.g === 'Type') {
+				m.g = TypeError;
+			} else if (m.g === 'URI') {
+				m.g = URIError;
+			} else if (m.g === 'Eval') {
+				m.g = EvalError;
+			} else {
+				m.g = Error;
+			}
+			if (this.charAt(l) === ')') {
+				r = {
+					value: m.g(),
+					length: l + 1
+				};
+			} else {
+				m.f = this.substr(l).parseJsex();
+				if (m.f && typeof m.f.value === 'string') {
+					l += m.f.length;
+					if (this.charAt(l) === ')') {
+						r = {
+							value: m.g(m.f.value),
+							length: l + 1
+						};
+					}
+				}
 			}
 		}
 		return r;
