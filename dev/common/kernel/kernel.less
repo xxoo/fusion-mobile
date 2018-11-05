@@ -199,6 +199,34 @@ body {
 	}
 }
 
+#panel {
+	visibility: hidden;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+
+	>div:first-child {
+		height: 100%;
+		background-color: rgba(0, 0, 0, 0.5);
+		opacity: 0;
+		transition: opacity 400ms ease-in-out;
+	}
+
+	>div:not(:first-child) {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		transform: translateX(-100%);
+		transition: transform 400ms ease-in-out;
+		background-color: var(--appBackground);
+		color: var(--appText);
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+	}
+}
+
 #dialog,
 #loading,
 #photoView,
@@ -461,7 +489,8 @@ body {
 			color: var(--photoViewBtnText);
 			background-color: var(--photoViewBtnBackground);
 			box-shadow: 0 0 2px var(--photoViewBtnShadow);
-			&:active{
+
+			&:active {
 				color: var(--photoViewBtnActiveText);
 				background-color: var(--photoViewBtnActiveBackground);
 				box-shadow: 0 0 2px var(--photoViewBtnActiveShadow);
@@ -628,7 +657,7 @@ div.reloadHint {
 	}
 }
 
-@keyframes panelTransL1 {
+@keyframes viewTransL1 {
 	from {
 		left: 0;
 	}
@@ -638,7 +667,7 @@ div.reloadHint {
 	}
 }
 
-@keyframes panelTransR1 {
+@keyframes viewTransR1 {
 	from {
 		left: 0;
 	}
@@ -648,7 +677,7 @@ div.reloadHint {
 	}
 }
 
-@keyframes panelTransL2 {
+@keyframes viewTransL2 {
 	from {
 		left: 100%;
 	}
@@ -658,7 +687,7 @@ div.reloadHint {
 	}
 }
 
-@keyframes panelTransR2 {
+@keyframes viewTransR2 {
 	from {
 		left: -100%;
 	}

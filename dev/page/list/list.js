@@ -145,7 +145,7 @@ function func(evt){
 						desc: '显示弹窗，只有在指定弹窗已经加载后才可使用. 返回0表示操作失败, 返回1表示操作成功, 返回2表示操作已队列. 若失败, 原因可能是当前弹窗的onunload方法返回true',
 						code: `kernel.showPopup('samplePopup');`
 					},
-					'closePopup(id:string|Array):0|1|2': {
+					'closePopup(id?:string|Array):0|1|2': {
 						desc: '关闭弹窗, 返回0表示操作失败, 返回1表示操作成功, 返回2表示操作已队列. 若失败, 原因可能是当前弹窗的onunload方法返回true',
 						code: `kernel.listeners.add(kernel.popupEvents, 'show', func);
 kernel.listeners.add(kernel.popupEvents, 'hide', func);
@@ -169,6 +169,25 @@ function func(evt){
 					},
 					'setPopupTitle(newTitle:string, id?:string):undefined': {
 						desc: '设置弹窗的标题, 若未指定id则会修改当前显示的弹窗, 并且为临时修改, 临时修改不能在loadend之前使用, 需要示例请查看samplePopup2源码'
+					},
+					'openPanel(id:string, param:any):0|1|2': {
+						desc: '打开侧边栏',
+						code: `kernel.openPanel('samplePanel');`
+					},
+					'showPanel(id:string):0|1|2': {
+						desc: '显示侧边栏，只有在指定侧边栏已经加载后才可使用. 返回0表示操作失败, 返回1表示操作成功, 返回2表示操作已队列. 若失败, 原因可能是当前侧边栏的onunload方法返回true',
+						code: `kernel.showPanel('samplePanel');`
+					},
+					'closePanel(id?:string|Array):0|1|2': {
+						desc: '关闭侧边栏, 返回0表示操作失败, 返回1表示操作成功, 返回2表示操作已队列. 若失败, 原因可能是当前侧边栏的onunload方法返回true'
+					},
+					'getCurrentPanel():string': {
+						desc: '获取当前正在显示的侧边栏id',
+						code: `console.log(kernel.getCurrentPanel());`
+					},
+					'destroyPanel(id:string):boolean': {
+						desc: '销毁已加载的指定侧边栏, 会出发侧边栏的ondestroy事件. 不可销毁当前侧边栏, 返回true表示销毁成功',
+						code: `console.log(kernel.destroyPanel('samplePopup2'));`
 					},
 					'showReadable(html:string|HTMLElement, callback?:Function, className?:string):undefined': {
 						desc: '显示内容展示窗',
