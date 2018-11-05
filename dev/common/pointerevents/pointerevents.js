@@ -56,13 +56,13 @@ define(function() {
 		let peo = {
 			pointers: [],
 			destory: function() {
-				dom.removeEventListener(touchEvents.start, start, false);
+				dom.removeEventListener(touchEvents.start, start);
 			}
 		};
 		if (touchActionStyle) {
 			dom.style[touchActionStyle] = 'none';
 		}
-		dom.addEventListener(touchEvents.start, start, false);
+		dom.addEventListener(touchEvents.start, start);
 		return peo;
 
 		function start(evt) {
@@ -84,7 +84,8 @@ define(function() {
 		};
 		win.addEventListener(touchEvents.move, o.move, {
 			capture: true,
-			passive: false
+			passive: false,
+			cancelable: true
 		});
 		win.addEventListener(touchEvents.end, o.end, {
 			capture: true
@@ -99,7 +100,8 @@ define(function() {
 	function unwatchView(o, win) {
 		win.removeEventListener(touchEvents.move, o.move, {
 			capture: true,
-			passive: false
+			passive: false,
+			cancelable: true
 		});
 		win.removeEventListener(touchEvents.end, o.end, {
 			capture: true
