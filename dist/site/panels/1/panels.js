@@ -1,0 +1,1 @@
+"use strict";define({samplePanel:{html:"samplePanel.html",css:"samplePanel.less"}});
