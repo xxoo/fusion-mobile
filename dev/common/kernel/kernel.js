@@ -705,18 +705,21 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			panelBox.addEventListener('transitionend', function (evt) {
 				if (evt.target === animating) {
 					if (animating.style.transform) {
-						if (panels[activePanel].status === 3) {
-							if (typeof panels[activePanel].onloadend === 'function') {
-								panels[activePanel].onloadend();
-							}
-							panels[activePanel].status++;
+						if (typeof panels[activePanel].onloadend === 'function') {
+							panels[activePanel].onloadend();
 						}
+						panels[activePanel].status++;
 						animating.style.transition = 'none';
 					} else {
 						if (typeof panels[activePanel].onunloadend === 'function') {
 							panels[activePanel].onunloadend();
 						}
 						panels[activePanel].status--;
+						if (panels[activePanel].autoDestroy) {
+							destroy(panels[activePanel], 'panel', activePanel);
+						} else if (document.activeElement && animating.contains(document.activeElement)) {
+							document.activeElement.blur();
+						}
 						activePanel = undefined;
 					}
 					animating = undefined;
@@ -1730,7 +1733,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 	function destroy(cfg, type, id) {
 		let n = type + '/' + id + '/',
-			o = document.body.querySelector('#' + type + (type === 'panel' ? '>.content>.' : '>') + id);
+			o = document.body.querySelector('#' + type + (type === 'panel' ? '>.' : '>.content>.') + id);
 		if (typeof cfg.ondestroy === 'function') {
 			cfg.ondestroy();
 		}

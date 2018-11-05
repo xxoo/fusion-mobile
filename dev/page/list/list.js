@@ -187,7 +187,7 @@ function func(evt){
 					},
 					'destroyPanel(id:string):boolean': {
 						desc: '销毁已加载的指定侧边栏, 会出发侧边栏的ondestroy事件. 不可销毁当前侧边栏, 返回true表示销毁成功',
-						code: `console.log(kernel.destroyPanel('samplePopup2'));`
+						code: `console.log(kernel.destroyPanel('samplePanel'));`
 					},
 					'showReadable(html:string|HTMLElement, callback?:Function, className?:string):undefined': {
 						desc: '显示内容展示窗',
