@@ -2,6 +2,7 @@
 'use strict';
 define({
 	'samplePanel': {
+		js: 'samplePanel',
 		html: 'samplePanel.html',
 		css: 'samplePanel.less'
 	},

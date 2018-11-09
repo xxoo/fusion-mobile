@@ -1734,23 +1734,25 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	function destroy(cfg, type, id) {
 		let n = type + '/' + id + '/',
 			o = document.body.querySelector('#' + type + (type === 'panel' ? '>.' : '>.content>.') + id);
-		if (typeof cfg.ondestroy === 'function') {
-			cfg.ondestroy();
-		}
-		o.remove();
 		if (cfg.css && typeof cfg.css !== 'string') {
 			cfg.css = kernel.removeCss(cfg.css).substr(require.toUrl(n).length);
 		}
-		if (cfg.js) {
-			n += cfg.js;
-			if (require.defined(n)) {
-				o = require(n);
-				require.undef(n);
-				if (o) {
-					if (self.Reflect) {
-						Reflect.setPrototypeOf(cfg, Object.prototype);
-					} else {
-						cfg.__proto__ = Object.prototype;
+		if (o) {
+			if (typeof cfg.ondestroy === 'function') {
+				cfg.ondestroy();
+			}
+			o.remove();
+			if (cfg.js) {
+				n += cfg.js;
+				if (require.defined(n)) {
+					o = require(n);
+					require.undef(n);
+					if (o) {
+						if (self.Reflect) {
+							Reflect.setPrototypeOf(cfg, Object.prototype);
+						} else {
+							cfg.__proto__ = Object.prototype;
+						}
 					}
 				}
 			}
