@@ -1115,18 +1115,18 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				openDialog(className || '', html, callback);
 			};
 			kernel.closeDialog = function (param) { //通用对话框关闭方法
-				self.removeEventListener('resize', syncDialogSize, false);
-				dialogCtn.style.visibility = '';
 				if (typeof callback === 'function') {
-					callback(param);
+					let tmp = callback;
+					callback = undefined;
+					tmp(param);
 				}
+				self.removeEventListener('resize', syncDialogSize);
+				dialogCtn.style.visibility = '';
 				while (dialogContent.childNodes.length) {
 					dialogContent.lastChild.remove();
 				}
-				callback = undefined;
 				if (dlgStack.length) {
-					let a = dlgStack.shift();
-					kernel[a.shift()].apply(kernel, a);
+					openDialog.apply(undefined, dlgStack.shift());
 				}
 			};
 			kernel.showLoading = function (text) { //loading提示框, 每次调用引用计数+1所以showLoading和hideLoading必须成对使用
@@ -1734,9 +1734,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	function destroy(cfg, type, id) {
 		let n = type + '/' + id + '/',
 			o = document.body.querySelector('#' + type + (type === 'panel' ? '>.' : '>.content>.') + id);
-		if (cfg.css && typeof cfg.css !== 'string') {
-			cfg.css = kernel.removeCss(cfg.css).substr(require.toUrl(n).length);
-		}
 		if (o) {
 			if (typeof cfg.ondestroy === 'function') {
 				cfg.ondestroy();
@@ -1756,6 +1753,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					}
 				}
 			}
+		}
+		if (cfg.css && typeof cfg.css !== 'string') {
+			cfg.css = kernel.removeCss(cfg.css).substr(require.toUrl(n).length);
 		}
 		delete cfg.status;
 	}
