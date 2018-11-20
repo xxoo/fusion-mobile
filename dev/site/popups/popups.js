@@ -2,18 +2,18 @@
 'use strict';
 define({
 	'samplePopup': {
-		js: 'samplePopup',
-		html: 'samplePopup.html',
-		css: 'samplePopup.less',
+		js: true,
+		html: true,
+		css: true,
 		title: '示例弹窗'
 	},
 	'samplePopup2': {
-		js: 'samplePopup2',
-		html: 'samplePopup2.html',
+		js: true,
+		html: true,
 		title: '示例弹窗2'
 	},
 	'page': {
-		js: 'page',
+		js: true,
 		title: ''
 	}
 });

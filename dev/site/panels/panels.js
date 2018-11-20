@@ -2,12 +2,12 @@
 'use strict';
 define({
 	'samplePanel': {
-		js: 'samplePanel',
-		html: 'samplePanel.html',
-		css: 'samplePanel.less'
+		js: true,
+		html: true,
+		css: true
 	},
 	'samplePanel2': {
-		html: 'samplePanel2.html',
-		css: 'samplePanel2.less'
+		html: true,
+		css: true
 	}
 });

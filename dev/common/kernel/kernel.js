@@ -8,19 +8,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			// 如果是开发环境 加入less
 			appendCss: function (url) { //自动根据当前环境添加css或less
 				let csslnk = document.createElement('link');
-				if (/\.less$/.test(url)) {
-					if (self.less) {
-						csslnk.rel = 'stylesheet/less';
-						csslnk.href = url;
-						less.sheets.push(csslnk);
-						less.refresh();
-					} else {
-						csslnk.rel = 'stylesheet';
-						csslnk.href = url.replace(/less$/, 'css');
-					}
+				if (self.less) {
+					csslnk.rel = 'stylesheet/less';
+					csslnk.href = url + '.less';
+					less.sheets.push(csslnk);
+					less.refresh();
 				} else {
 					csslnk.rel = 'stylesheet';
-					csslnk.href = url;
+					csslnk.href = url + '.css';
 				}
 				return document.head.appendChild(csslnk);
 			},
@@ -1001,16 +996,18 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			let readableBox = document.body.querySelector('#readable'),
 				readableClose = readableBox.querySelector(':scope>.close'),
 				readableContent = readableBox.querySelector(':scope>.content'),
-				raCallback;
+				raCallback, cls;
 
 			kernel.fixIosScrolling(readableContent);
+			cls = readableContent.className;
 			kernel.showReadable = function (html, callback, className) { //展示静态内容
 				if (typeof html === 'string') {
 					readableContent.innerHTML = html;
 				} else {
 					readableContent.appendChild(html);
 				}
-				readableBox.className = className ? 'in ' + className : 'in';
+				readableContent.className = className ? cls + ' ' + className : cls;
+				readableBox.className = 'in';
 				raCallback = callback;
 			};
 			kernel.hideReadable = function () {
@@ -1754,8 +1751,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			}
 		}
-		if (cfg.css && typeof cfg.css !== 'string') {
-			cfg.css = kernel.removeCss(cfg.css).substr(require.toUrl(n).length);
+		if (dataType(cfg.css) === 'HTMLLinkElement') {
+			kernel.removeCss(cfg.css);
+			cfg.css = true;
 		}
 		delete cfg.status;
 	}
@@ -1781,12 +1779,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			ctn = document.body.querySelector('#' + type);
 			n = type + '/' + id + '/';
 			let m = require.toUrl(n);
-			if (typeof oldcfg.css === 'string') {
-				oldcfg.css = kernel.appendCss(m + oldcfg.css);
+			if (oldcfg.css) {
+				oldcfg.css = kernel.appendCss(m + id);
 			}
-			if ('html' in oldcfg) {
+			if (oldcfg.html) {
 				kernel.showLoading();
-				let url = m + oldcfg.html,
+				let url = m + id + '.html',
 					xhr = new XMLHttpRequest();
 				xhr.open('get', url, true);
 				xhr.onreadystatechange = function () {
@@ -1816,9 +1814,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					ctn.querySelector(':scope>.content').insertAdjacentHTML('beforeEnd', '<div class="' + id + '">' + html + '</div>');
 					addPanelAnimationListener(ctn.querySelector(':scope>.content>.' + id));
 				}
-				if ('js' in oldcfg) {
+				if (oldcfg.js) {
 					kernel.showLoading();
-					let js = n + oldcfg.js;
+					let js = n + id;
 					require([js], function (cfg) {
 						if (cfg) {
 							if (self.Reflect) {

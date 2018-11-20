@@ -1,0 +1,1 @@
+"use strict";define({list:{js:!0,html:!0,css:!0,title:"列表"},user:{html:!0,css:!0,title:"用户中心"},settings:{js:!0,html:!0,css:!0,title:"设置",back:"user"}});

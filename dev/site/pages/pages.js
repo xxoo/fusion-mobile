@@ -3,20 +3,20 @@
 'use strict';
 define({
 	'list': {
-		'js': 'list',
-		'html': 'list.html',
-		'css': 'list.less',
+		'js': true,
+		'html': true,
+		'css': true,
 		'title': '列表'
 	},
 	'user': {
-		'html': 'user.html',
-		'css': 'user.less',
+		'html': true,
+		'css': true,
 		'title': '用户中心'
 	},
 	'settings': {
-		'js': 'settings',
-		'html': 'settings.html',
-		'css': 'settings.less',
+		'js': true,
+		'html': true,
+		'css': true,
 		'title': '设置',
 		'back': 'user'
 	}
