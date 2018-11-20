@@ -267,28 +267,25 @@ body {
 			margin: 0 15px;
 			vertical-align: top;
 			font-size: var(--dialogButtonTextSize);
+			box-shadow: 0 0 2px rgba(0,0,0,0.2);
 
 			&.yes {
 				color: var(--primaryFrontground);
 				background-color: var(--primaryBackground);
-				box-shadow: 0 0 2px var(--primaryBorder);
 
 				&:active {
 					color: var(--primaryActiveFrontground);
 					background-color: var(--primaryActiveBackground);
-					box-shadow: 0 0 2px var(--primaryActiveBorder);
 				}
 			}
 
 			&.no {
 				color: var(--defaultFrontground);
 				background-color: var(--defaultBackground);
-				box-shadow: 0 0 2px var(--defaultBorder);
 
 				&:active {
 					color: var(--defaultActiveFrontground);
 					background-color: var(--defaultActiveBackground);
-					box-shadow: 0 0 2px var(--defaultActiveBorder);
 				}
 			}
 		}
@@ -538,18 +535,18 @@ body {
 		right: 0;
 		bottom: 0;
 		overflow-y: auto;
-	}
 
-	&.foreign>.content {
-		.flexbox(0);
-
-		>iframe {
-			.flexcontent(1);
-			display: block;
-		}
-
-		&.iosScrollFix>iframe {
-			margin-bottom: -2px;
+		&.foreign {
+			.flexbox(0);
+	
+			&.iosScrollFix>iframe {
+				margin-bottom: -2px;
+			}
+	
+			>iframe {
+				.flexcontent(1);
+				display: block;
+			}
 		}
 	}
 }
