@@ -803,7 +803,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						kernel.hideReadable();
 						result = 1;
 					} else if (activePopup === id) {
-						if (typeof popups[id].onload !== 'function') {
+						if (typeof popups[id].onload === 'function') {
 							popups[id].onload();
 						}
 						if (typeof popups[id].onloadend === 'function') {
