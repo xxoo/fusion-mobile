@@ -246,11 +246,17 @@ body {
 }
 
 #dialog>div {
+	position: absolute;
+	margin: auto;
+	border-radius: 10px;
 	right: 10px;
 	left: 10px;
 	bottom: 10px;
 	top: 10px;
 	min-width: 240px;
+	background-color: var(--dialogBackground);
+	box-shadow: 0 0 4px var(--dialogShadow);
+	color: var(--appText);
 
 	>.btns {
 		overflow: visible;
@@ -330,26 +336,23 @@ body {
 	}
 }
 
-#dialog>div,
 #loading>div {
 	position: absolute;
-	margin: auto;
-	border-radius: 10px;
-	background-color: var(--dialogBackground);
-	box-shadow: 0 0 5px var(--dialogShadow);
-	color: var(--appText);
-}
-
-#loading>div {
 	right: 0;
 	left: 0;
 	bottom: 0;
 	top: 0;
-	width: 200px;
-	height: 100px;
+	margin: auto;
 	font-size: 14px;
+	font-weight: bold;
 	white-space: nowrap;
 	text-align: center;
+	width: var(--loadingWidth);
+	height: var(--loadingHeight);
+	border-radius: var(--loadingRadius);
+	background-color: var(--loadingBackground);
+	box-shadow: 0 0 4px var(--loadingShadow);
+	color: var(--loadingText);
 
 	>.ico {
 		position: relative;
