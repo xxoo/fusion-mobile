@@ -25,7 +25,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					less.sheets.splice(less.sheets.indexOf(lnk), 1);
 					less.refresh();
 				}
-				return lnk.getAttribute('href');
+				return lnk.getAttribute('href').replace(/\.(le|c)ss$/, '');
 			},
 			// 创建 svg dom;
 			makeSvg: function (name, type) {
@@ -1751,7 +1751,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			}
 		}
-		if (dataType(cfg.css) === 'HTMLLinkElement') {
+		if (cfg.css && cfg.css.href) {
 			kernel.removeCss(cfg.css);
 			cfg.css = true;
 		}
