@@ -688,7 +688,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 				return result;
 			};
-			kernel.getCurrentPanel = function() {
+			kernel.getCurrentPanel = function () {
 				return activePanel;
 			};
 			kernel.destroyPanel = function (id) {
