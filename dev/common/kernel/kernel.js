@@ -1758,7 +1758,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	}
 
 	function initLoad(type, id, callback) {
-		let oldcfg, ctn, n;
+		let oldcfg, n;
 		if (type === 'panel') {
 			oldcfg = panels[id];
 		} else if (type === 'popup') {
@@ -1775,7 +1775,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			callback();
 		} else if (!oldcfg.status) {
 			oldcfg.status = 1;
-			ctn = document.body.querySelector('#' + type);
 			n = type + '/' + id + '/';
 			let m = require.toUrl(n);
 			if (oldcfg.css) {
@@ -1807,11 +1806,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 
 			function loadJs(html) {
-				let dom, c = type === 'panel' ? ctn : ctn.querySelector(':scope>.content');
-				c.insertAdjacentHTML('beforeEnd', '<div class="' + id + '">' + html + '</div>');
-				dom = c.lastChild;
+				let ctn = document.body.querySelector('#' + type + (type === 'panel' ? '' : '>.content'));
+				ctn.insertAdjacentHTML('beforeEnd', '<div class="' + id + '">' + html + '</div>');
+				let dom = ctn.lastChild;
 				if (type !== 'panel') {
-					addPanelAnimationListener(ctn.querySelector(':scope>.content>.' + id));
+					addPanelAnimationListener(dom);
 				}
 				if (oldcfg.js) {
 					dom.style.opacity = 0;
