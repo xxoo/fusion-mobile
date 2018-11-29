@@ -1729,15 +1729,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	return kernel;
 
 	function destroy(cfg, type, id) {
-		let n = type + '/' + id + '/',
-			o = document.body.querySelector('#' + type + (type === 'panel' ? '>.' : '>.content>.') + id);
+		let o = document.body.querySelector('#' + type + (type === 'panel' ? '>.' : '>.content>.') + id);
 		if (o) {
 			if (typeof cfg.ondestroy === 'function') {
 				cfg.ondestroy();
 			}
 			o.remove();
 			if (cfg.js) {
-				n += cfg.js;
+				let n = type + '/' + id + '/' + id;
 				if (require.defined(n)) {
 					o = require(n);
 					require.undef(n);
@@ -1808,14 +1807,18 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 
 			function loadJs(html) {
-				if (type === 'panel') {
-					ctn.insertAdjacentHTML('beforeEnd', '<div class="' + id + '">' + html + '</div>');
-				} else {
-					ctn.querySelector(':scope>.content').insertAdjacentHTML('beforeEnd', '<div class="' + id + '">' + html + '</div>');
+				let dom, c = type === 'panel' ? ctn : ctn.querySelector(':scope>.content');
+				c.insertAdjacentHTML('beforeEnd', '<div class="' + id + '">' + html + '</div>');
+				dom = c.lastChild;
+				if (type !== 'panel') {
 					addPanelAnimationListener(ctn.querySelector(':scope>.content>.' + id));
 				}
 				if (oldcfg.js) {
+					dom.style.opacity = 0;
+					dom.style.transition = 'opacity 200ms ease-in-out';
+					dom.addEventListener('transitionend', domtransend);
 					kernel.showLoading();
+					kernel.listeners.add(kernel.dialogEvents, 'loaded', loaded);
 					let js = n + id;
 					require([js], function (cfg) {
 						if (cfg) {
@@ -1840,6 +1843,18 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				} else {
 					oldcfg.status++;
 					callback(true);
+				}
+
+				function loaded(evt) {
+					kernel.listeners.remove(this, evt.type, loaded);
+					dom.style.opacity = '';
+				}
+
+				function domtransend(evt) {
+					if (evt.target === this) {
+						this.removeEventListener(evt.type, domtransend);
+						this.style.transition = '';
+					}
 				}
 			}
 

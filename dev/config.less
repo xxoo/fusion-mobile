@@ -1,11 +1,106 @@
-.flexbox(@vertical) {
-	.vertical(@vertical) when(@vertical=1) {
-		flex-direction: column;
-	}
-	display: flex;
-	.vertical(@vertical)
-}
+:root {
+	--defaultFont: PingFang SC, Microsoft YaHei UI;
 
-.flexcontent(@flexable) {
-	flex: @flexable @flexable auto;
+	--appBackground: #F1F1F1;
+	--appText: #4A4A4A;
+
+	--hintText: rgba(255, 255, 255, 0.8);
+	--hintBackground: rgba(0, 0, 0, 0.5);
+	--hintShadow: rgba(0, 0, 0, 0.5);
+
+	--helperBackground: rgba(0, 0, 0, 0.7);
+	--maskFilterColor: rgba(0, 0, 0, 0.5);
+
+	--reloadHintBackground: white;
+	--reloadHintShadow: rgba(0, 0, 0, 0.5);
+	--reloadHintStartColor: #FF6C12;
+	--reloadHintFinishColor: #5cb85c;
+
+	--headerHeight: 40px;
+	--headerBackground: white;
+	--headerText: #2B2B2B;
+	--headerMargin: 0;
+	--headerShadow: none;
+
+	--footerHeight: 50px;
+	--footerIconSize: 20px;
+	--footerBackground: #F8F8F8;
+	--footerFrontground: #9B9B9B;
+	--footerFrontgroundHighlight: #71B4E0;
+	--footerMargin: 1px;
+	--footerShadow: 0 0 1px #B2B2B2;
+
+	--photoNavColor: white;
+	--photoNavShadow: rgba(0, 0, 0, 0.5);
+
+	--dialogBackground: rgba(255, 255, 255, 0.9);
+	--dialogShadow: rgba(0, 0, 0, 0.5);
+	--dialogTextSize: 14px;
+	--dialogButtonTextSize: 14px;
+
+	--photoViewBtnBackground: white;
+	--photoViewBtnActiveBackground: #e6e6e6;
+	--photoViewBtnShadow: #BABABA;
+	--photoViewBtnActiveShadow: #adadad;
+	--photoViewBtnText: #3E3E3E;
+	--photoViewBtnActiveText: #333333;
+
+	--roundCloseBackground: white;
+	--roundCloseFrontground: gray;
+	--roundCloseShadow: gray;
+
+	--loadingMaskFilter: blur(4px) brightness(0.9);
+	--loadingWidth: 120px;
+	--loadingHeight: 100px;
+	--loadingColor1: rgba(255, 255, 255, 0.5);
+	--loadingColor2: rgba(255, 255, 255, 0.5);
+	--loadingColor3: rgba(255, 255, 255, 0.5);
+	--loadingText: rgba(255, 255, 255, 0.5);
+	--loadingBackground: rgba(0, 0, 0, 0.5);
+	--loadingShadow: rgba(0, 0, 0, 0.5);
+	--loadingRadius: 4px;
+
+	--readableBackground: white;
+
+	--primaryBackground: #FF6E00;
+	--primaryActiveBackground: #E06C12;
+	--primaryBorder: #FF6E00;
+	--primaryActiveBorder: #E06C12;
+	--primaryFrontground: white;
+	--primaryActiveFrontground: var(--primaryFrontground);
+
+	--defaultBackground: white;
+	--defaultActiveBackground: #e6e6e6;
+	--defaultBorder: #BABABA;
+	--defaultActiveBorder: #adadad;
+	--defaultFrontground: #3E3E3E;
+	--defaultActiveFrontground: #333333;
+
+	--successBackground: #5cb85c;
+	--successActiveBackground: #449d44;
+	--successBorder: #4cae4c;
+	--successActiveBorder: #398439;
+	--successFrontground: white;
+	--successActiveFrontground: var(--successFrontground);
+
+	--infoBackground: #5bc0de;
+	--infoActiveBackground: #31b0d5;
+	--infoBorder: #46b8da;
+	--infoActiveBorder: #269abc;
+	--infoFrontground: white;
+	--infoActiveFrontground: var(--infoFrontground);
+
+	--warningBackground: #f0ad4e;
+	--warningActiveBackground: #ec971f;
+	--warningBorder: #eea236;
+	--warningActiveBorder: #d58512;
+	--warningFrontground: white;
+	--warningActiveFrontground: var(--warningFrontground);
+
+	--dangerBackground: #d9534f;
+	--dangerActiveBackground: #c9302c;
+	--dangerBorder: #d43f3a;
+	--dangerActiveBorder: #ac2925;
+	--dangerFrontground: white;
+	--dangerActiveFrontground: var(--dangerFrontground);
 }
