@@ -1,5 +1,4 @@
 @import "../../config.less";
-@import "../../vars.less";
 
 * {
 	box-sizing: border-box;
@@ -91,12 +90,13 @@ body {
 
 #page,
 #popup {
-	.flexbox(1);
+	display: flex;
+	flex-direction: column;
 	height: 100%;
 	background-color: var(--appBackground);
 
 	>.header {
-		.flexcontent(0);
+		flex: 0 0 auto;
 		position: relative;
 		color: var(--headerText);
 		background-color: var(--headerBackground);
@@ -118,9 +118,8 @@ body {
 	}
 
 	>.content {
-		.flexcontent(1);
+		flex: 1 1 auto;
 		position: relative;
-		width: 100%;
 
 		>div {
 			position: absolute;
@@ -152,19 +151,15 @@ body {
 	}
 
 	>.navMenu {
-		.flexbox(0);
-		.flexcontent(0);
-		height: var(--footerHeight);
+		display: flex;
+		flex: 0 0 var(--footerHeight);
 		background-color: var(--footerBackground);
 		position: relative;
 		margin-top: var(--footerMargin);
 		box-shadow: var(--footerShadow);
 
 		>a {
-			.flexcontent(1);
-			display: block;
-			height: 100%;
-			width: 100%;
+			flex: 1 1 0;
 			text-align: center;
 			color: var(--footerFrontground);
 			font-size: 12px;
@@ -273,7 +268,7 @@ body {
 			margin: 0 15px;
 			vertical-align: top;
 			font-size: var(--dialogButtonTextSize);
-			box-shadow: 0 0 2px rgba(0,0,0,0.2);
+			box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
 
 			&.yes {
 				color: var(--primaryFrontground);
@@ -540,15 +535,14 @@ body {
 		overflow-y: auto;
 
 		&.foreign {
-			.flexbox(0);
-	
+			display: flex;
+
 			&.iosScrollFix>iframe {
 				margin-bottom: -2px;
 			}
-	
+
 			>iframe {
-				.flexcontent(1);
-				display: block;
+				flex: 1 1 auto;
 			}
 		}
 	}
@@ -592,12 +586,13 @@ body {
 	display: none;
 
 	>div {
-		.flexbox(1);
+		display: flex;
+		flex-direction: column;
 		width: 100%;
 		height: 100%;
 
 		>div {
-			.flexbox(0);
+			display: flex;
 
 			>div {
 				height: 100%;
