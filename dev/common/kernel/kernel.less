@@ -3,6 +3,7 @@
 * {
 	box-sizing: border-box;
 	overflow: hidden;
+	-webkit-overflow-scrolling: touch;
 	-webkit-tap-highlight-color: transparent;
 	-webkit-touch-callout: none;
 	font-size: inherit;
@@ -22,16 +23,16 @@ html {
 	height: 100%;
 	-ms-user-select: none;
 	-moz-user-select: none;
+	-webkit-user-select: none;
 	user-select: none;
 	font-family: var(--defaultFont);
 	font-size: 16px;
 	line-height: 1;
-	touch-action: manipulation;
 }
 
 body {
-	margin: 0;
 	height: 100%;
+	margin: 0;
 }
 
 #activities {
@@ -96,7 +97,7 @@ body {
 	background-color: var(--appBackground);
 
 	>.header {
-		flex: 0 0 auto;
+		flex: 0 0 var(--headerHeight);
 		position: relative;
 		color: var(--headerText);
 		background-color: var(--headerBackground);
@@ -110,7 +111,6 @@ body {
 		>.title {
 			font-weight: bold;
 			font-size: 16px;
-			height: var(--headerHeight);
 			line-height: var(--headerHeight);
 			text-align: center;
 			white-space: nowrap;
@@ -202,14 +202,14 @@ body {
 	right: 0;
 	bottom: 0;
 
-	>div:first-child {
+	>.backdrop {
 		height: 100%;
 		background-color: rgba(0, 0, 0, 0.5);
 		opacity: 0;
 		transition: opacity 200ms ease-in-out;
 	}
 
-	>div:not(:first-child) {
+	>.content {
 		position: absolute;
 		top: 0;
 		bottom: 0;
@@ -219,6 +219,12 @@ body {
 		background-color: var(--appBackground);
 		color: var(--appText);
 		box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+		>div {
+			position: absolute;
+			top: 0;
+			right: 100%;
+			height: 100%;
+		}
 	}
 }
 
