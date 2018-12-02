@@ -477,8 +477,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 			//fix ios vertical overscrolling on viewport issue
 			kernel.fixIosScrolling = function (o, hscroll) {
-				if (browser.name === 'IOS') {
-					o.style.webkitOverflowScrolling = 'touch';
+				if (browser.name === 'IOS' && !browser.viewPortBouncesDisabled) {
 					o.addEventListener('touchmove', stopEvent, {
 						passive: false
 					});
@@ -584,11 +583,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		! function () {
 			let animating, activePanel, todo, o, x, ox, nx, ot, nt, moving, scrolled,
 				panelBox = document.querySelector('#panel'),
-				backdrop = panelBox.querySelector(':scope>div:first-child'),
+				backdrop = panelBox.querySelector(':scope>.backdrop'),
+				content = panelBox.querySelector(':scope>.content'),
 				events = pointerevents(panelBox, function (evt) {
 					if (evt.type === 'start') {
 						if (!events.pointers.length && !animating) {
-							o = panelBox.querySelector(':scope>.' + activePanel);
+							o = content.querySelector(':scope>.' + activePanel);
 							ox = nx = x = evt.x;
 							ot = nt = evt.domEvent.timeStamp;
 							evt.domEvent.view.addEventListener('scroll', scrolling, true);
@@ -609,7 +609,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							}
 							if (moving) {
 								evt.domEvent.preventDefault();
-								o.style.transform = 'translateX(' + Math.max(Math.min(nx - x, 0), -o.offsetWidth) + 'px)';
+								content.style.transform = 'translateX(' + Math.max(Math.min(nx - x, 0), -content.offsetWidth) + 'px)';
 							}
 						} else {
 							if (moving) {
@@ -618,11 +618,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 								if (speed < 0) {
 									s = -s;
 								}
-								s = s + nx - x < -o.offsetWidth / 2;
-								if (((s && !kernel.closePanel()) || !s) && o.style.transform !== 'translateX(0px)') {
-									o.style.transition = '';
-									o.style.transform = 'translateX(0px)';
-									o.addEventListener('transitionend', transend);
+								s = s + nx - x < -content.offsetWidth / 2;
+								if (((s && !kernel.closePanel()) || !s) && content.style.transform !== 'translateX(0px)') {
+									content.style.transition = '';
+									content.style.transform = 'translateX(0px)';
 								}
 							} else {
 								evt.domEvent.view.addEventListener('scroll', scrolling, true);
@@ -634,10 +633,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			kernel.openPanel = function (id, param) {
 				if (panels.hasOwnProperty(id)) {
 					initLoad('panel', id, function (firstLoad) {
-						if (firstLoad) {
-							//force redraw
-							panelBox.querySelector(':scope>.' + id).offsetLeft;
-						}
 						if (typeof panels[id].open === 'function') {
 							panels[id].open(param);
 						} else {
@@ -660,8 +655,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						}
 						panelBox.style.visibility = 'inherit';
 						backdrop.style.opacity = 1;
-						animating = panelBox.querySelector(':scope>.' + id);
-						animating.style.transform = 'translateX(0px)';
+						animating = content.querySelector(':scope>.' + id);
+						animating.style.right = animating.style.top = 'auto';
+						animating.style.position = 'relative';
+						content.style.width = animating.offsetWidth + 'px';//safari fix
+						content.style.transform = 'translateX(0px)';
 						panelBox.className = activePanel = id;
 					} else if (activePanel === id) {
 						if (typeof panels[id].onload !== 'function') {
@@ -697,19 +695,21 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					return true;
 				}
 			};
-			panelBox.addEventListener('transitionend', function (evt) {
-				if (evt.target === animating) {
-					if (animating.style.transform) {
+			content.addEventListener('transitionend', function (evt) {
+				if (evt.target === this) {
+					if (this.style.transform) {
 						if (typeof panels[activePanel].onloadend === 'function') {
 							panels[activePanel].onloadend();
 						}
 						panels[activePanel].status++;
-						animating.style.transition = 'none';
+						this.style.width = '';//safari fix
+						this.style.transition = 'none';
 					} else {
 						if (typeof panels[activePanel].onunloadend === 'function') {
 							panels[activePanel].onunloadend();
 						}
 						panels[activePanel].status--;
+						animating.style.position = animating.style.right = animating.style.top = '';
 						if (panels[activePanel].autoDestroy) {
 							destroy(panels[activePanel], 'panel', activePanel);
 						} else if (document.activeElement && animating.contains(document.activeElement)) {
@@ -723,8 +723,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						todo = undefined;
 						tmp();
 					}
-				} else if (evt.target === backdrop && !backdrop.style.opacity) {
-					this.style.visibility = '';
+				}
+			});
+			backdrop.addEventListener('transitionend', function (evt) {
+				if (evt.target === this && !backdrop.style.opacity) {
+					panelBox.style.visibility = '';
 				}
 			});
 			backdrop.addEventListener('click', kernel.closePanel.bind(kernel, undefined));
@@ -732,19 +735,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			function hidePanel(close) {
 				if (typeof panels[activePanel].onunload !== 'function' || !panels[activePanel].onunload()) {
 					panels[activePanel].status--;
-					animating = panelBox.querySelector(':scope>.' + activePanel);
-					animating.style.transition = animating.style.transform = '';
+					animating = content.querySelector(':scope>.' + activePanel);
+					content.style.transition = content.style.transform = '';
 					if (close) {
 						backdrop.style.opacity = '';
 					}
 					return true;
-				}
-			}
-
-			function transend(evt) {
-				if (evt.target === this) {
-					this.style.transition = 'none';
-					this.removeEventListener(evt.type, transend);
 				}
 			}
 
@@ -1720,7 +1716,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	//ios 中需使用样式 -webkit-touch-callout: none;
 	self.addEventListener('contextmenu', browser.name === 'Firefox' ? stopEvent : cancelEvent);
 	self.addEventListener('dragstart', cancelEvent);
-	if (browser.name === 'IOS') {
+	if (browser.name === 'IOS' && !browser.viewPortBouncesDisabled) {
 		self.addEventListener('gesturestart', cancelEvent);
 		self.addEventListener('touchmove', cancelEvent, {
 			passive: false
@@ -1729,7 +1725,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	return kernel;
 
 	function destroy(cfg, type, id) {
-		let o = document.body.querySelector('#' + type + (type === 'panel' ? '>.' : '>.content>.') + id);
+		let o = document.body.querySelector('#' + type + '>.content>.' + id);
 		if (o) {
 			if (typeof cfg.ondestroy === 'function') {
 				cfg.ondestroy();
@@ -1806,17 +1802,17 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 
 			function loadJs(html) {
-				let ctn = document.body.querySelector('#' + type + (type === 'panel' ? '' : '>.content'));
+				let ctn = document.body.querySelector('#' + type + '>.content');
 				ctn.insertAdjacentHTML('beforeEnd', '<div class="' + id + '">' + html + '</div>');
 				let dom = ctn.lastChild;
 				if (type !== 'panel') {
 					addPanelAnimationListener(dom);
 				}
 				if (oldcfg.js) {
+					kernel.showLoading();
 					dom.style.opacity = 0;
 					dom.style.transition = 'opacity 200ms ease-in-out';
 					dom.addEventListener('transitionend', domtransend);
-					kernel.showLoading();
 					kernel.listeners.add(kernel.dialogEvents, 'loaded', loaded);
 					let js = n + id;
 					require([js], function (cfg) {
