@@ -622,6 +622,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 								if (((s && !kernel.closePanel()) || !s) && content.style.transform !== 'translateX(0px)') {
 									content.style.transition = '';
 									content.style.transform = 'translateX(0px)';
+									content.addEventListener('transitionend', transend);
 								}
 							} else {
 								evt.domEvent.view.addEventListener('scroll', scrolling, true);
@@ -658,7 +659,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						animating = content.querySelector(':scope>.' + id);
 						animating.style.right = animating.style.top = 'auto';
 						animating.style.position = 'relative';
-						content.style.width = animating.offsetWidth + 'px';//safari fix
+						content.style.width = animating.offsetWidth + 'px'; //safari fix
 						content.style.transform = 'translateX(0px)';
 						panelBox.className = activePanel = id;
 					} else if (activePanel === id) {
@@ -696,13 +697,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			};
 			content.addEventListener('transitionend', function (evt) {
-				if (evt.target === this) {
+				if (animating && evt.target === this) {
 					if (this.style.transform) {
 						if (typeof panels[activePanel].onloadend === 'function') {
 							panels[activePanel].onloadend();
 						}
 						panels[activePanel].status++;
-						this.style.width = '';//safari fix
+						this.style.width = ''; //safari fix
 						this.style.transition = 'none';
 					} else {
 						if (typeof panels[activePanel].onunloadend === 'function') {
@@ -741,6 +742,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						backdrop.style.opacity = '';
 					}
 					return true;
+				}
+			}
+
+			function transend(evt) {
+				if (evt.target === this) {
+					this.style.transition = 'none';
+					this.removeEventListener(evt.type, transend);
 				}
 			}
 
