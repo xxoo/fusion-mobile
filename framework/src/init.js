@@ -6,8 +6,6 @@
 			waitSeconds: 0,
 			baseUrl: prefix + 'dev/'
 		},
-		l = document.createElement('link'),
-		m = document.createElement('link'),
 		n;
 	if (VERSION !== 'dev') {
 		for (n in MODULES) {
@@ -35,7 +33,9 @@
 		init();
 	}
 
-	function init () {
+	function init() {
+		var l = document.createElement('link'),
+			m = document.createElement('link');
 		if (VERSION === 'dev') {
 			l.rel = m.rel = 'stylesheet/less';
 			l.href = require.toUrl('site/index/index.less');
