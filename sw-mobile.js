@@ -41,7 +41,9 @@ self.addEventListener('fetch', function (event) {
 	if (data && event.request.method === 'GET') {
 		if (typeof data === 'string') {
 			if (event.request.url.length >= data.length && event.request.url.substr(0, data.length) === data) {
-				event.respondWith(fetch(event.request, {
+				event.respondWith(fetch(new Request(event.request, {
+					cache: 'no-cache'
+				}), {
 					credentials: 'include'
 				}));
 			}
