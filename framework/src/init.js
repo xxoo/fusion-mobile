@@ -21,40 +21,47 @@
 			scope: './'
 		}).then(function (registration) {
 			var controller = registration.installing || registration.waiting || registration.active;
-			RES_TO_CACHE.push(src);
-			controller.postMessage({
+			RES_TO_CACHE.unshift(src);
+			controller.postMessage(VERSION === 'dev' ? prefix : {
 				framework: RES_TO_CACHE,
 				modules: Object.values(MODULES)
 			});
+			init();
 		}, function (err) {
 			console.log('unable to register ServiceWorker: ' + err);
-		});
-	}
-	if (VERSION === 'dev') {
-		l.rel = m.rel = 'stylesheet/less';
-		l.href = require.toUrl('site/index/index.less');
-		m.href = require.toUrl('common/kernel/kernel.less');
-		require([prefix + 'framework/less.js'], function () {
-			less.pageLoadFinished.then(function () {
-				require(['site/index/index']);
-			});
+			init();
 		});
 	} else {
-		l.rel = m.rel = 'stylesheet';
-		l.href = require.toUrl('site/index/index.css');
-		m.href = require.toUrl('common/kernel/kernel.css');
-		self.addEventListener('load', function () {
-			require(['site/index/index']);
-		});
+		init();
 	}
-	document.head.appendChild(m);
-	document.head.appendChild(l);
-	if (browser.app === 'Safari') {
-		l = document.querySelector('meta[name="viewport"]');
-		m = l.content;
-		l.content = '';
-		setTimeout(function () {
-			l.content = m;
-		}, 0);
+
+	function init () {
+		if (VERSION === 'dev') {
+			l.rel = m.rel = 'stylesheet/less';
+			l.href = require.toUrl('site/index/index.less');
+			m.href = require.toUrl('common/kernel/kernel.less');
+			require([prefix + 'framework/less.js'], function () {
+				less.pageLoadFinished.then(function () {
+					require(['site/index/index']);
+				});
+			});
+		} else {
+			l.rel = m.rel = 'stylesheet';
+			l.href = require.toUrl('site/index/index.css');
+			m.href = require.toUrl('common/kernel/kernel.css');
+			self.addEventListener('load', function () {
+				require(['site/index/index']);
+			});
+		}
+		document.head.appendChild(m);
+		document.head.appendChild(l);
+		if (browser.app === 'Safari') {
+			l = document.querySelector('meta[name="viewport"]');
+			m = l.content;
+			l.content = '';
+			setTimeout(function () {
+				l.content = m;
+			}, 0);
+		}
 	}
 }();
