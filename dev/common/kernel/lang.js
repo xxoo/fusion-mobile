@@ -3,6 +3,7 @@ define(function () {
 	let chs = {
 			back: '返回',
 			loading: '加载中...',
+			ok: '确定',
 			yes: '是',
 			no: '否',
 			error: '加载 ${res} 时发生了一个错误: ',
@@ -11,6 +12,7 @@ define(function () {
 		cht = {
 			back: '返回',
 			loading: '載入中...',
+			ok: '確認',
 			yes: '是',
 			no: '否',
 			error: '載入 ${res} 時發生了一個錯誤: ',
@@ -19,6 +21,7 @@ define(function () {
 		eng = {
 			back: 'back',
 			loading: 'Loading...',
+			ok: 'OK',
 			yes: 'Yes',
 			no: 'No',
 			error: 'An error occured while loading ${res}: ',
