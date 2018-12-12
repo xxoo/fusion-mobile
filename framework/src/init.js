@@ -41,17 +41,14 @@
 			l.href = require.toUrl('site/index/index.less');
 			m.href = require.toUrl('common/kernel/kernel.less');
 			require([prefix + 'framework/less.js'], function () {
-				less.pageLoadFinished.then(function () {
-					require(['site/index/index']);
-				});
+				less.pageLoadFinished.then(start);
 			});
 		} else {
 			l.rel = m.rel = 'stylesheet';
 			l.href = require.toUrl('site/index/index.css');
 			m.href = require.toUrl('common/kernel/kernel.css');
-			self.addEventListener('load', function () {
-				require(['site/index/index']);
-			});
+			l.onload = m.onload = trystart;
+			n = false;
 		}
 		document.head.appendChild(m);
 		document.head.appendChild(l);
@@ -62,6 +59,19 @@
 			setTimeout(function () {
 				l.content = m;
 			}, 0);
+		}
+	}
+
+	function start() {
+		require(['site/index/index']);
+	}
+
+	function trystart() {
+		this.onload = null;
+		if (n) {
+			start();
+		} else {
+			n = true;
 		}
 	}
 }();

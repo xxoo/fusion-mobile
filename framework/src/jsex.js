@@ -310,7 +310,7 @@
 						if (d.description) {
 							s += strEncode(s.description);
 						}
-						s += ')'
+						s += ')';
 					} else {
 						s = d.toString();
 						if (s.length > 8) {

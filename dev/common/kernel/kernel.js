@@ -1,5 +1,7 @@
 'use strict';
 define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 'common/pointerevents/pointerevents', 'common/svgicos/svgicos', 'site/pages/pages', 'site/panels/panels', 'site/popups/popups', './lang'], function (touchslider, touchguesture, pointerevents, svgicos, pages, panels, popups, lang) {
+	//predefined arguments
+	//autoPopup, autoPopupArg, ui, backHash
 	let homePage,
 		activities = document.body.querySelector('#activities'),
 		kernel = {
@@ -89,33 +91,43 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			},
 			// 后退行为
 			getDefaultBack: function (loc) {
+				let bk2;
 				if (!loc) {
 					loc = kernel.location;
 				}
-				let bk2, bk1 = pages[loc.id].backLoc;
-				if (pages[loc.id].back && pages[pages[loc.id].back]) {
-					bk2 = {
-						id: pages[loc.id].back,
-						args: {}
-					};
-					let o = pages[pages[loc.id].back].alias ? pages[pages[pages[loc.id].back].alias] : pages[pages[loc.id].back];
-					if (o.args) {
-						for (let i = 0; i < o.args.length; i++) {
-							if (loc.args.hasOwnProperty(o.args[i])) {
-								bk2.args[o.args[i]] = loc.args[o.args[i]];
+				if (loc.args.backHash) {
+					try {
+						bk2 = kernel.parseHash(loc.args.backHash);
+					} catch (e) {}
+				}
+				if (bk2) {
+					return bk2;
+				} else {
+					let bk1 = pages[loc.id].backLoc;
+					if (pages[loc.id].back && pages[pages[loc.id].back]) {
+						bk2 = {
+							id: pages[loc.id].back,
+							args: {}
+						};
+						let o = pages[pages[loc.id].back].alias ? pages[pages[pages[loc.id].back].alias] : pages[pages[loc.id].back];
+						if (o.args) {
+							for (let i = 0; i < o.args.length; i++) {
+								if (loc.args.hasOwnProperty(o.args[i])) {
+									bk2.args[o.args[i]] = loc.args[o.args[i]];
+								}
 							}
 						}
 					}
-				}
-				if (bk1 && bk2) {
-					for (let i in bk2.args) {
-						if (bk2.args[i] !== bk1.args[i]) {
-							return bk2;
+					if (bk1 && bk2) {
+						for (let i in bk2.args) {
+							if (bk2.args[i] !== bk1.args[i]) {
+								return bk2;
+							}
 						}
+						return bk1;
+					} else {
+						return bk1 || bk2;
 					}
-					return bk1;
-				} else {
-					return bk1 || bk2;
 				}
 			},
 			// 判断是否是后退
@@ -211,80 +223,56 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		! function () {
 			let t = document.head.querySelector('meta[name=viewport]'),
 				s = t.content,
-				minWidth, wait;
+				lw, lh, tmo, minWidth;
 			kernel.setAutoScale = function (v) {
 				minWidth = v;
 				if (minWidth > 0) {
 					self.dispatchEvent(new Event('resize'));
 				} else {
 					t.content = s;
+					lw = lh = undefined;
 				}
 			};
-			if (self.visualViewport) {
-				self.addEventListener('resize', function () {
-					if (minWidth > 0) {
-						t.content = 'user-scalable=no, width=' + calcWidth(Math.round(visualViewport.width * visualViewport.scale), Math.round(visualViewport.height * visualViewport.scale));
+			self.addEventListener('resize', function () {
+				if (minWidth > 0) {
+					if (self.visualViewport) {
+						setScale(Math.round(visualViewport.width * visualViewport.scale), Math.round(visualViewport.height * visualViewport.scale));
+					} else {
+						if (tmo) {
+							cancelAnimationFrame(tmo);
+						}
+						fallback();
 					}
-				});
-			} else {
-				if (browser.name === 'IOS') {
-					self.addEventListener('resize', browser.app === 'Safari' && browser.version > 10 ? function () {
-						if (t.content === s) {
-							t.content = 'user-scalable=no, width=' + calcWidth(innerWidth, innerHeight);
-						} else {
-							let w = innerWidth,
-								h = innerHeight,
-								rsz = function () {
-									if (innerWidth === w && innerHeight === h) {
-										requestAnimationFrame(rsz);
-									} else {
-										t.content = 'user-scalable=no, width=' + calcWidth(innerWidth, innerHeight);
-									}
-								};
-							t.content = s;
-							rsz();
-						}
-					} : function () {
-						if (wait) {
-							wait = false;
-						} else {
-							if (t.content === s) {
-								let width = calcWidth(innerWidth, innerHeight);
-								if (width !== innerWidth) {
-									wait = true;
-									t.content = 'user-scalable=no, width=' + width;
-								}
-							} else {
-								t.content = s;
-							}
-						}
-					});
+				}
+			});
+
+			function fallback() {
+				let s1 = t.content.match(/initial-scale=([\d\.]+)/);
+				if (s1) {
+					s1 = +s1[1];
 				} else {
-					self.addEventListener('resize', function () {
-						if (wait) {
-							wait = false;
-						} else {
-							if (t.content !== s) {
-								t.content = s;
-								wait = true;
-							}
-							let width = calcWidth(innerWidth, innerHeight);
-							if (width !== innerWidth) {
-								wait = true;
-								t.content = 'user-scalable=no, width=' + width;
-							}
-						}
-					});
+					s1 = 1;
+				}
+				let w = Math.round(innerWidth * s1),
+					h = Math.round(innerHeight * s1);
+				if (lw === w && lh === h) {
+					tmo = requestAnimationFrame(fallback);
+				} else {
+					setScale(w, h);
+					lw = w;
+					lh = h;
+					tmo = undefined;
 				}
 			}
 
-			function calcWidth(width, height) {
+			function setScale(width, height) {
 				let sw = Math.min(width, height),
 					r = sw / minWidth;
 				if (r > 1) {
 					r = Math.sqrt(r);
 				}
-				return Math.round(width / r);
+				r = sw / Math.round(sw / r);
+				t.content = 'user-scalable=no, initial-scale=' + r + ', maximum-scale=' + r + ', minimum-scale=' + r;
 			}
 		}();
 		//事件处理
@@ -416,12 +404,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 								scrolled = false;
 								return true;
 							} else {
-								if (evt.y > y + 5) {
+								if (evt.y > y) {
 									if (!st) {
 										st = true;
 										evt.domEvent.view.removeEventListener('scroll', scrolling, true);
 									}
 									evt.domEvent.preventDefault();
+									evt.domEvent.stopPropagation();
 									if (!reloadHint) {
 										reloadHint = evt.domEvent.view.document.createElement('div');
 										reloadHint.className = 'reloadHint';
@@ -477,7 +466,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 			//fix ios vertical overscrolling on viewport issue
 			kernel.fixIosScrolling = function (o, hscroll) {
-				if (browser.name === 'IOS' && !browser.viewPortBouncesDisabled) {
+				if (browser.name === 'IOS') {
 					o.addEventListener('touchmove', stopEvent, {
 						passive: false
 					});
@@ -1024,7 +1013,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			};
 			kernel.showForeign = function (url, callback) { //展示站外内容
-				kernel.showReadable('<iframe frameborder="no" scrolling="auto" sandbox="allow-same-origin allow-forms allow-scripts" src="' + url + '"></iframe>', callback, 'foreign');
+				kernel.showReadable('<iframe frameborder="no" scrolling="auto" sandbox="allow-same-origin allow-forms allow-scripts allow-modals" src="' + url + '"></iframe>', callback, 'foreign');
 			};
 			readableClose.appendChild(kernel.makeSvg('times-solid', 1));
 			readableClose.addEventListener('click', kernel.hideReadable);
@@ -1184,7 +1173,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 				sliderViewCtn.querySelector(':scope>.nav').firstChild.data = txt;
 			};
-			dialogClose.appendChild(kernel.makeSvg('times-circle-solid', 1));
+			dialogClose.appendChild(kernel.makeSvg('times-light', 1));
 			dialogClose.addEventListener('click', closeDialog);
 			nobtn.addEventListener('click', closeDialog);
 			yesbtn.addEventListener('click', kernel.closeDialog);
@@ -1203,7 +1192,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				} else {
 					dialogBox.className = type;
 					if (type === 'alert') {
-						dialogContent.textContent = content;
+						if (dataType(content) === 'Array') {
+							dialogContent.textContent = content[0];
+							yesbtn.firstChild.data = content[1];
+						} else {
+							dialogContent.textContent = content;
+							yesbtn.firstChild.data = lang.ok;
+						}
 					} else if (type === 'confirm') {
 						if (dataType(content) === 'Array') {
 							dialogContent.textContent = content[0];
@@ -1389,15 +1384,15 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					self.addEventListener('hashchange', hashchange);
 					initNavs(icos);
 					manageLocation();
-					if (kernel.location.args.hasOwnProperty('autopopup')) {
+					if (kernel.location.args.hasOwnProperty('autoPopup')) {
 						let tmp;
-						if (kernel.location.args.hasOwnProperty('autopopuparg')) {
-							tmp = kernel.location.args.autopopuparg.parseJsex();
+						if (kernel.location.args.hasOwnProperty('autoPopupArg')) {
+							tmp = kernel.location.args.autoPopupArg.parseJsex();
 							if (tmp) {
 								tmp = tmp.value
 							}
 						}
-						if (kernel.openPopup(kernel.location.args.autopopup, tmp)) {
+						if (kernel.openPopup(kernel.location.args.autoPopup, tmp)) {
 							document.body.querySelector('#popup').style.animationDuration = '1ms';
 							kernel.listeners.add(kernel.popupEvents, 'showend', removeLoading);
 						} else {
@@ -1626,7 +1621,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							} else {
 								animating = true;
 								let tohide = pagesBox.querySelector(':scope>.content>.' + oldid),
-									goingback = kernel.isGoingback(oldpageid, pageid);
+									goingback = kernel.lastLocation && kernel.lastLocation.args.backHash === location.hash || kernel.isGoingback(oldpageid, pageid);
 								force = !goingback || firstLoad;
 								viewSwitch(toshow, tohide, goingback, function () {
 									animating = false;
@@ -1724,8 +1719,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	//ios 中需使用样式 -webkit-touch-callout: none;
 	self.addEventListener('contextmenu', browser.name === 'Firefox' ? stopEvent : cancelEvent);
 	self.addEventListener('dragstart', cancelEvent);
-	if (browser.name === 'IOS' && !browser.viewPortBouncesDisabled) {
-		self.addEventListener('gesturestart', cancelEvent);
+	if (browser.name === 'IOS') {
+		self.addEventListener('gesturestart', cancelEvent, {
+			passive: false
+		});
 		self.addEventListener('touchmove', cancelEvent, {
 			passive: false
 		});
