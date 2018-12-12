@@ -2,6 +2,7 @@
 	'use strict';
 	var src = document.currentScript.getAttribute('src'),
 		prefix = src.replace(/framework\/[^\/]+$/, ''),
+		swfile = 'sw-mobile.js',
 		cfg = {
 			waitSeconds: 0,
 			baseUrl: prefix + 'dev/'
@@ -15,22 +16,26 @@
 	}
 	require.config(cfg);
 	if (navigator.serviceWorker) {
-		navigator.serviceWorker.register('sw-mobile.js', {
-			scope: './'
-		}).then(function (registration) {
-			var controller = registration.installing || registration.waiting || registration.active;
-			RES_TO_CACHE.unshift(src);
-			controller.postMessage(VERSION === 'dev' ? prefix : {
-				framework: RES_TO_CACHE,
-				modules: Object.values(MODULES)
-			});
+		if (navigator.serviceWorker.controller && navigator.serviceWorker.controller.scriptURL === new URL(swfile, location.href).href) {
+			postmsg(navigator.serviceWorker.controller);
 			init();
-		}, function (err) {
-			console.log('unable to register ServiceWorker: ' + err);
-			init();
-		});
+		} else {
+			navigator.serviceWorker.register(swfile, {
+				scope: './'
+			}).then(function (registration) {
+				postmsg(registration.installing || registration.waiting || registration.active);
+				location.reload();
+			}, init);
+		}
 	} else {
 		init();
+	}
+
+	function postmsg(controller) {
+		controller.postMessage(VERSION === 'dev' ? prefix : {
+			framework: RES_TO_CACHE,
+			modules: Object.values(MODULES)
+		});
 	}
 
 	function init() {
