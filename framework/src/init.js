@@ -32,10 +32,17 @@
 	}
 
 	function postmsg(controller) {
-		controller.postMessage(VERSION === 'dev' ? prefix : {
-			framework: RES_TO_CACHE,
-			modules: Object.values(MODULES)
-		});
+		var msg;
+		if (VERSION === 'dev') {
+			msg = prefix;
+		} else {
+			RES_TO_CACHE.push(src);
+			msg = {
+				framework: RES_TO_CACHE,
+				modules: Object.values(MODULES)
+			};
+		}
+		controller.postMessage(msg);
 	}
 
 	function init() {
