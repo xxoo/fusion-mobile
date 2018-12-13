@@ -64,14 +64,6 @@
 		}
 		document.head.appendChild(m);
 		document.head.appendChild(l);
-		if (browser.app === 'Safari') {
-			l = document.querySelector('meta[name="viewport"]');
-			m = l.content;
-			l.content = '';
-			setTimeout(function () {
-				l.content = m;
-			}, 0);
-		}
 	}
 
 	function start() {
