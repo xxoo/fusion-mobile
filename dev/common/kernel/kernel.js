@@ -212,9 +212,15 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			};
 			kernel.getLang = function (langs) {
-				for (let i = 0; i < navigator.languages.length; i++) {
-					if (langs.hasOwnProperty(navigator.languages[i])) {
-						return langs[navigator.languages[i]];
+				if (navigator.languages) {
+					for (let i = 0; i < navigator.languages.length; i++) {
+						if (langs.hasOwnProperty(navigator.languages[i])) {
+							return langs[navigator.languages[i]];
+						}
+					}
+				} else {
+					if (langs.hasOwnProperty(navigator.language)) {
+						return langs[navigator.language];
 					}
 				}
 				return langs.en;
@@ -266,13 +272,15 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 
 			function setScale(width, height) {
-				let sw = Math.min(width, height),
-					r = sw / minWidth;
-				if (r > 1) {
-					r = Math.sqrt(r);
+				if (width && height) {
+					let sw = Math.min(width, height),
+						r = sw / minWidth;
+					if (r > 1) {
+						r = Math.sqrt(r);
+					}
+					r = sw / Math.round(sw / r);
+					t.content = 'user-scalable=no, initial-scale=' + r + ', maximum-scale=' + r + ', minimum-scale=' + r;
 				}
-				r = sw / Math.round(sw / r);
-				t.content = 'user-scalable=no, initial-scale=' + r + ', maximum-scale=' + r + ', minimum-scale=' + r;
 			}
 		}();
 		//事件处理
