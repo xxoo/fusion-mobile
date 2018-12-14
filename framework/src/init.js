@@ -38,6 +38,7 @@
 		} else {
 			RES_TO_CACHE.push(src);
 			msg = {
+				prefix: prefix,
 				framework: RES_TO_CACHE,
 				modules: Object.values(MODULES)
 			};
