@@ -43,9 +43,7 @@ self.addEventListener('fetch', function (event) {
 			if (event.request.url.length >= data.length && event.request.url.substr(0, data.length) === data) {
 				event.respondWith(fetch(new Request(event.request, {
 					cache: 'no-cache'
-				}), {
-					credentials: 'include'
-				}));
+				})));
 			}
 		} else {
 			let type;
@@ -60,9 +58,7 @@ self.addEventListener('fetch', function (event) {
 						if (response) {
 							return response;
 						} else {
-							return fetch(event.request, {
-								credentials: 'include'
-							}).then(function (response) {
+							return fetch(event.request).then(function (response) {
 								if (response.ok) {
 									cache.put(event.request, response.clone());
 								}
