@@ -15,7 +15,7 @@ self.addEventListener('message', function (event) {
 			for (let i = 0; i < data.modules.length; i++) {
 				data.modules[i] = new URL(data.modules[i] + '/', event.source.url).href;
 			}
-			caches.open('fusion-mobile-modules').then(function (cache) {
+			caches.open(data.prefix + 'modules').then(function (cache) {
 				return cache.keys().then(function (keys) {
 					keys.forEach(function (request) {
 						if (!findModule(request.url)) {
@@ -24,7 +24,7 @@ self.addEventListener('message', function (event) {
 					});
 				});
 			});
-			caches.open('fusion-mobile-framework').then(function (cache) {
+			caches.open(data.prefix + 'framework').then(function (cache) {
 				return cache.keys().then(function (keys) {
 					keys.forEach(function (request) {
 						if (data.framework.indexOf(request.url) < 0) {
@@ -53,7 +53,7 @@ self.addEventListener('fetch', function (event) {
 				type = 'modules';
 			}
 			if (type) {
-				event.respondWith(caches.open('fusion-mobile-' + type).then(function (cache) {
+				event.respondWith(caches.open(data.prefix + type).then(function (cache) {
 					return cache.match(event.request).then(function (response) {
 						if (response) {
 							return response;
