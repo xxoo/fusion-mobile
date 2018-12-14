@@ -7,7 +7,7 @@ self.addEventListener('message', function (event) {
 	if (event.data) {
 		if (typeof event.data === 'string') {
 			data = new URL(event.data, event.source.url).href;
-		} else if (event.data.framework && event.data.modules) {
+		} else if (event.data.framework && event.data.modules && event.data.prefix) {
 			data = event.data;
 			for (let i = 0; i < data.framework.length; i++) {
 				data.framework[i] = new URL(data.framework[i], event.source.url).href;
