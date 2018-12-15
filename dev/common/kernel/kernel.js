@@ -279,7 +279,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						r = Math.sqrt(r);
 					}
 					r = sw / Math.round(sw / r);
-					t.content = 'user-scalable=no, initial-scale=' + r + ', maximum-scale=' + r + ', minimum-scale=' + r;
+					r = 'user-scalable=no, initial-scale=' + r + ', maximum-scale=' + r + ', minimum-scale=' + r;
+					if (t.content !== r) {
+						t.content = r;
+					}
 				}
 			}
 		}();
