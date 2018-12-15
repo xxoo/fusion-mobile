@@ -41,9 +41,9 @@ self.addEventListener('fetch', function (event) {
 	if (data && event.request.method === 'GET') {
 		if (typeof data === 'string') {
 			if (event.request.url.length >= data.length && event.request.url.substr(0, data.length) === data) {
-				event.respondWith(fetch(new Request(event.request, {
+				event.respondWith(fetch(event.request, {
 					cache: 'no-cache'
-				})));
+				}));
 			}
 		} else {
 			let type;
@@ -58,7 +58,9 @@ self.addEventListener('fetch', function (event) {
 						if (response) {
 							return response;
 						} else {
-							return fetch(event.request).then(function (response) {
+							return fetch(event.request, {
+								cache: 'no-cache'
+							}).then(function (response) {
 								if (response.ok) {
 									cache.put(event.request, response.clone());
 								}

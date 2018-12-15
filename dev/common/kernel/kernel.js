@@ -233,24 +233,32 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			kernel.setAutoScale = function (v) {
 				minWidth = v;
 				if (minWidth > 0) {
-					self.dispatchEvent(new Event('resize'));
+					if (self.visualViewport) {
+						self.visualViewport.dispatchEvent(new Event('resize'));
+					} else {
+						self.dispatchEvent(new Event('resize'));
+					}
 				} else {
 					t.content = s;
 					lw = lh = undefined;
 				}
 			};
-			self.addEventListener('resize', function () {
-				if (minWidth > 0) {
-					if (self.visualViewport) {
-						setScale(Math.round(visualViewport.width * visualViewport.scale), Math.round(visualViewport.height * visualViewport.scale));
-					} else {
+			if (self.visualViewport) {
+				self.visualViewport.addEventListener('resize', function () {
+					if (minWidth > 0) {
+						setScale(Math.round(this.width * this.scale), Math.round(this.height * this.scale));
+					}
+				});
+			} else {
+				self.addEventListener('resize', function () {
+					if (minWidth > 0) {
 						if (tmo) {
 							cancelAnimationFrame(tmo);
 						}
 						fallback();
 					}
-				}
-			});
+				});
+			}
 
 			function fallback() {
 				let s1 = t.content.match(/initial-scale=([\d\.]+)/);
@@ -279,7 +287,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						r = Math.sqrt(r);
 					}
 					r = sw / Math.round(sw / r);
-					t.content = 'user-scalable=no, initial-scale=' + r + ', maximum-scale=' + r + ', minimum-scale=' + r;
+					r = 'user-scalable=no, initial-scale=' + r + ', maximum-scale=' + r + ', minimum-scale=' + r;
+					if (t.content !== r) {
+						t.content = r;
+					}
 				}
 			}
 		}();
