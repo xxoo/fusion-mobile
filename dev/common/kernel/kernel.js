@@ -1032,7 +1032,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			};
 			kernel.showForeign = function (url, callback) { //展示站外内容
-				kernel.showReadable('<iframe frameborder="no" scrolling="auto" sandbox="allow-same-origin allow-forms allow-scripts allow-modals" src="' + url + '"></iframe>', callback, 'foreign');
+				kernel.showReadable(`<iframe frameborder="no" scrolling="${browser.name==='IOS'?'no':'auto'}" sandbox="allow-same-origin allow-forms allow-scripts allow-modals" src="${url}"></iframe>`, callback, 'foreign');
 			};
 			readableClose.appendChild(kernel.makeSvg('times-solid', 1));
 			readableClose.addEventListener('click', kernel.hideReadable);
