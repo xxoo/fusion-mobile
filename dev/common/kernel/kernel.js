@@ -2,7 +2,7 @@
 define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 'common/pointerevents/pointerevents', 'common/svgicos/svgicos', 'site/pages/pages', 'site/panels/panels', 'site/popups/popups', './lang'], function (touchslider, touchguesture, pointerevents, svgicos, pages, panels, popups, lang) {
 	//predefined arguments
 	//autoPopup, autoPopupArg, ui, backHash
-	let homePage,
+	let homePage, anievt, aniname, anidru,
 		activities = document.body.querySelector('#activities'),
 		kernel = {
 			// 加入css 到head中;
@@ -170,7 +170,15 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			}
 		};
-
+	if (document.documentElement.style.hasOwnProperty('animation')) {
+		anievt = 'animationend';
+		aniname = 'animationName';
+		anidru = 'animationDuration';
+	} else {
+		anievt = 'webkitAnimationEnd';
+		aniname = 'webkitAnimationName';
+		anidru = 'webkitAnimationDuration';
+	}
 	if (self.frameElement && frameElement.kernel) {
 		if (self.Reflect) {
 			Reflect.setPrototypeOf(kernel, frameElement.kernel);
@@ -246,7 +254,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			if (self.visualViewport) {
 				self.visualViewport.addEventListener('resize', function () {
 					if (minWidth > 0) {
-						setScale(Math.round(this.width * this.scale), Math.round(this.height * this.scale));
+						setScale(Math.round(this.width * this.scale), Math.round(this.height * this.scale), true);
 					}
 				});
 			} else {
@@ -279,15 +287,20 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			}
 
-			function setScale(width, height) {
+			function setScale(width, height, useWidth) {
 				if (width && height) {
 					let sw = Math.min(width, height),
 						r = sw / minWidth;
 					if (r > 1) {
 						r = Math.sqrt(r);
 					}
-					r = sw / Math.round(sw / r);
-					r = 'user-scalable=no, initial-scale=' + r + ', maximum-scale=' + r + ', minimum-scale=' + r;
+					r = Math.round(sw / r);
+					if (useWidth) {
+						r = 'width=' + r;
+					} else {
+						r = sw / r;
+						r = 'user-scalable=no, initial-scale=' + r + ', maximum-scale=' + r + ', minimum-scale=' + r;
+					}
 					if (t.content !== r) {
 						t.content = r;
 					}
@@ -296,7 +309,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		}();
 		//事件处理
 		! function () {
-			let key = Symbol('xEvents');
+			let key = typeof Symbol === 'function' ? Symbol('xEvents') : 'xEvents';
 			kernel.listeners = {
 				add: function (o, e, f) {
 					let result = 0;
@@ -941,7 +954,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					kernel.openPopup(tempBack, tempBackParam, true);
 				}
 			});
-			popupsBox.addEventListener('animationend', function (evt) {
+			popupsBox.addEventListener(anievt, function (evt) {
 				if (evt.target === this) {
 					animating = false;
 					if (this.classList.contains('out')) {
@@ -1036,7 +1049,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			};
 			readableClose.appendChild(kernel.makeSvg('times-solid', 1));
 			readableClose.addEventListener('click', kernel.hideReadable);
-			readableBox.addEventListener('animationend', function (evt) {
+			readableBox.addEventListener(anievt, function (evt) {
 				if (evt.target === this && this.classList.contains('out')) {
 					while (readableContent.childNodes.length > 0) {
 						readableContent.firstChild.remove();
@@ -1412,7 +1425,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							}
 						}
 						if (kernel.openPopup(kernel.location.args.autoPopup, tmp)) {
-							document.body.querySelector('#popup').style.animationDuration = '1ms';
+							document.body.querySelector('#popup').style[anidru] = '1ms';
 							kernel.listeners.add(kernel.popupEvents, 'showend', removeLoading);
 						} else {
 							removeLoading();
@@ -1468,7 +1481,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			if (evt) {
 				kernel.listeners.remove(this, evt.type, removeLoading);
 				setTimeout(function () {
-					document.body.querySelector('#popup').style.animationDuration = '';
+					document.body.querySelector('#popup').style[anidru] = '';
 				}, 400);
 			}
 			document.body.addEventListener('transitionend', tsend);
@@ -1835,7 +1848,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (oldcfg.js) {
 					kernel.showLoading();
 					dom.style.opacity = 0;
-					dom.style.transition = 'opacity 200ms ease-in-out';
+					dom.style.transition = 'opacity 400ms ease-in-out';
 					dom.addEventListener('transitionend', domtransend);
 					kernel.listeners.add(kernel.dialogEvents, 'loaded', loaded);
 					let js = n + id;
@@ -1900,11 +1913,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	function viewSwitch(toshow, tohide, goingback, callback) {
 		toshow.style.visibility = 'inherit';
 		if (goingback) {
-			tohide.style.animationName = 'viewTransR1';
-			toshow.style.animationName = 'viewTransR2';
+			tohide.style[aniname] = 'viewTransR1';
+			toshow.style[aniname] = 'viewTransR2';
 		} else {
-			tohide.style.animationName = 'viewTransL1';
-			toshow.style.animationName = 'viewTransL2';
+			tohide.style[aniname] = 'viewTransL1';
+			toshow.style[aniname] = 'viewTransL2';
 		}
 		if (typeof callback === 'function') {
 			addPanelAnimationListener(toshow, listener);
@@ -1920,17 +1933,17 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		if (typeof listener !== 'function') {
 			listener = viewAnimationEnd;
 		}
-		emt.addEventListener('animationend', listener);
+		emt.addEventListener(anievt, listener);
 	}
 	//左右滑动的动画完成后要执行的操作
 	function viewAnimationEnd(evt) {
 		if (evt.target === this) {
-			if (this.style.animationName.substr(this.style.animationName.length - 1) === '1') {
+			if (this.style[aniname].substr(this.style[aniname].length - 1) === '1') {
 				this.style.left = this.style.visibility = '';
 			} else {
 				this.style.left = 0;
 			}
-			this.style.animationName = '';
+			this.style[aniname] = '';
 		}
 	}
 
