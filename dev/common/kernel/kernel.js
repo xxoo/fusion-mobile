@@ -294,11 +294,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					if (r > 1) {
 						r = Math.sqrt(r);
 					}
-					r = Math.round(sw / r);
 					if (useWidth) {
-						r = 'user-scalable=no, width=' + r;
+						r = 'user-scalable=no, width=' + Math.round(width / r);
 					} else {
-						r = sw / r;
+						r = sw / Math.round(sw / r);
 						r = 'user-scalable=no, initial-scale=' + r + ', maximum-scale=' + r + ', minimum-scale=' + r;
 					}
 					if (t.content !== r) {
