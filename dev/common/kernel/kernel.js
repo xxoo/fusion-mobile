@@ -296,7 +296,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					}
 					r = Math.round(sw / r);
 					if (useWidth) {
-						r = 'width=' + r;
+						r = 'user-scalable=no, width=' + r;
 					} else {
 						r = sw / r;
 						r = 'user-scalable=no, initial-scale=' + r + ', maximum-scale=' + r + ', minimum-scale=' + r;
