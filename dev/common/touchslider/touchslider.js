@@ -11,15 +11,8 @@
 
 'use strict';
 define(['common/pointerevents/pointerevents'], function(pointerevents) {
-	let tmp, tmp1, peo;
-	if ('transition' in document.documentElement.style) {
-		tmp1 = 'transition';
-		tmp = 'transitionend';
-	} else {
-		tmp1 = 'webkitTransition';
-		tmp = 'webkitTransitionEnd';
-	}
-	let touchslider = function(container, contents, idx) {
+	let peo,
+		touchslider = function(container, contents, idx) {
 		let that = this,
 			vars = {};
 		if (this instanceof touchslider) {
@@ -44,7 +37,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 			this.subcontainer.style.width = '200%';
 			this.subcontainer.style.height = '100%';
 			this.subcontainer.style.left = this.subcontainer.style.top = 0;
-			this.subcontainer.addEventListener(tmp, function(evt) {
+			this.subcontainer.addEventListener('transitionend', function(evt) {
 				slided.call(this, evt, that);
 			}, false);
 			this.container.addEventListener('dragstart', cancelEvt, false);
@@ -270,7 +263,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 		}
 		if (t > 0) {
 			obj.sliding = true;
-			obj.subcontainer.style[tmp1] = 'left ' + t + 'ms ease-in-out';
+			obj.subcontainer.style.transition = 'left ' + t + 'ms ease-in-out';
 			obj.subcontainer.style.left = n;
 		} else {
 			restartTimer(obj);
@@ -280,7 +273,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	function slided(evt, obj) {
 		if (evt.target === this) { //ios also captures this event on subnodes
 			obj.invisible.appendChild(this.style.left === '-100%' ? this.firstChild : this.lastChild);
-			this.style[tmp1] = '';
+			this.style.transition = '';
 			this.style.left = 0;
 			obj.sliding = false;
 			while (obj.removeStack.length > 0) {

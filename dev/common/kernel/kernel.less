@@ -30,7 +30,7 @@ html {
 	-moz-user-select: none;
 	-webkit-user-select: none;
 	user-select: none;
-	font-family: var(--defaultFont);
+	font-family: @defaultFont;
 	font-size: 16px;
 	line-height: 1;
 }
@@ -44,7 +44,7 @@ body {
 	height: 100%;
 
 	&.mask {
-		filter: var(--loadingMaskFilter);
+		filter: @loadingMaskFilter;
 	}
 
 	&.hidePageHeader>#page>.header,
@@ -84,13 +84,13 @@ body {
 	font-size: 16px;
 	line-height: 1;
 	margin: auto 0;
-	color: var(--headerText);
+	color: @headerText;
 	overflow: visible;
 
 	>svg {
 		vertical-align: top;
 		height: 100%;
-		fill: var(--headerText);
+		fill: @headerText;
 	}
 }
 
@@ -99,15 +99,15 @@ body {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	background-color: var(--appBackground);
+	background-color: @appBackground;
 
 	>.header {
-		flex: 0 0 var(--headerHeight);
+		flex: 0 0 @headerHeight;
 		position: relative;
-		color: var(--headerText);
-		background-color: var(--headerBackground);
-		margin-bottom: var(--headerMargin);
-		box-shadow: var(--headerShadow);
+		color: @headerText;
+		background-color: @headerBackground;
+		margin-bottom: @headerMargin;
+		box-shadow: @headerShadow;
 
 		>.back {
 			left: 0;
@@ -116,7 +116,7 @@ body {
 		>.title {
 			font-weight: bold;
 			font-size: 16px;
-			line-height: var(--headerHeight);
+			line-height: @headerHeight;
 			text-align: center;
 			white-space: nowrap;
 		}
@@ -133,7 +133,10 @@ body {
 			width: 100%;
 			height: 100%;
 			visibility: hidden;
-			color: var(--appText);
+			color: @appText;
+			-webkit-animation-duration: 400ms;
+			-webkit-animation-timing-function: ease-in-out;
+			-webkit-animation-iteration-count: 1;
 			animation-duration: 400ms;
 			animation-timing-function: ease-in-out;
 			animation-iteration-count: 1;
@@ -157,30 +160,30 @@ body {
 
 	>.navMenu {
 		display: flex;
-		flex: 0 0 var(--footerHeight);
-		background-color: var(--footerBackground);
+		flex: 0 0 @footerHeight;
+		background-color: @footerBackground;
 		position: relative;
-		margin-top: var(--footerMargin);
-		box-shadow: var(--footerShadow);
+		margin-top: @footerMargin;
+		box-shadow: @footerShadow;
 
 		>a {
 			flex: 1 1 0;
 			text-align: center;
-			color: var(--footerFrontground);
+			color: @footerFrontground;
 			font-size: 12px;
 
 			>svg {
 				display: block;
-				height: var(--footerIconSize);
+				height: @footerIconSize;
 				margin: 6px auto;
-				fill: var(--footerFrontground);
+				fill: @footerFrontground;
 			}
 
 			&.selected {
-				color: var(--footerFrontgroundHighlight);
+				color: @footerFrontgroundHighlight;
 
 				>svg {
-					fill: var(--footerFrontgroundHighlight);
+					fill: @footerFrontgroundHighlight;
 				}
 			}
 		}
@@ -221,8 +224,8 @@ body {
 		left: 0;
 		transform: translateX(-100%);
 		transition: transform 200ms ease-in-out;
-		background-color: var(--appBackground);
-		color: var(--appText);
+		background-color: @appBackground;
+		color: @appText;
 		box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 
 		>div {
@@ -249,7 +252,7 @@ body {
 #dialog,
 #photoView,
 #sliderView {
-	background-color: var(--maskFilterColor);
+	background-color: @maskFilterColor;
 }
 
 #dialog>div {
@@ -261,9 +264,9 @@ body {
 	bottom: 10px;
 	top: 10px;
 	min-width: 240px;
-	background-color: var(--dialogBackground);
-	box-shadow: 0 0 4px var(--dialogShadow);
-	color: var(--appText);
+	background-color: @dialogBackground;
+	box-shadow: 0 0 4px @dialogShadow;
+	color: @appText;
 
 	>.btns {
 		overflow: visible;
@@ -283,22 +286,22 @@ body {
 			box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
 
 			&.yes {
-				color: var(--primaryBtnText);
-				background-color: var(--primaryBtnBackground);
+				color: @primaryBtnText;
+				background-color: @primaryBtnBackground;
 
 				&:active {
-					color: var(--primaryBtnActiveText);
-					background-color: var(--primaryBtnActiveBackground);
+					color: @primaryBtnActiveText;
+					background-color: @primaryBtnActiveBackground;
 				}
 			}
 
 			&.no {
-				color: var(--secondryBtnText);
-				background-color: var(--secondryBtnBackground);
+				color: @secondryBtnText;
+				background-color: @secondryBtnBackground;
 
 				&:active {
-					color: var(--secondryBtnActiveText);
-					background-color: var(--secondryBtnActiveBackground);
+					color: @secondryBtnActiveText;
+					background-color: @secondryBtnActiveBackground;
 				}
 			}
 		}
@@ -313,7 +316,7 @@ body {
 
 		>svg {
 			display: block;
-			fill: var(--headerText);
+			fill: @headerText;
 		}
 	}
 
@@ -351,12 +354,12 @@ body {
 	font-size: 14px;
 	white-space: nowrap;
 	text-align: center;
-	width: var(--loadingWidth);
-	height: var(--loadingHeight);
-	border-radius: var(--loadingRadius);
-	background-color: var(--loadingBackground);
-	box-shadow: 0 0 4px var(--loadingShadow);
-	color: var(--loadingText);
+	width: @loadingWidth;
+	height: @loadingHeight;
+	border-radius: @loadingRadius;
+	background-color: @loadingBackground;
+	box-shadow: 0 0 4px @loadingShadow;
+	color: @loadingText;
 
 	>.ico {
 		position: relative;
@@ -365,8 +368,9 @@ body {
 		border-radius: 50%;
 		width: 40px;
 		height: 40px;
+		-webkit-animation: loadingAni 800ms infinite linear;
 		animation: loadingAni 800ms infinite linear;
-		border-top-color: var(--loadingColor1);
+		border-top-color: @loadingColor1;
 
 		&:before {
 			content: '';
@@ -377,8 +381,9 @@ body {
 			bottom: 2px;
 			border: 2px solid transparent;
 			border-radius: 50%;
+			-webkit-animation: loadingAni 8s infinite linear;
 			animation: loadingAni 8s infinite linear;
-			border-top-color: var(--loadingColor2);
+			border-top-color: @loadingColor2;
 		}
 
 		&:after {
@@ -390,10 +395,20 @@ body {
 			bottom: 6px;
 			border: 2px solid transparent;
 			border-radius: 50%;
+			-webkit-animation: loadingAni 4s infinite linear;
 			animation: loadingAni 4s infinite linear;
-			border-top-color: var(--loadingColor3);
+			border-top-color: @loadingColor3;
 		}
 
+		@-webkit-keyframes loadingAni {
+			0% {
+				transform: rotate(0deg);
+			}
+
+			100% {
+				transform: rotate(360deg);
+			}
+		}
 		@keyframes loadingAni {
 			0% {
 				transform: rotate(0deg);
@@ -410,7 +425,17 @@ body {
 #readable.in {
 	bottom: 0;
 	visibility: inherit;
+	-webkit-animation: popupin 400ms 1 ease-in-out;
 	animation: popupin 400ms 1 ease-in-out;
+	@-webkit-keyframes popupin {
+		from {
+			bottom: -100%;
+		}
+
+		to {
+			bottom: 0;
+		}
+	}
 
 	@keyframes popupin {
 		from {
@@ -426,7 +451,18 @@ body {
 #popup.out,
 #readable.out {
 	visibility: inherit;
+	-webkit-animation: popupout 400ms 1 ease-in-out;
 	animation: popupout 400ms 1 ease-in-out;
+
+	@-webkit-keyframes popupout {
+		from {
+			bottom: 0;
+		}
+
+		to {
+			bottom: -100%;
+		}
+	}
 
 	@keyframes popupout {
 		from {
@@ -455,10 +491,10 @@ body {
 		bottom: 10px;
 		text-align: center;
 		pointer-events: none;
-		color: var(--photoNavColor);
+		color: @photoNavColor;
 		font-family: Serif;
 		font-size: 18px;
-		text-shadow: 0 0 1px var(--photoNavShadow);
+		text-shadow: 0 0 1px @photoNavShadow;
 	}
 
 	&.photos>.content>div>div {
@@ -490,14 +526,14 @@ body {
 			padding: 0 10px;
 			min-width: 60px;
 			border-radius: 4px;
-			color: var(--photoViewBtnText);
-			background-color: var(--photoViewBtnBackground);
-			box-shadow: 0 0 2px var(--photoViewBtnShadow);
+			color: @photoViewBtnText;
+			background-color: @photoViewBtnBackground;
+			box-shadow: 0 0 2px @photoViewBtnShadow;
 
 			&:active {
-				color: var(--photoViewBtnActiveText);
-				background-color: var(--photoViewBtnActiveBackground);
-				box-shadow: 0 0 2px var(--photoViewBtnActiveShadow);
+				color: @photoViewBtnActiveText;
+				background-color: @photoViewBtnActiveBackground;
+				box-shadow: 0 0 2px @photoViewBtnActiveShadow;
 			}
 		}
 	}
@@ -512,15 +548,15 @@ body {
 		top: 4px;
 		border-radius: 16px;
 		display: block;
-		background-color: var(--roundCloseBackground);
-		box-shadow: 0 0 4px var(--roundCloseShadow) inset;
+		background-color: @roundCloseBackground;
+		box-shadow: 0 0 4px @roundCloseShadow inset;
 
 		>svg {
 			display: block;
 			width: 16px;
 			height: 16px;
 			margin: 8px;
-			fill: var(--roundCloseFrontground);
+			fill: @roundCloseFrontground;
 		}
 	}
 }
@@ -533,7 +569,7 @@ body {
 	height: 100%;
 	visibility: hidden;
 	overflow-y: auto;
-	background-color: var(--readableBackground);
+	background-color: @readableBackground;
 
 	>.content {
 		position: absolute;
@@ -579,14 +615,14 @@ body {
 		display: inline-block;
 		vertical-align: top;
 		max-width: 100%;
-		color: var(--hintText);
+		color: @hintText;
 		line-height: 20px;
 		padding: 5px 12px;
-		background-color: var(--hintBackground);
+		background-color: @hintBackground;
 		border-radius: 4px;
 		line-height: 20px;
 		padding: 5px 12px;
-		box-shadow: 0 0 2px var(--hintShadow);
+		box-shadow: 0 0 2px @hintShadow;
 		white-space: pre-wrap;
 		vertical-align: top;
 	}
@@ -617,7 +653,7 @@ body {
 			>div:last-child,
 			&:first-child,
 			&:last-child {
-				background-color: var(--helperBackground);
+				background-color: @helperBackground;
 			}
 		}
 	}
@@ -650,20 +686,60 @@ div.reloadHint {
 	width: 40px;
 	height: 40px;
 	opacity: 0;
-	background-color: var(--reloadHintBackground);
+	background-color: @reloadHintBackground;
 	padding: 8px;
-	box-shadow: 0 0 4px var(--reloadHintShadow);
+	box-shadow: 0 0 4px @reloadHintShadow;
 	border-radius: 20px;
 
 	>svg {
 		display: block;
 		height: 100%;
-		fill: var(--reloadHintStartColor);
+		fill: @reloadHintStartColor;
 		transition: fill 200ms ease-in-out;
 	}
 
 	&.pin>svg {
-		fill: var(--reloadHintFinishColor);
+		fill: @reloadHintFinishColor;
+	}
+}
+
+@-webkit-keyframes viewTransL1 {
+	from {
+		left: 0;
+	}
+
+	to {
+		left: -100%;
+	}
+}
+
+@-webkit-keyframes viewTransR1 {
+	from {
+		left: 0;
+	}
+
+	to {
+		left: 100%;
+	}
+}
+
+@-webkit-keyframes viewTransL2 {
+	from {
+		left: 100%;
+	}
+
+	to {
+		left: 0;
+	}
+}
+
+@-webkit-keyframes viewTransR2 {
+	from {
+		left: -100%;
+	}
+
+	to {
+		left: 0;
 	}
 }
 

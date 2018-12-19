@@ -40,8 +40,11 @@
 			msg = {
 				prefix: prefix,
 				framework: RES_TO_CACHE,
-				modules: Object.values(MODULES)
+				modules: []
 			};
+			for (n in MODULES) {
+				msg.modules.push(MODULES[n]);
+			}
 		}
 		controller.postMessage(msg);
 	}
