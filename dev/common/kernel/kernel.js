@@ -698,7 +698,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				return result;
 			};
 			kernel.closePanel = function (id) {
-				var result = 0;
+				let result = 0;
 				if (animating) {
 					todo = kernel.closePanel.bind(this, id);
 					result = 2;
@@ -1823,10 +1823,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							loadJs(this.responseText);
 						} else {
 							destroy(oldcfg, type, id);
-							if (VERSION === 'dev' || this.status !== 404) {
-								errorOccurs(url, this.status);
-							} else {
+							if (BUILD && this.status === 404) {
 								updated();
+							} else {
+								errorOccurs(url, this.status);
 							}
 						}
 						kernel.hideLoading();
@@ -1862,7 +1862,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						oldcfg.status++;
 						callback(true);
 						kernel.hideLoading();
-					}, VERSION === 'dev' ? undefined : function (error) {
+					}, BUILD && function (error) {
 						destroy(oldcfg, type, id);
 						if ((error.requireType && error.requireType !== 'scripterror' && error.requireType !== 'nodefine') || (error.xhr && error.xhr.status !== 404)) {
 							errorOccurs(js, error.message);
