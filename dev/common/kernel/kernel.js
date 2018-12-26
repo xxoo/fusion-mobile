@@ -1842,7 +1842,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				ctn.insertAdjacentHTML('beforeEnd', '<div class="' + id + '">' + html + '</div>');
 				let dom = ctn.lastChild;
 				if (type !== 'panel') {
-					addPanelAnimationListener(dom);
+					dom.addEventListener(anievt, viewAnimationEnd);
 				}
 				if (oldcfg.js) {
 					kernel.showLoading();
@@ -1918,21 +1918,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			tohide.style[aniname] = 'viewTransL1';
 			toshow.style[aniname] = 'viewTransL2';
 		}
-		if (typeof callback === 'function') {
-			addPanelAnimationListener(toshow, listener);
-		}
+		toshow.addEventListener(anievt, listener);
 
 		function listener(evt) {
-			this.removeEventListener(evt.type, listener, false);
-			callback();
+			if (evt.target === this) {
+				this.removeEventListener(evt.type, listener);
+				callback();
+			}
 		}
-	}
-	//对需要左右滑动的view需要添加一个事件监听
-	function addPanelAnimationListener(emt, listener) {
-		if (typeof listener !== 'function') {
-			listener = viewAnimationEnd;
-		}
-		emt.addEventListener(anievt, listener);
 	}
 	//左右滑动的动画完成后要执行的操作
 	function viewAnimationEnd(evt) {
