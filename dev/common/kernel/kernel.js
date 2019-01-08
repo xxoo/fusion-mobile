@@ -1059,7 +1059,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		}();
 		//对话框及提示功能
 		! function () {
-			let hintmo, callback,
+			let hintmo, onclose,
 				loadingRT = 0,
 				dlgStack = [],
 				photoStatus = {},
@@ -1126,22 +1126,21 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			kernel.hideSliderView = function () {
 				slider.clear();
 			};
-			kernel.alert = function (text, callback) { //alert对话框
-				openDialog('alert', text, callback);
+			kernel.alert = function (text, closecb, opencb) { //alert对话框
+				openDialog('alert', text, closecb, opencb);
 			};
-			kernel.confirm = function (text, callback) { //yes no对话框
-				openDialog('confirm', text, callback);
+			kernel.confirm = function (text, closecb, opencb) { //yes no对话框
+				openDialog('confirm', text, closecb, opencb);
 			};
-			kernel.htmlDialog = function (html, className, callback) { //自定义内容的对话框
-				openDialog(className || '', html, callback);
+			kernel.htmlDialog = function (html, className, closecb, opencb) { //自定义内容的对话框
+				openDialog(className || '', html, closecb, opencb);
 			};
 			kernel.closeDialog = function (param) { //通用对话框关闭方法
-				if (typeof callback === 'function') {
-					let tmp = callback;
-					callback = undefined;
+				if (typeof onclose === 'function') {
+					let tmp = onclose;
+					onclose = undefined;
 					tmp(param);
 				}
-				self.removeEventListener('resize', syncDialogSize);
 				dialogCtn.style.visibility = '';
 				while (dialogContent.childNodes.length) {
 					dialogContent.lastChild.remove();
@@ -1217,9 +1216,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				kernel.closeDialog();
 			}
 
-			function openDialog(type, content, cb) {
+			function openDialog(type, content, closecb, opencb) {
 				if (dialogCtn.style.visibility === 'inherit') {
-					dlgStack.push([type, content, cb]);
+					dlgStack.push([type, content, closecb, opencb]);
 				} else {
 					dialogBox.className = type;
 					if (type === 'alert') {
@@ -1247,20 +1246,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							dialogContent.appendChild(content);
 						}
 					}
-					self.addEventListener('resize', syncDialogSize);
-					syncDialogSize();
 					dialogCtn.style.visibility = 'inherit';
-					callback = cb;
+					onclose = closecb;
+					if (typeof opencb === 'function') {
+						opencb();
+					}
 				}
-			}
-
-			function syncDialogSize() {
-				dialogBox.style.width = dialogBox.style.height = '';
-				dialogBox.style.left = dialogBox.style.top = '20px';
-				dialogBox.style.bottom = dialogBox.style.right = 'auto';
-				dialogBox.style.width = dialogBox.offsetWidth + 'px';
-				dialogBox.style.height = dialogBox.offsetHeight + 'px';
-				dialogBox.style.left = dialogBox.style.top = dialogBox.style.bottom = dialogBox.style.right = '';
 			}
 
 			function setImg() {
