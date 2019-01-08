@@ -218,22 +218,22 @@ function func(evt){
 					'hideSliderView():undefined': {
 						desc: '隐藏轮播视图, 一般不需要手动调用'
 					},
-					'alert(text:string, callback?:Function):undefined': {
+					'alert(text:string, closecb?:Function, opencb?:Function):undefined': {
 						desc: '显示提示框',
 						code: `kernel.alert('this is an alert box.');`
 					},
-					'confirm(text:string, callback:Function):undefined': {
+					'confirm(text:string, closecb?:Function, opencb:Function):undefined': {
 						desc: '显示需确认的提示框',
 						code: `kernel.confirm('is this a confirm box?', function(sure){
 	console.log(sure);
 });`
 					},
-					'htmlDialog(html:string|HTMLElement, className?:string, callback?:Function):undefined': {
+					'htmlDialog(html:string|HTMLElement, className?:string, closecb?:Function, opencb?:Function):undefined': {
 						desc: '显示自定义内容的对话框',
 						code: ``
 					},
-					'closeDialog():undefined': {
-						desc: '关闭当前对话框, 一般不需要手动调用'
+					'closeDialog(param:any):undefined': {
+						desc: '关闭当前对话框, 一般不需要手动调用, param会作为参数传入到closecb中'
 					},
 					'showLoading(text?:string):undefined': {
 						title: 'showLoading(text?:string):undefined',

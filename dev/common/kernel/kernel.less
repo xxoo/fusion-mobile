@@ -255,15 +255,22 @@ body {
 	background-color: @maskFilterColor;
 }
 
+#dialog,
+#loading {
+	display: flex;
+
+	>div {
+		flex: 0 0 auto;
+		margin: auto;
+	}
+}
+
 #dialog>div {
-	position: absolute;
-	margin: auto;
-	border-radius: 10px;
-	right: 10px;
-	left: 10px;
-	bottom: 10px;
-	top: 10px;
+	position: relative;
+	max-width: calc(100% - 20px);
+	max-height: calc(100% - 20px);
 	min-width: 240px;
+	border-radius: 10px;
 	background-color: @dialogBackground;
 	box-shadow: 0 0 4px @dialogShadow;
 	color: @appText;
@@ -345,17 +352,13 @@ body {
 }
 
 #loading>div {
-	position: absolute;
-	right: 0;
-	left: 0;
-	bottom: 0;
-	top: 0;
-	margin: auto;
 	font-size: 14px;
-	white-space: nowrap;
+	line-height: 20px;
+	white-space: pre-wrap;
 	text-align: center;
-	width: @loadingWidth;
-	height: @loadingHeight;
+	padding: 15px 15px 12px 15px;
+	min-width: @loadingWidth;
+	min-height: @loadingHeight;
 	border-radius: @loadingRadius;
 	background-color: @loadingBackground;
 	box-shadow: 0 0 4px @loadingShadow;
@@ -363,7 +366,7 @@ body {
 
 	>.ico {
 		position: relative;
-		margin: 15px auto 16px auto;
+		margin: 0 auto 13px auto;
 		border: 2px solid transparent;
 		border-radius: 50%;
 		width: 40px;
@@ -409,6 +412,7 @@ body {
 				transform: rotate(360deg);
 			}
 		}
+
 		@keyframes loadingAni {
 			0% {
 				transform: rotate(0deg);
@@ -427,6 +431,7 @@ body {
 	visibility: inherit;
 	-webkit-animation: popupin 400ms 1 ease-in-out;
 	animation: popupin 400ms 1 ease-in-out;
+
 	@-webkit-keyframes popupin {
 		from {
 			bottom: -100%;
@@ -695,7 +700,7 @@ div.reloadHint {
 		display: block;
 		height: 100%;
 		fill: @reloadHintStartColor;
-		transition: fill 200ms ease-in-out;
+		transition: fill 400ms ease-in-out;
 	}
 
 	&.pin>svg {
