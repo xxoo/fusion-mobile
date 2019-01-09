@@ -8,9 +8,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			// 加入css 到head中;
 			// 如果是生产环境; 加入 css
 			// 如果是开发环境 加入less
-			appendCss: function (url) { //自动根据当前环境添加css或less
+			appendCss: function (url, forcecss) { //自动根据当前环境添加css或less
 				let csslnk = document.createElement('link');
-				if (self.less) {
+				if (self.less && !forcecss) {
 					csslnk.rel = 'stylesheet/less';
 					csslnk.href = url + '.less';
 					less.sheets.push(csslnk);
@@ -27,7 +27,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					less.sheets.splice(less.sheets.indexOf(lnk), 1);
 					less.refresh();
 				}
-				return lnk.getAttribute('href').replace(/\.(le|c)ss$/, '');
 			},
 			// 创建 svg dom;
 			makeSvg: function (name, type) {
