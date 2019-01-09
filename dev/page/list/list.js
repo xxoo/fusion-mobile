@@ -6,20 +6,20 @@ define(['module', 'common/kernel/kernel', 'common/touchslider/touchslider'], fun
 			'common/kernel/kernel': {
 				desc: '核心模块，包含框架中的主要接口',
 				methods: {
-					'appendCss(url:string):HTMLLinkElement': {
+					'appendCss(url:string, forcecss:bool):HTMLLinkElement': {
 						desc: '用于加载样式，会自动根据当前环境来选择加载less或者由less编译成的css',
-						code: `var a = kernel.appendCss(require.toUrl('common/kernel/kernel.less'));
+						code: `var a = kernel.appendCss(require.toUrl('common/kernel/kernel'));
 console.log(a.href);
 setTimeout(function(){
-	console.log(kernel.removeCss(a));
+	kernel.removeCss(a);
 }, 1000);`
 					},
-					'removeCss(lnk:HTMLLinkElement):string': {
+					'removeCss(lnk:HTMLLinkElement):undefined': {
 						desc: '移除已加载的less或者css',
-						code: `var a = kernel.appendCss(require.toUrl('common/kernel/kernel.less'));
+						code: `var a = kernel.appendCss(require.toUrl('common/kernel/kernel'));
 console.log(a.href);
 setTimeout(function(){
-	console.log(kernel.removeCss(a));
+	kernel.removeCss(a);
 }, 1000);`
 					},
 					'makeSvg(name:string, type?:0|1|2):SVGSVGElement': {
