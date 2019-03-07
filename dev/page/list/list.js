@@ -273,8 +273,8 @@ function loaded(evt){
 						desc: '显示简易文本提示',
 						code: `kernel.hint('文本提示');`
 					},
-					'init(home:string, icos:Array):undefined': {
-						desc: '启动路由或者修改默认页及导航按钮, 需要示例请查看site/index/index中的代码'
+					'init(navs:Array):undefined': {
+						desc: '启动路由或者修改导航按钮, 导航栏第一项将被作为默认页, 需要示例请查看site/index/index中的代码'
 					},
 					'reloadPage(id?:string, silent?:boolean):undefined': {
 						desc: '重新加载当前页',

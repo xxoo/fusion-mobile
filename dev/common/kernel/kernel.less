@@ -172,10 +172,14 @@ body {
 			color: @footerFrontground;
 			font-size: 12px;
 
+			&:before,
 			>svg {
 				display: block;
 				height: @footerIconSize;
 				margin: 6px auto;
+			}
+			
+			>svg {
 				fill: @footerFrontground;
 			}
 
@@ -683,7 +687,7 @@ body {
 	pointer-events: none;
 }
 
-div.reloadHint {
+span.reloadHint {
 	position: absolute;
 	left: 0;
 	right: 0;
