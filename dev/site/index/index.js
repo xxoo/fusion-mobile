@@ -14,22 +14,13 @@ define(['common/kernel/kernel'], function (kernel) {
 	}
 	kernel.init([{
 		id: 'list',
-		ico: {
-			normal: 'home-regular',
-			selected: 'home-solid'
-		}
+		ico: ['home-regular', 'home-solid']
 	}, {
 		id: 'user',
-		ico: {
-			normal: 'user-regular',
-			selected: 'user-solid'
-		}
+		ico: ['user-regular', 'user-solid']
 	}, {
 		id: 'settings',
-		ico: {
-			normal: 'cog-regular',
-			selected: 'cog-solid'
-		}
+		ico: ['cog-regular', 'cog-solid']
 	}]);
 	if (!document.body.classList.contains('clean') && browser.platform === 'Android' && browser.name === 'unsupported' && !browser.app) {
 		kernel.htmlDialog('\
