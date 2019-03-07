@@ -4,8 +4,8 @@
 	if (l) {
 		let s = document.createElement('script');
 		s.src = l.href.replace(/css\/all.css$/, 'js/all.js');
+		s.onload = go;
 		document.head.appendChild(s);
-		go();
 	} else {
 		alert('can not detect version');
 	}
