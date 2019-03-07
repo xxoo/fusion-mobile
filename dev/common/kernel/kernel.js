@@ -442,7 +442,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 									evt.domEvent.preventDefault();
 									evt.domEvent.stopPropagation();
 									if (!reloadHint) {
-										reloadHint = evt.domEvent.view.document.createElement('div');
+										reloadHint = evt.domEvent.view.document.createElement('span');
 										reloadHint.className = 'reloadHint';
 										reloadHint.appendChild(kernel.makeSvg('sync-alt-solid', 1));
 										dom.appendChild(reloadHint);
@@ -1344,7 +1344,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	! function () {
 		//此处不能使用kernel.lastLocation.id, 因为currentpage仅在页面加载成功才会更新
 		//而kernel.lastLocation.id在页面加载前就已经更新, 无法确保成功加载
-		let routerHistory, currentpage, animating, todo, navIcos, navs,
+		let routerHistory, currentpage, animating, todo, navIcos,
 			historyName = location.pathname,
 			pagesBox = document.body.querySelector('#page'),
 			navCtn = pagesBox.querySelector(':scope>.navMenu'),
@@ -1361,12 +1361,27 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		}
 		//icos是导航菜单的列表
 		//home是默认页
-		kernel.init = function (home, icos) {
-			if (pages.hasOwnProperty(home)) {
-				if (homePage) {
-					if (icos) {
-						initNavs(icos);
+		kernel.init = function (navs) {
+			let home,
+				icos = {};
+			for (let i = 0; i < navs.length; i++) {
+				let id, ico;
+				if (typeof navs[i] === 'string') {
+					id = navs[i];
+				} else {
+					id = navs[i].id;
+					ico = navs[i].ico;
+				}
+				if (pages.hasOwnProperty(id)) {
+					if (!home) {
+						home = id;
 					}
+					icos[id] = ico;
+				}
+			}
+			if (home) {
+				if (homePage) {
+					initNavs(icos);
 					if (homePage !== home) {
 						let oldHome = homePage;
 						homePage = home;
@@ -1489,18 +1504,22 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				navCtn.firstChild.remove();
 			}
 			navIcos = icos;
-			navs = {};
 			for (let n in navIcos) {
 				if (pages.hasOwnProperty(n)) {
-					navs[n] = navCtn.appendChild(document.createElement('a'));
-					navs[n].href = '#!' + n;
+					let nav = navCtn.appendChild(document.createElement('a'));
+					nav.className = n;
+					nav.href = '#!' + n;
 					if (RegExp('^' + n + '(?:-|$)').test(kernel.location.id)) {
-						navs[n].className = 'selected';
-						navs[n].appendChild(kernel.makeSvg(typeof navIcos[n] === 'string' ? navIcos[n] : navIcos[n].selected, 1));
+						nav.classList.add('selected');
+						if (navIcos[n]) {
+							nav.appendChild(kernel.makeSvg(typeof navIcos[n] === 'string' ? navIcos[n] : navIcos[n][1], 1));
+						}
 					} else {
-						navs[n].appendChild(kernel.makeSvg(typeof navIcos[n] === 'string' ? navIcos[n] : navIcos[n].normal, 1));
+						if (navIcos[n]) {
+							nav.appendChild(kernel.makeSvg(typeof navIcos[n] === 'string' ? navIcos[n] : navIcos[n][0], 1));
+						}
 					}
-					navs[n].appendChild(document.createTextNode(pages[n].alias ? pages[n].title || pages[pages[n].alias].title : pages[n].title));
+					nav.appendChild(document.createTextNode(pages[n].alias ? pages[n].title || pages[pages[n].alias].title : pages[n].title));
 				}
 			}
 		}
@@ -1534,16 +1553,18 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				let n = pageid.replace(/-.*$/, ''),
 					m = kernel.lastLocation.id.replace(/-.*$/, '');
 				if (n !== m) {
-					if (navs.hasOwnProperty(n)) {
-						navs[n].className = 'selected';
-						if (typeof navIcos[n] !== 'string') {
-							kernel.setSvgPath(navs[n].firstChild, navIcos[n].selected, 1);
+					let nav = navCtn.querySelector(':scope>a.' + n);
+					if (nav) {
+						nav.classList.add('selected');
+						if (navIcos[n] && typeof navIcos[n] !== 'string') {
+							kernel.setSvgPath(nav.firstChild, navIcos[n][1], 1);
 						}
 					}
-					if (navs.hasOwnProperty(m)) {
-						navs[m].className = '';
-						if (typeof navIcos[m] !== 'string') {
-							kernel.setSvgPath(navs[m].firstChild, navIcos[m].normal, 1);
+					nav = navCtn.querySelector(':scope>a.' + m);
+					if (nav) {
+						nav.classList.remove('selected');
+						if (navIcos[m] && typeof navIcos[m] !== 'string') {
+							kernel.setSvgPath(nav.firstChild, navIcos[m][0], 1);
 						}
 					}
 				}

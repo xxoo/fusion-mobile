@@ -12,20 +12,25 @@ define(['common/kernel/kernel'], function (kernel) {
 			_hmt.push(['_trackPageview', location.pathname + kernel.buildHash(kernel.location)]);
 		});
 	}
-	kernel.init('list', {
-		list: {
+	kernel.init([{
+		id: 'list',
+		ico: {
 			normal: 'home-regular',
 			selected: 'home-solid'
-		},
-		user: {
+		}
+	}, {
+		id: 'user',
+		ico: {
 			normal: 'user-regular',
 			selected: 'user-solid'
-		},
-		settings: {
+		}
+	}, {
+		id: 'settings',
+		ico: {
 			normal: 'cog-regular',
 			selected: 'cog-solid'
 		}
-	});
+	}]);
 	if (!document.body.classList.contains('clean') && browser.platform === 'Android' && browser.name === 'unsupported' && !browser.app) {
 		kernel.htmlDialog('\
 			<div style="padding:10px;font-weight:bold;font-size:14px;">请更换浏览器</div>\
