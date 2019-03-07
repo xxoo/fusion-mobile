@@ -64,7 +64,8 @@ console.log(svg.getAttribute('viewBox'));`
 					'getDefaultBack(loc:Object):Object': {
 						desc: '获得loc的默认返回地址',
 						code: `console.log(kernel.getDefaultBack({
-	id: 'user'
+	id: 'user',
+	args: {}
 }));`
 					},
 					'isGoingback(from:string, to:string):boolean': {
