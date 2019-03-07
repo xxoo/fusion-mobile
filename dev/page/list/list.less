@@ -1,53 +1,62 @@
 @import "../../config.less";
 
-#page>.content>.list{
+#page>.content>.list {
 	overflow-y: auto;
-	>.sld{
+
+	>.sld {
 		height: 100px;
 		background-color: white;
-		.item{
+
+		.item {
 			white-space: pre-wrap;
 			font-size: 12px;
 			line-height: 1.5;
 			padding: 2px 10px 18px 10px;
-			>div{
+
+			>div {
 				font-size: 16px;
 			}
 		}
 	}
+
 	>.nav {
-			position: relative;
-			width: 100%;
-			text-align: center;
-			pointer-events: none;
-			font-family: Serif;
-			font-size: 16px;
-			line-height: 18px;
-			margin-top: -18px;
-			color: black;
-			text-shadow: 0 0 1px silver;
+		position: relative;
+		width: 100%;
+		text-align: center;
+		pointer-events: none;
+		font-family: Arial;
+		font-size: 16px;
+		line-height: 18px;
+		margin-top: -18px;
+		color: black;
+		text-shadow: 0 0 1px silver;
 	}
-	>.tabs{
+
+	>.tabs {
 		display: flex;
 		background-color: white;
 		margin-top: 10px;
-		>a{
+
+		>a {
 			flex: 1 1 0;
 			color: #333333;
 			line-height: 40px;
 			font-size: 16px;
 			text-align: center;
-			&.active{
+
+			&.active {
 				height: 40px;
 				border-bottom: 2px solid darkgoldenrod;
 			}
 		}
 	}
-	>.content>.item{
+
+	>.content>.item {
 		background-color: white;
 		margin-top: 1px;
 		padding: 12px 15px;
-		>a{
+
+		>a {
 			display: block;
 			font-family: monospace;
 			word-break: break-all;
@@ -55,22 +64,27 @@
 			line-height: 20px;
 			color: darkgoldenrod;
 		}
-		>div{
+
+		>div {
 			display: none;
 		}
-		&.active{
+
+		&.active {
 			padding: 12px 15px 0 15px;
-			>a{
+
+			>a {
 				margin-bottom: 12px;
 			}
-			>.desc{
+
+			>.desc {
 				display: block;
 				font-size: 14px;
 				line-height: 20px;
 				border-top: 1px solid #f6f6f6;
 				padding: 12px 0;
 			}
-			>.code{
+
+			>.code {
 				display: block;
 				font-size: 12px;
 				line-height: 1.5;
