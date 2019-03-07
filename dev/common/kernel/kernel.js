@@ -957,12 +957,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					animating = false;
 					if (this.classList.contains('out')) {
 						this.classList.remove('out');
-						if (typeof kernel.popupEvents.onhideend === 'function') {
-							kernel.popupEvents.onhideend({
-								type: 'hideend',
-								id: activePopup
-							});
-						}
 						let tohide = popupsBox.querySelector(':scope>.content>.' + activePopup);
 						tohide.style.left = tohide.style.visibility = '';
 						if (typeof popups[activePopup].onunloadend === 'function') {
@@ -975,18 +969,24 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							document.activeElement.blur();
 						}
 						popupsBox.classList.remove(activePopup);
+						if (typeof kernel.popupEvents.onhideend === 'function') {
+							kernel.popupEvents.onhideend({
+								type: 'hideend',
+								id: activePopup
+							});
+						}
 						activePopup = undefined;
 					} else {
-						if (typeof popups[activePopup].onloadend === 'function') {
-							popups[activePopup].onloadend();
-						}
-						popups[activePopup].status++;
 						if (typeof kernel.popupEvents.onshowend === 'function') {
 							kernel.popupEvents.onshowend({
 								type: 'showend',
 								id: activePopup
 							});
 						}
+						if (typeof popups[activePopup].onloadend === 'function') {
+							popups[activePopup].onloadend();
+						}
+						popups[activePopup].status++;
 					}
 					if (typeof todo === 'function') {
 						let tmp = todo;
