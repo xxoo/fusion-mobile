@@ -437,7 +437,7 @@ function loaded(evt){
 		sld.add(tmp);
 	}
 	sld.onchange();
-	kernel.fixIosScrolling(dom);
+	kernel.scrollReload(dom);
 	return {
 		onload: function (force) {
 			var types, apis,

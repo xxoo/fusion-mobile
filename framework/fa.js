@@ -1,15 +1,15 @@
 ! function () {
 	'use strict';
-	let l = document.querySelector('link[href^="https://pro-next.fontawesome.com/releases/"]');
+	let l = document.querySelector('link[href^="https://kit-pro.fontawesome.com/releases/"]');
 	if (l) {
 		let s = document.createElement('script');
-		s.src = l.href.replace(/css\/all.css$/, 'js/all.js');
-		s.onload = go;
+		s.src = l.href.replace(/css\/pro.min.css$/, 'js/pro.js');
+		//s.onload = go;
 		document.head.appendChild(s);
 	} else {
 		alert('can not detect version');
 	}
-
+/*
 	function go() {
 		let b = document.querySelector('div.tc.mt3-ns>button');
 		if (b) {
@@ -28,4 +28,5 @@
 			document.close();
 		}
 	}
+	*/
 }();

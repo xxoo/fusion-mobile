@@ -707,8 +707,21 @@ span.reloadHint {
 		transition: fill 400ms ease-in-out;
 	}
 
-	&.pin>svg {
-		fill: @reloadHintFinishColor;
+	&.pin {
+		animation: reloadPinAni 100ms ease-in-out;
+		>svg {
+			fill: @reloadHintFinishColor;
+		}
+
+		@keyframes reloadPinAni {
+			0%,
+			100% {
+				transform: rotate(0deg);
+			}
+			50% {
+				transform: rotate(45deg);
+			}
+		}
 	}
 }
 

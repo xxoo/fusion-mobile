@@ -453,11 +453,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 										reloadHint.classList.remove('pin');
 										reloadHint.style.opacity = (evt.y - y) / h / 2;
 										reloadHint.style.transform = 'rotate(' + 360 * reloadHint.style.opacity + 'deg)';
-									} else {
+									} else if (!reloadHint.classList.contains('pin')) {
 										reloadHint.style.top = h + 'px';
 										reloadHint.style.opacity = 1;
 										reloadHint.classList.add('pin');
 										reloadHint.style.transform = '';
+										if (navigator.vibrate) {
+											navigator.vibrate(10);
+										}
 									}
 								} else {
 									if (evt.y < y && !st) {
