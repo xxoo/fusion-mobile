@@ -704,7 +704,7 @@ span.reloadHint {
 		display: block;
 		height: 100%;
 		fill: @reloadHintStartColor;
-		transition: fill 400ms ease-in-out;
+		transition: fill 100ms ease-in-out;
 	}
 
 	&.pin {
@@ -714,12 +714,17 @@ span.reloadHint {
 		}
 
 		@keyframes reloadPinAni {
-			0%,
+			0% {
+				top: 35px;
+				transform: rotate(-22.5deg);
+			}
+			71.428571% {
+				transform: rotate(9deg);
+				top: 42px;
+			}
 			100% {
 				transform: rotate(0deg);
-			}
-			50% {
-				transform: rotate(45deg);
+				top: 40px;
 			}
 		}
 	}

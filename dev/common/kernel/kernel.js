@@ -422,7 +422,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				let y, st, reloadHint, scrolled,
 					kernel = this,
 					events = pointerevents(dom, function (evt) {
-						let h;
 						if (evt.type === 'start') {
 							if (events.pointers.length === 0 && kernel.getScrollTop(dom) === 0) {
 								y = evt.y;
@@ -447,11 +446,13 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 										reloadHint.appendChild(kernel.makeSvg('sync-alt-solid', 1));
 										dom.appendChild(reloadHint);
 									}
-									h = reloadHint.offsetHeight || reloadHint.clientHeight;
-									if (evt.y - y < h * 2) {
-										reloadHint.style.top = evt.y - y - h + 'px';
+									let h = reloadHint.offsetHeight || reloadHint.clientHeight,
+										v = evt.y - y - h;
+									if (v < h) {
 										reloadHint.classList.remove('pin');
-										reloadHint.style.opacity = (evt.y - y) / h / 2;
+										v = v * 17 / 16 - Math.pow(v, 2) * 17 / (32 * h) + h * 11 / 32;
+										reloadHint.style.top = v + 'px';
+										reloadHint.style.opacity = (v + h) / (h * 2);
 										reloadHint.style.transform = 'rotate(' + 360 * reloadHint.style.opacity + 'deg)';
 									} else if (!reloadHint.classList.contains('pin')) {
 										reloadHint.style.top = h + 'px';
