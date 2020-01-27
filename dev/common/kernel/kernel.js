@@ -450,8 +450,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 										v = evt.y - y - h;
 									if (v < h) {
 										reloadHint.classList.remove('pin');
-										v = v * 17 / 16 - Math.pow(v, 2) * 17 / (32 * h) + h * 11 / 32;
-										reloadHint.style.top = v + 'px';
+										reloadHint.style.top = v * 17 / 16 - Math.pow(v, 2) * 17 / (32 * h) + h * 11 / 32 + 'px';
 										reloadHint.style.opacity = (v + h) / (h * 2);
 										reloadHint.style.transform = 'rotate(' + 360 * reloadHint.style.opacity + 'deg)';
 									} else if (!reloadHint.classList.contains('pin')) {
