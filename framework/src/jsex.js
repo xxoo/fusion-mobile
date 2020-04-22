@@ -3,9 +3,13 @@
 	var g = typeof self === 'undefined' ? global : self,
 		pmtobjs = ['String', 'Number', 'Boolean', 'Symbol', 'BigInt'],
 		arrays = ['Array', 'Int8Array', 'Uint8Array', 'Uint8ClampedArray', 'Int16Array', 'Uint16Array', 'Int32Array', 'Uint32Array', 'Float32Array', 'Float64Array', 'BigInt64Array', 'BigUint64Array'],
-		stricts = ['string', 'number', 'boolean', 'bigint'],
 		wksbls = ['iterator', 'asyncIterator', 'match', 'replace', 'search', 'split', 'hasInstance', 'isConcatSpreadable', 'unscopables', 'species', 'toPrimitive', 'toStringTag'];
-	//deserialize jsex to js data, support JSON string
+
+	g.AsyncFunction = async function () {}.constructor;
+	g.GeneratorFunction = function* () {}.constructor;
+	g.AsyncGeneratorFunction = async function* () {}.constructor;
+
+	//deserialize jsex, support JSON string
 	String.prototype.parseJsex = function () {
 		var m, l, r;
 		if (this.substr(0, l = 4) === 'null') {
@@ -71,7 +75,7 @@
 						}
 					}
 				}
-			} else if(this.substr(l, 5) === '.for(') {
+			} else if (this.substr(l, 5) === '.for(') {
 				l += 5;
 				m = this.substr(l).parseJsex();
 				if (m && typeof m.value === 'string') {
@@ -186,7 +190,7 @@
 				value: +m[0],
 				length: m[0].length
 			};
-		} else if (m = this.match(/^"(?:(?:[^\x00-\x1f"]|\\")*?[^\\])??(?:\\\\)*"/)) {
+		} else if (m = this.match(/^"(?:(?:[^\x00-\x1f\xff"]|\\")*?[^\\\x00-\x1f\xff])??(?:\\\\)*"/)) {
 			try {
 				r = m[0].replace(/^"|\\[\\bnvfr"]|\\x[0-f]{2}|\\u[0-f]{4}|"$|\\/g, function (a) {
 					if (a === '"') {
@@ -212,13 +216,13 @@
 					}
 				});
 			} catch (e) {}
-			if (r) {
+			if (r !== undefined) {
 				r = {
 					value: r,
 					length: m[0].length
 				};
 			}
-		} else if (m = this.match(/^\/((?:\\\\)+|(?:[^\\\/]|[^\/][^\x00-\x1f]*?[^\\])(?:\\\\)*)\/(g?i?m?u?y?)/)) {
+		} else if (m = this.match(/^\/((?:\\\\)+|(?:[^\\\/]|[^\/][^\x00-\x1f\xff]*?[^\\\x00-\x1f\xff])(?:\\\\)*)\/(g?i?m?u?y?)/)) {
 			try {
 				r = {
 					value: RegExp(m[1], m[2]),
@@ -281,7 +285,7 @@
 	};
 	//serialize js data to jsex
 	g.toJsex = function (d) {
-		var s, i;
+		var s, i, n;
 		if (d == null) {
 			s = String(d);
 		} else {
@@ -323,7 +327,7 @@
 			} else if (i === 'Date') {
 				s = 'new Date(' + d.getTime() + ')';
 			} else if (i === 'RegExp') {
-				s = '/' + (d.source ? d.source.replace(/[\x00-\x1f]/g, function (a) {
+				s = '/' + (d.source ? d.source.replace(/[\x00-\x1f\xff]/g, function (a) {
 					var c;
 					if (a === '\n') {
 						return '\\n';
@@ -371,13 +375,12 @@
 				s += ']';
 			} else {
 				s = '{';
-				for (i in d) {
-					if (d.hasOwnProperty(i)) {
-						if (s.length > 1) {
-							s += ',';
-						}
-						s += strEncode(i) + ':' + toJsex(d[i]);
+				n = Object.getOwnPropertyNames(d);
+				for (i = 0; i < n.length; i++) {
+					if (i > 0) {
+						s += ',';
 					}
+					s += strEncode(n[i]) + ':' + toJsex(d[n[i]]);
 				}
 				s += '}';
 			}
@@ -388,46 +391,48 @@
 	//object key order does not matter
 	g.isEqual = function (o1, o2) {
 		var i, n,
-			t = dataType(o1),
+			t1 = dataType(o1),
 			t2 = dataType(o2);
-		if (pmtobjs.indexOf(t) >= 0) {
+		if (pmtobjs.indexOf(t1) >= 0) {
 			o1 = o1.valueOf();
-			t = t.toLowerCase();
+			t1 = t1.toLowerCase();
 		}
 		if (pmtobjs.indexOf(t2) >= 0) {
 			o2 = o2.valueOf();
 			t2 = t2.toLowerCase();
 		}
-		if (o1 === o2) {
+		if (o1 === o2 || (Number.isNaN(o1) && Number.isNaN(o2))) {
 			return true;
-		} else if (['Date', 'RegExp', 'Error', 'symbol'].indexOf(t) >= 0) {
-			if (t === t2) {
-				return t === 'Date' ? o1.getTime() === o2.getTime() : toJsex(o1) === toJsex(o2);
-			}
-		} else if (arrays.indexOf(t) >= 0) {
+		} else if (arrays.indexOf(t1) >= 0) {
 			if (arrays.indexOf(t2) >= 0 && o1.length === o2.length) {
-				for (n = 0; n < o1.length; n++) {
-					if (!isEqual(o1[n], o2[n])) {
-						return false;
+				for (i = 0; i < o1.length; i++) {
+					if (!isEqual(o1[i], o2[i])) {
+						return;
 					}
 				}
 				return true;
 			}
-		} else if (stricts.indexOf(t) < 0 && stricts.indexOf(t2) < 0) {
-			n = Object.keys(o1);
-			if (n.length === Object.keys(o2).length) {
-				for (i = 0; i < n.length; i++) {
-					if (!o2.hasOwnProperty(n[i]) || !isEqual(o1[n[i]], o2[n[i]])) {
-						return false;
+		} else if (t1 === t2) {
+			if (t1 === 'Date') {
+				return o1.getTime() === o2.getTime();
+			} else if (['RegExp', 'Error', 'symbol'].indexOf(t1) >= 0) {
+				return toJsex(o1) === toJsex(o2);
+			} else if (t1 === 'Object') {
+				n = Object.getOwnPropertyNames(o1);
+				if (n.length === Object.getOwnPropertyNames(o2).length) {
+					for (i = 0; i < n.length; i++) {
+						if (!o2.hasOwnProperty(n[i]) || !isEqual(o1[n[i]], o2[n[i]])) {
+							return;
+						}
 					}
+					return true;
 				}
-				return true;
 			}
 		}
 	};
 
 	function strEncode(str) {
-		return '"' + str.replace(/[\\"\x00-\x1f]/g, function (a) {
+		return '"' + str.replace(/[\\"\x00-\x1f\xff]/g, function (a) {
 			var c;
 			if (a === '\\') {
 				return '\\\\';
