@@ -15,24 +15,16 @@ self.addEventListener('message', function (event) {
 			for (let i = 0; i < data.modules.length; i++) {
 				data.modules[i] = new URL(data.modules[i] + '/', event.source.url).href;
 			}
-			caches.open(data.prefix + 'modules').then(function (cache) {
-				return cache.keys().then(function (keys) {
-					keys.forEach(function (request) {
-						if (!findModule(request.url)) {
-							cache.delete(request);
-						}
-					});
-				});
-			});
-			caches.open(data.prefix + 'framework').then(function (cache) {
-				return cache.keys().then(function (keys) {
-					keys.forEach(function (request) {
-						if (data.framework.indexOf(request.url) < 0) {
-							cache.delete(request);
-						}
-					});
-				});
-			});
+			caches.open(data.prefix + 'modules').then(cache => cache.keys().then(keys => keys.forEach(request => {
+				if (!findModule(request.url)) {
+					cache.delete(request);
+				}
+			})));
+			caches.open(data.prefix + 'framework').then(cache => cache.keys().then(keys => keys.forEach(request => {
+				if (data.framework.indexOf(request.url) < 0) {
+					cache.delete(request);
+				}
+			})));
 		}
 	}
 });
@@ -53,22 +45,14 @@ self.addEventListener('fetch', function (event) {
 				type = 'modules';
 			}
 			if (type) {
-				event.respondWith(caches.open(data.prefix + type).then(function (cache) {
-					return cache.match(event.request).then(function (response) {
-						if (response) {
-							return response;
-						} else {
-							return fetch(event.request, {
-								cache: 'no-cache'
-							}).then(function (response) {
-								if (response.ok) {
-									cache.put(event.request, response.clone());
-								}
-								return response;
-							});
-						}
-					});
-				}));
+				event.respondWith(caches.open(data.prefix + type).then(cache => cache.match(event.request).then(response => response ? response : fetch(event.request, {
+					cache: 'no-cache'
+				}).then(response => {
+					if (response.ok) {
+						cache.put(event.request, response.clone());
+					}
+					return response;
+				}))));
 			}
 		}
 	}
