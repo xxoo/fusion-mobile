@@ -10,14 +10,14 @@
 		<meta name="msapplication-tap-highlight" content="no"/>
 		<title>fusion mobile</title>
 		<style>
-			html.loading{
+			html.loading {
 				height: 100%;
 				background-image: url(/fusion-mobile/loading.svg);
 				background-size: 50% auto;
 				background-repeat: no-repeat;
 				background-position: 50% 50%;
 			}
-			html.loading>body{
+			html.loading>body {
 				opacity: 0;
 			}
 		</style>
@@ -29,58 +29,55 @@
 		<script src="/fusion-mobile/framework/all.js?1" async></script>
 	</head>
 	<body style="transition: opacity 400ms ease-in-out;">
-		<div id="activities">
-			<!--页面框架-->
-			<div id="page">
-				<div class="header">
-					<div class="title">_</div>
-					<a class="back">_</a>
-					<a class="leftMenuBtn"></a>
-					<a class="rightMenuBtn"></a>
-				</div>
-				<div class="content"></div>
-				<div class="navMenu"></div>
+		<!--页面框架-->
+		<div id="page">
+			<div class="header">
+				<div class="title">_</div>
+				<a class="back">_</a>
+				<a class="leftMenuBtn"></a>
+				<a class="rightMenuBtn"></a>
 			</div>
-			<!--侧边栏框架-->
-			<div id="panel">
-				<div class="backdrop"></div>
-				<div class="content"></div>
-			</div>
-			<!--弹出窗口框架-->
-			<div id="popup">
-				<div class="header">
-					<div class="title">_</div>
-					<a class="back" href="javascript:;">_</a>
-					<a class="close" href="javascript:;"></a>
-				</div>
-				<!-- 弹窗区域 -->
-				<div class="content"></div>
-			</div>
-			<!--帮助指引-->
-			<a id="helper" href="javascript:;"><div><div></div><div><div></div><div></div><div></div></div><div></div></div><img/></a>
-			<!--用于展示自定义的静态或非本地内容-->
-			<div id="readable">
-				<div class="content"></div>
+			<div class="content"></div>
+			<div class="navMenu"></div>
+		</div>
+		<!--侧边栏框架-->
+		<div id="panel">
+			<div class="content"></div>
+		</div>
+		<!--弹出窗口框架-->
+		<div id="popup">
+			<div class="header">
+				<div class="title">_</div>
+				<a class="back" href="javascript:;">_</a>
 				<a class="close" href="javascript:;"></a>
 			</div>
-			<!--用于展示图片-->
-			<div id="sliderView">
+			<!-- 弹窗区域 -->
+			<div class="content"></div>
+		</div>
+		<!--帮助指引-->
+		<a id="helper" href="javascript:;"><div><div></div><div><div></div><div></div><div></div></div><div></div></div><img/></a>
+		<!--用于展示自定义的静态或非本地内容-->
+		<div id="readable">
+			<div class="content"></div>
+			<a class="close" href="javascript:;"></a>
+		</div>
+		<!--用于展示图片-->
+		<div id="sliderView">
+			<div class="content"></div>
+			<div class="nav">_</div>
+			<a class="close" href="javascript:;"></a>
+		</div>
+		<div id="photoView">
+			<img/>
+			<a class="close" href="javascript:;"></a>
+			<div class="actions"></div>
+		</div>
+		<!--对话框-->
+		<div id="dialog">
+			<div>
 				<div class="content"></div>
-				<div class="nav">_</div>
+				<div class="btns"><a class="yes" href="javascript:;">_</a><a class="no" href="javascript:;">_</a></div>
 				<a class="close" href="javascript:;"></a>
-			</div>
-			<div id="photoView">
-				<img/>
-				<a class="close" href="javascript:;"></a>
-				<div class="actions"></div>
-			</div>
-			<!--对话框-->
-			<div id="dialog">
-				<div>
-					<div class="content"></div>
-					<div class="btns"><a class="yes" href="javascript:;">_</a><a class="no" href="javascript:;">_</a></div>
-					<a class="close" href="javascript:;"></a>
-				</div>
 			</div>
 		</div>
 		<!--用于展示等待提示-->

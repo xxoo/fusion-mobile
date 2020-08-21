@@ -3,7 +3,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 	//predefined arguments
 	//autoPopup, autoPopupArg, ui, backHash
 	let homePage, anievt, aniname, anidru,
-		activities = document.body.querySelector('#activities'),
 		kernel = {
 			// 加入css 到head中;
 			// 如果是生产环境; 加入 css
@@ -605,7 +604,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		! function () {
 			let animating, activePanel, todo, o, x, ox, nx, ot, nt, moving, scrolled,
 				panelBox = document.querySelector('#panel'),
-				backdrop = panelBox.querySelector(':scope>.backdrop'),
 				content = panelBox.querySelector(':scope>.content'),
 				events = pointerevents(panelBox, function (evt) {
 					if (evt.type === 'start') {
@@ -641,6 +639,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 									s = -s;
 								}
 								s = s + nx - x < -content.offsetWidth / 2;
+								console.log(speed);
 								if (((s && !kernel.closePanel()) || !s) && content.style.transform !== 'translateX(0px)') {
 									content.style.transition = '';
 									content.style.transform = 'translateX(0px)';
@@ -677,7 +676,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							panels[id].onload();
 						}
 						panelBox.style.visibility = 'inherit';
-						backdrop.style.opacity = 1;
 						animating = content.querySelector(':scope>.' + id);
 						animating.style.right = animating.style.top = 'auto';
 						animating.style.position = 'relative';
@@ -704,7 +702,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (animating) {
 					todo = kernel.closePanel.bind(this, id);
 					result = 2;
-				} else if (activePanel && (!id || activePanel === id || (dataType(id) === 'Array' && id.indexOf(activePanel) >= 0)) && hidePanel(true)) {
+				} else if (activePanel && (!id || activePanel === id || (dataType(id) === 'Array' && id.indexOf(activePanel) >= 0)) && hidePanel()) {
 					result = 1;
 				}
 				return result;
@@ -727,6 +725,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						panels[activePanel].status++;
 						this.style.width = ''; //safari fix
 						this.style.transition = 'none';
+						console.log(2);
 					} else {
 						if (typeof panels[activePanel].onunloadend === 'function') {
 							panels[activePanel].onunloadend();
@@ -739,6 +738,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							document.activeElement.blur();
 						}
 						activePanel = undefined;
+						panelBox.style.visibility = '';
 					}
 					animating = undefined;
 					if (todo) {
@@ -748,21 +748,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					}
 				}
 			});
-			backdrop.addEventListener('transitionend', function (evt) {
-				if (evt.target === this && !backdrop.style.opacity) {
-					panelBox.style.visibility = '';
-				}
-			});
-			backdrop.addEventListener('click', kernel.closePanel.bind(kernel, undefined));
 
-			function hidePanel(close) {
+			function hidePanel() {
 				if (typeof panels[activePanel].onunload !== 'function' || !panels[activePanel].onunload()) {
 					panels[activePanel].status--;
 					animating = content.querySelector(':scope>.' + activePanel);
 					content.style.transition = content.style.transform = '';
-					if (close) {
-						backdrop.style.opacity = '';
-					}
 					return true;
 				}
 			}
@@ -770,6 +761,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			function transend(evt) {
 				if (evt.target === this) {
 					this.style.transition = 'none';
+					console.log(1);
 					this.removeEventListener(evt.type, transend);
 				}
 			}
@@ -919,7 +911,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						popups[id].title = newTitle;
 						if (activePopup === id) {
 							title.data = newTitle;
-							if (activities.classList.contains('hidePopupHeader')) {
+							if (document.body.classList.contains('hidePopupHeader')) {
 								document.title = title.data;
 							}
 						}
@@ -927,7 +919,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				} else {
 					if (popupsBox.classList.contains('in')) {
 						title.data = newTitle;
-						if (activities.classList.contains('hidePopupHeader')) {
+						if (document.body.classList.contains('hidePopupHeader')) {
 							document.title = title.data;
 						}
 					}
@@ -1011,7 +1003,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				popupsBox.classList.add(activePopup);
 				// 给 title 节点设值
 				title.data = popups[id].title;
-				if (activities.classList.contains('hidePopupHeader')) {
+				if (document.body.classList.contains('hidePopupHeader')) {
 					document.title = title.data;
 				}
 				back.style.display = 'none';
@@ -1155,7 +1147,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				loadingCtn.querySelector(':scope>div').lastChild.data = text ? text : lang.loading;
 				if (loadingRT === 0) {
 					loadingCtn.style.visibility = 'inherit';
-					activities.classList.add('mask');
 				}
 				loadingRT++;
 			};
@@ -1164,7 +1155,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					loadingRT--;
 					if (loadingRT === 0) {
 						loadingCtn.style.visibility = '';
-						activities.classList.remove('mask');
 						if (typeof kernel.dialogEvents.onloaded === 'function') {
 							kernel.dialogEvents.onloaded({
 								type: 'loaded'
@@ -1400,7 +1390,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					// 如果带ui参数就把参数中样式加入body
 					if (kernel.location.args.ui) {
 						kernel.location.args.ui.split(',').forEach(function (item) {
-							activities.classList.add(item);
+							document.body.classList.add(item);
 						});
 					}
 					// 看是否有history
@@ -1593,7 +1583,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						pagesBox.classList.add(pageid);
 						// 重置 title
 						pageTitle.data = title;
-						if (activities.classList.contains('clean') || activities.classList.contains('hidePageHeader')) {
+						if (document.body.classList.contains('clean') || document.body.classList.contains('hidePageHeader')) {
 							document.title = title;
 						}
 						if (self.frameElement && frameElement.kernel && kernel.getCurrentPopup() === 'page') {

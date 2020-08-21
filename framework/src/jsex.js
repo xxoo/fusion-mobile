@@ -5,10 +5,6 @@
 		arrays = ['Array', 'Int8Array', 'Uint8Array', 'Uint8ClampedArray', 'Int16Array', 'Uint16Array', 'Int32Array', 'Uint32Array', 'Float32Array', 'Float64Array', 'BigInt64Array', 'BigUint64Array'],
 		wksbls = ['iterator', 'asyncIterator', 'match', 'replace', 'search', 'split', 'hasInstance', 'isConcatSpreadable', 'unscopables', 'species', 'toPrimitive', 'toStringTag'];
 
-	g.AsyncFunction = async function () {}.constructor;
-	g.GeneratorFunction = function* () {}.constructor;
-	g.AsyncGeneratorFunction = async function* () {}.constructor;
-
 	//deserialize jsex, support JSON string
 	String.prototype.parseJsex = function () {
 		var m, l, r;
@@ -190,9 +186,9 @@
 				value: +m[0],
 				length: m[0].length
 			};
-		} else if (m = this.match(/^"(?:(?:[^\x00-\x1f\xff"]|\\")*?[^\\\x00-\x1f\xff])??(?:\\\\)*"/)) {
+		} else if (m = this.match(/^"(?:(?:[^\x00-\x08\x0a-\x1f\x7f\xff"]|\\")*?[^\\\x00-\x08\x0a-\x1f\x7f\xff])??(?:\\\\)*"/)) {
 			try {
-				r = m[0].replace(/^"|\\[\\bnvfr"]|\\x[0-f]{2}|\\u[0-f]{4}|"$|\\/g, function (a) {
+				r = m[0].replace(/^"|\\[\\btnvfr"]|\\x[0-f]{2}|\\u[0-f]{4}|"$|\\/g, function (a) {
 					if (a === '"') {
 						return '';
 					} else if (a === '\\\\') {
@@ -201,6 +197,8 @@
 						return '"';
 					} else if (a === '\\b') {
 						return '\b';
+					} else if (a === '\\t') {
+						return '	';
 					} else if (a === '\\n') {
 						return '\n';
 					} else if (a === '\\v') {
@@ -222,7 +220,7 @@
 					length: m[0].length
 				};
 			}
-		} else if (m = this.match(/^\/((?:\\\\)+|(?:[^\\\/]|[^\/][^\x00-\x1f\xff]*?[^\\\x00-\x1f\xff])(?:\\\\)*)\/(g?i?m?u?y?)/)) {
+		} else if (m = this.match(/^\/((?:\\\\)+|(?:[^\\\/]|[^\/][^\x00-\x08\x0a-\x1f\x7f\xff]*?[^\\\x00-\x08\x0a-\x1f\x7f\xff])(?:\\\\)*)\/(g?i?m?u?y?)/)) {
 			try {
 				r = {
 					value: RegExp(m[1], m[2]),
@@ -327,7 +325,7 @@
 			} else if (i === 'Date') {
 				s = 'new Date(' + d.getTime() + ')';
 			} else if (i === 'RegExp') {
-				s = '/' + (d.source ? d.source.replace(/[\x00-\x1f\xff]/g, function (a) {
+				s = '/' + (d.source ? d.source.replace(/[\x00-\x08\x0a-\x1f\x7f\xff]/g, function (a) {
 					var c;
 					if (a === '\n') {
 						return '\\n';
@@ -432,7 +430,7 @@
 	};
 
 	function strEncode(str) {
-		return '"' + str.replace(/[\\"\x00-\x1f\xff]/g, function (a) {
+		return '"' + str.replace(/[\\"\x00-\x08\x0a-\x1f\x7f\xff]/g, function (a) {
 			var c;
 			if (a === '\\') {
 				return '\\\\';
