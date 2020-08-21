@@ -38,14 +38,6 @@ html {
 body {
 	height: 100%;
 	margin: 0;
-}
-
-#activities {
-	height: 100%;
-
-	&.mask {
-		filter: @loadingMaskFilter;
-	}
 
 	&.hidePageHeader>#page>.header,
 	&.clean>#page>.header {
@@ -214,13 +206,6 @@ body {
 	right: 0;
 	bottom: 0;
 
-	>.backdrop {
-		height: 100%;
-		background-color: rgba(0, 0, 0, 0.5);
-		opacity: 0;
-		transition: opacity 200ms ease-in-out;
-	}
-
 	>.content {
 		position: absolute;
 		top: 0;
@@ -245,18 +230,22 @@ body {
 #loading,
 #photoView,
 #sliderView {
+	visibility: hidden;
 	position: absolute;
+	top: 0;
 	left: 0;
 	right: 0;
 	bottom: 0;
-	top: 0;
-	visibility: hidden;
 }
 
+#panel,
 #dialog,
+#loading,
 #photoView,
 #sliderView {
-	background-color: @maskFilterColor;
+	background-color: @maskColor;
+	-webkit-backdrop-filter: @maskFilter;
+	backdrop-filter: @maskFilter;
 }
 
 #dialog,
@@ -618,7 +607,7 @@ body {
 	opacity: 0;
 	font-size: 14px;
 	overflow: visible;
-	transition: opacity 400ms ease-in-out;
+	transition: opacity 200ms ease-in-out;
 
 	>.text {
 		display: inline-block;
@@ -628,6 +617,8 @@ body {
 		line-height: 20px;
 		padding: 5px 12px;
 		background-color: @hintBackground;
+		-webkit-backdrop-filter: @maskFilter;
+		backdrop-filter: @maskFilter;
 		border-radius: 4px;
 		line-height: 20px;
 		padding: 5px 12px;
