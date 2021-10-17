@@ -1,6 +1,7 @@
 'use strict';
 //devProxy config
 module.exports = {
+    homeRedirect: true,
     remote: 'https://xxoo.github.io/',
     local: {
         prefix: '/fusion-mobile/',
