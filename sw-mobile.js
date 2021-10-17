@@ -7,8 +7,9 @@ self.addEventListener('message', function (event) {
 	if (event.data) {
 		if (typeof event.data === 'string') {
 			data = new URL(event.data, event.source.url).href;
-		} else if (event.data.framework && event.data.modules && event.data.prefix) {
+		} else if (event.data.framework && event.data.modules && event.data.prefix && event.data.home) {
 			data = event.data;
+			data.homeReg = RegExp(new URL(data.home, event.source.url).href.replace(/\\./g, '\\.') + '(index\\.html)?(\\?.*)?$');
 			for (let i = 0; i < data.framework.length; i++) {
 				data.framework[i] = new URL(data.framework[i], event.source.url).href;
 			}
@@ -34,6 +35,7 @@ self.addEventListener('fetch', function (event) {
 		if (typeof data === 'string') {
 			if (event.request.url.length >= data.length && event.request.url.substr(0, data.length) === data) {
 				event.respondWith(fetch(event.request, {
+					mode: 'no-cors',
 					cache: 'no-cache'
 				}));
 			}
@@ -43,16 +45,29 @@ self.addEventListener('fetch', function (event) {
 				type = 'framework';
 			} else if (findModule(event.request.url)) {
 				type = 'modules';
+			} else if (data.homeReg.test(event.request.url)) {
+				type = 'home';
 			}
-			if (type) {
-				event.respondWith(caches.open(data.prefix + type).then(cache => cache.match(event.request).then(response => response ? response : fetch(event.request, {
+			if (type == 'home') {
+				event.respondWith(caches.open(data.home + type).then(cache => fetch(event.request, {
+					mode: 'no-cors',
 					cache: 'no-cache'
 				}).then(response => {
-					if (response.ok) {
-						cache.put(event.request, response.clone());
-					}
+					cache.put(data.home, response.clone());
 					return response;
-				}))));
+				}, e => cache.match(data.home).then(response => response ? response : new Response(e.message, {
+					status: 502
+				})))));
+			} else if (type) {
+				event.respondWith(caches.open(data.prefix + type).then(cache => cache.match(event.request).then(response => response ? response : fetch(event.request, {
+					mode: 'no-cors',
+					cache: 'no-cache'
+				}).then(response => {
+					cache.put(event.request, response.clone());
+					return response;
+				}, e => new Response(e.message, {
+					status: 502
+				})))));
 			}
 		}
 	}
