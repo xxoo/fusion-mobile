@@ -96,7 +96,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (loc.args.backHash) {
 					try {
 						bk2 = kernel.parseHash(loc.args.backHash);
-					} catch (e) {}
+					} catch (e) { }
 				}
 				if (bk2) {
 					return bk2;
@@ -936,7 +936,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			// 初始化窗口关闭按钮
 			popupClose.appendChild(kernel.makeSvg('times-light', 1));
 			popupClose.addEventListener('click', function () {
-				kernel.closePopup()
+				kernel.closePopup();
 			});
 			// 初始化窗口返回按钮
 			back.insertBefore(kernel.makeSvg('angle-left-light', 1), back.firstChild);
@@ -1038,7 +1038,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			};
 			kernel.showForeign = function (url, callback) { //展示站外内容
-				kernel.showReadable(`<iframe frameborder="no" scrolling="${browser.name==='IOS'?'no':'auto'}" sandbox="allow-same-origin allow-forms allow-scripts allow-modals" src="${url}"></iframe>`, callback, 'foreign');
+				kernel.showReadable(`<iframe frameborder="no" scrolling="${browser.name === 'IOS' ? 'no' : 'auto'}" sandbox="allow-same-origin allow-forms allow-scripts allow-modals" src="${url}"></iframe>`, callback, 'foreign');
 			};
 			readableClose.appendChild(kernel.makeSvg('times-solid', 1));
 			readableClose.addEventListener('click', kernel.hideReadable);
@@ -1350,7 +1350,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			sessionStorage.setItem(0, 0);
 			sessionStorage.removeItem(0);
 		} catch (e) {
-			Storage.prototype.setItem = function () {};
+			Storage.prototype.setItem = function () { };
 		}
 		//icos是导航菜单的列表
 		//home是默认页
@@ -1418,7 +1418,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						if (kernel.location.args.hasOwnProperty('autoPopupArg')) {
 							tmp = kernel.location.args.autoPopupArg.parseJsex();
 							if (tmp) {
-								tmp = tmp.value
+								tmp = tmp.value;
 							}
 						}
 						if (kernel.openPopup(kernel.location.args.autoPopup, tmp)) {
@@ -1817,26 +1817,20 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				oldcfg.css = kernel.appendCss(m + id);
 			}
 			if (oldcfg.html) {
-				kernel.showLoading();
-				let url = m + id + '.html',
-					xhr = new XMLHttpRequest();
-				xhr.open('get', url, true);
-				xhr.onreadystatechange = function () {
-					if (this.readyState === 4) {
-						if (this.status === 200) {
-							loadJs(this.responseText);
+				let url = m + id + '.html';
+				fetch(url).then(res => {
+					if (res.ok) {
+						return res.text().then(loadJs);
+					} else {
+						destroy(oldcfg, type, id);
+						if (BUILD && res.status === 404) {
+							updated();
 						} else {
-							destroy(oldcfg, type, id);
-							if (BUILD && this.status === 404) {
-								updated();
-							} else {
-								errorOccurs(url, this.status);
-							}
+							errorOccurs(url, res.status);
 						}
-						kernel.hideLoading();
 					}
-				};
-				xhr.send('');
+				}, err => errorOccurs(url, err.message)).then(kernel.hideLoading);
+				kernel.showLoading();
 			} else {
 				loadJs('');
 			}
