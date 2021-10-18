@@ -31,8 +31,8 @@ define(['module', 'common/kernel/kernel', './lang'], function (module, kernel, l
 			rect = target.getBoundingClientRect(),
 			ox, oy;
 		if (browser.name === 'IOS') {
-			ox = pageXOffset;
-			oy = pageYOffset;
+			ox = scrollX;
+			oy = scrollY;
 		} else {
 			ox = oy = 0;
 		}
