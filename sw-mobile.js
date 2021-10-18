@@ -9,7 +9,7 @@ self.addEventListener('message', function (event) {
 			data = new URL(event.data, event.source.url).href;
 		} else if (event.data.framework && event.data.modules && event.data.prefix && event.data.home) {
 			data = event.data;
-			data.homeReg = RegExp(new URL(data.home, event.source.url).href.replace(/\\./g, '\\.') + '(index\\.html)?(\\?.*)?$');
+			data.homeReg = RegExp('^' + new URL(data.home, event.source.url).href.replace(/[.*(){[\^$\\]/g, '\\$&') + '(index\\.html)?(\\?.*)?$');
 			for (let i = 0; i < data.framework.length; i++) {
 				data.framework[i] = new URL(data.framework[i], event.source.url).href;
 			}
