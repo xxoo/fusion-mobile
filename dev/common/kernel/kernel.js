@@ -311,7 +311,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 		! function () {
 			let key = typeof Symbol === 'function' ? Symbol('xEvents') : 'xEvents';
 			kernel.listeners = {
-				add: function (o, e, f) {
+				add(o, e, f) {
 					let result = 0;
 					if (typeof f === 'function') {
 						if (!o.hasOwnProperty(key)) {
@@ -335,7 +335,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					}
 					return result;
 				},
-				list: function (o, e) {
+				list(o, e) {
 					let result;
 					if (e) {
 						result = o.hasOwnProperty(key) && o[key].hasOwnProperty(e) ? o[key][e].heap.slice(0) : [];
@@ -349,7 +349,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					}
 					return result;
 				},
-				remove: function (o, e, f) {
+				remove(o, e, f) {
 					let result = 0;
 					if (o.hasOwnProperty(key)) {
 						if (e) {
