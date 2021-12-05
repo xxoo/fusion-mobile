@@ -7,7 +7,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			// 加入css 到head中;
 			// 如果是生产环境; 加入 css
 			// 如果是开发环境 加入less
-			appendCss: function (url, forcecss) { //自动根据当前环境添加css或less
+			appendCss(url, forcecss) { //自动根据当前环境添加css或less
 				let csslnk = document.createElement('link');
 				if (self.less && !forcecss) {
 					csslnk.rel = 'stylesheet/less';
@@ -20,7 +20,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 				return document.head.appendChild(csslnk);
 			},
-			removeCss: function (lnk) {
+			removeCss(lnk) {
 				lnk.remove();
 				if (lnk.rel === 'stylesheet/less') {
 					less.sheets.splice(less.sheets.indexOf(lnk), 1);
@@ -28,7 +28,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			},
 			// 创建 svg dom;
-			makeSvg: function (name, type) {
+			makeSvg(name, type) {
 				let svgns = 'http://www.w3.org/2000/svg',
 					svg = document.createElementNS(svgns, 'svg');
 				svg.appendChild(document.createElementNS(svgns, 'path'));
@@ -38,7 +38,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				return svg;
 			},
 			// 设置svg 内容
-			setSvgPath: function (svg, name, type) {
+			setSvgPath(svg, name, type) {
 				let tmp = kernel.makeSvg();
 				if (svgicos.hasOwnProperty(name)) {
 					name = svgicos[name];
@@ -66,7 +66,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 				svg.setAttribute('viewBox', box.x + ' ' + box.y + ' ' + box.width + ' ' + box.height);
 			},
-			parseHash: function (hash) {
+			parseHash(hash) {
 				let nl = {
 					id: homePage,
 					args: {}
@@ -88,7 +88,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				return nl;
 			},
 			// 后退行为
-			getDefaultBack: function (loc) {
+			getDefaultBack(loc) {
 				let bk2;
 				if (!loc) {
 					loc = kernel.location;
@@ -129,7 +129,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			},
 			// 判断是否是后退
-			isGoingback: function (from, to) {
+			isGoingback(from, to) {
 				let f = from;
 				if (f !== to) {
 					if (to === homePage || (f.length > to.length + 1 && f.substr(0, to.length + 1) === to + '-')) {
@@ -160,7 +160,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					}
 				}
 			},
-			replaceLocation: function (loc) {
+			replaceLocation(loc) {
 				if (kernel.location && kernel.isSameLocation(loc, kernel.location)) {
 					kernel.reloadPage();
 				} else {
@@ -189,7 +189,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			kernel.buildHash = function (loc) {
 				let hash = '#!' + encodeURIComponent(loc.id);
 				for (let n in loc.args) {
-					hash += loc.args[n] === undefined ? '&' + encodeURIComponent(n) : '&' + encodeURIComponent(n) + '=' + encodeURIComponent(loc.args[n]);
+					hash += '&' + encodeURIComponent(n);
+					if (loc.args[n] !== undefined) {
+						hash += '=' + encodeURIComponent(loc.args[n]);
+					}
 				}
 				return hash;
 			};
@@ -538,7 +541,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				allSteps;
 			helper.addEventListener('click', nextStep);
 			kernel.showHelper = function (steps) {
-				allSteps = dataType(steps) === 'Array' ? steps : [steps];
+				allSteps = Array.isArray(steps) ? steps : [steps];
 				setStep(allSteps[0]);
 				helper.style.display = 'block';
 			};
@@ -702,7 +705,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (animating) {
 					todo = kernel.closePanel.bind(this, id);
 					result = 2;
-				} else if (activePanel && (!id || activePanel === id || (dataType(id) === 'Array' && id.indexOf(activePanel) >= 0)) && hidePanel()) {
+				} else if (activePanel && (!id || activePanel === id || (Array.isArray(id) && id.indexOf(activePanel) >= 0)) && hidePanel()) {
 					result = 1;
 				}
 				return result;
@@ -870,7 +873,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (animating) {
 					todo = kernel.closePopup.bind(this, id);
 					result = 2;
-				} else if (activePopup && (!id || activePopup === id || (dataType(id) === 'Array' && id.indexOf(activePopup) >= 0)) && (typeof popups[activePopup].onunload !== 'function' || !popups[activePopup].onunload())) { //onunload 返回 true可以阻止窗口关闭
+				} else if (activePopup && (!id || activePopup === id || (Array.isArray(id) && id.indexOf(activePopup) >= 0)) && (typeof popups[activePopup].onunload !== 'function' || !popups[activePopup].onunload())) { //onunload 返回 true可以阻止窗口关闭
 					popups[activePopup].status--;
 					popupsBox.classList.remove('in');
 					popupsBox.classList.add('out');
@@ -1214,7 +1217,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				} else {
 					dialogBox.className = type;
 					if (type === 'alert') {
-						if (dataType(content) === 'Array') {
+						if (Array.isArray(content)) {
 							dialogContent.textContent = content[0];
 							yesbtn.firstChild.data = content[1];
 						} else {
@@ -1222,7 +1225,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 							yesbtn.firstChild.data = lang.ok;
 						}
 					} else if (type === 'confirm') {
-						if (dataType(content) === 'Array') {
+						if (Array.isArray(content)) {
 							dialogContent.textContent = content[0];
 							yesbtn.firstChild.data = content[1];
 							nobtn.firstChild.data = content[2];
@@ -1712,7 +1715,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 		function reloadPage(id, silent) {
 			let cfg = pages[currentpage].alias ? pages[pages[currentpage].alias] : pages[currentpage];
-			if (!id || id === currentpage || (dataType(id) === 'Array' && id.indexOf(currentpage) >= 0)) {
+			if (!id || id === currentpage || (Array.isArray(id) && id.indexOf(currentpage) >= 0)) {
 				if (!silent) {
 					clearWindow();
 				}
