@@ -40,7 +40,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			// 设置svg 内容
 			setSvgPath(svg, name, type) {
 				let tmp = kernel.makeSvg();
-				if (svgicos.hasOwnProperty(name)) {
+				if (Object.hasOwn(svgicos, name)) {
 					name = svgicos[name];
 				}
 				svg.firstChild.setAttribute('d', name);
@@ -75,7 +75,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				let s = hash.match(/[^=&]+(=[^&]*)?/g);
 				if (s && s[0].charAt(0) === '!') {
 					let a = decodeURIComponent(s[0].substr(1));
-					if (pages.hasOwnProperty(a)) {
+					if (Object.hasOwn(pages, a)) {
 						nl.id = a;
 					}
 					for (let i = 1; i < s.length; i++) {
@@ -110,7 +110,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						let o = pages[pages[loc.id].back].alias ? pages[pages[pages[loc.id].back].alias] : pages[pages[loc.id].back];
 						if (o.args) {
 							for (let i = 0; i < o.args.length; i++) {
-								if (loc.args.hasOwnProperty(o.args[i])) {
+								if (Object.hasOwn(loc.args, o.args[i])) {
 									bk2.args[o.args[i]] = loc.args[o.args[i]];
 								}
 							}
@@ -168,7 +168,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 			}
 		};
-	if (document.documentElement.style.hasOwnProperty('animation')) {
+	if (Object.hasOwn(document.documentElement.style, 'animation')) {
 		anievt = 'animationend';
 		aniname = 'animationName';
 		anidru = 'animationDuration';
@@ -201,7 +201,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			kernel.isSameLocation = function (loc1, loc2) {
 				if (loc1.id === loc2.id && Object.keys(loc1.args).length === Object.keys(loc2.args).length) {
 					for (let n in loc1.args) {
-						if (loc2.args.hasOwnProperty(n)) {
+						if (Object.hasOwn(loc2.args, n)) {
 							if (loc1.args[n] === undefined) {
 								if (loc1.args[n] !== loc2.args[n]) {
 									return false;
@@ -223,12 +223,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			kernel.getLang = function (langs) {
 				if (navigator.languages) {
 					for (let i = 0; i < navigator.languages.length; i++) {
-						if (langs.hasOwnProperty(navigator.languages[i])) {
+						if (Object.hasOwn(langs, navigator.languages[i])) {
 							return langs[navigator.languages[i]];
 						}
 					}
 				} else {
-					if (langs.hasOwnProperty(navigator.language)) {
+					if (Object.hasOwn(langs, navigator.language)) {
 						return langs[navigator.language];
 					}
 				}
@@ -314,10 +314,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				add(o, e, f) {
 					let result = 0;
 					if (typeof f === 'function') {
-						if (!o.hasOwnProperty(key)) {
+						if (!Object.hasOwn(o, key)) {
 							o[key] = {};
 						}
-						if (!o[key].hasOwnProperty(e)) {
+						if (!Object.hasOwn(o[key], e)) {
 							o[key][e] = {
 								stack: [],
 								heap: [],
@@ -338,10 +338,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				list(o, e) {
 					let result;
 					if (e) {
-						result = o.hasOwnProperty(key) && o[key].hasOwnProperty(e) ? o[key][e].heap.slice(0) : [];
+						result = Object.hasOwn(o, key) && Object.hasOwn(o[key], e) ? o[key][e].heap.slice(0) : [];
 					} else {
 						result = {};
-						if (o.hasOwnProperty(key)) {
+						if (Object.hasOwn(o, key)) {
 							for (let i in o[key]) {
 								result[i] = o[key][i].heap.slice(0);
 							}
@@ -351,9 +351,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				},
 				remove(o, e, f) {
 					let result = 0;
-					if (o.hasOwnProperty(key)) {
+					if (Object.hasOwn(o, key)) {
 						if (e) {
-							if (o[key].hasOwnProperty(e)) {
+							if (Object.hasOwn(o[key], e)) {
 								if (o[key][e].locked) {
 									o[key][e].stack.push(f);
 									result = 2;
@@ -656,7 +656,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					}
 				});
 			kernel.openPanel = function (id, param) {
-				if (panels.hasOwnProperty(id)) {
+				if (Object.hasOwn(panels, id)) {
 					initLoad('panel', id, function (firstLoad) {
 						if (typeof panels[id].open === 'function') {
 							panels[id].open(param);
@@ -786,7 +786,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			// 如果弹窗有自定义打开方式则直接调用该接口，否则会调用showPopup
 			// 如果定义了open请确保最终打开自己时调用的是showPopup而不是openPopup
 			kernel.openPopup = function (id, param, goBack) {
-				if (popups.hasOwnProperty(id)) {
+				if (Object.hasOwn(popups, id)) {
 					initLoad('popup', id, function () {
 						if (typeof popups[id].open === 'function') {
 							popups[id].open(param, activePopup && goBack);
@@ -910,7 +910,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			// 如果未指定id则临时改变当前弹窗的标题, 临时修改不能在loadend之前使用
 			kernel.setPopupTitle = function (newTitle, id) {
 				if (id) {
-					if (popups.hasOwnProperty(id)) {
+					if (Object.hasOwn(popups, id)) {
 						popups[id].title = newTitle;
 						if (activePopup === id) {
 							title.data = newTitle;
@@ -1368,7 +1368,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					id = navs[i].id;
 					ico = navs[i].ico;
 				}
-				if (pages.hasOwnProperty(id)) {
+				if (Object.hasOwn(pages, id)) {
 					if (!home) {
 						home = id;
 					}
@@ -1409,16 +1409,16 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					}
 					// 解析 routerHistory
 					for (let n in routerHistory) {
-						if (pages.hasOwnProperty(n)) {
+						if (Object.hasOwn(pages, n)) {
 							pages[n].backLoc = routerHistory[n];
 						}
 					}
 					self.addEventListener('hashchange', hashchange);
 					initNavs(icos);
 					manageLocation();
-					if (kernel.location.args.hasOwnProperty('autoPopup')) {
+					if (Object.hasOwn(kernel.location.args, 'autoPopup')) {
 						let tmp;
-						if (kernel.location.args.hasOwnProperty('autoPopupArg')) {
+						if (Object.hasOwn(kernel.location.args, 'autoPopupArg')) {
 							tmp = kernel.location.args.autoPopupArg.parseJsex();
 							if (tmp) {
 								tmp = tmp.value;
@@ -1501,7 +1501,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 			navIcos = icos;
 			for (let n in navIcos) {
-				if (pages.hasOwnProperty(n)) {
+				if (Object.hasOwn(pages, n)) {
 					let nav = navCtn.appendChild(document.createElement('a'));
 					nav.className = n;
 					nav.href = '#!' + n;
@@ -1545,7 +1545,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 
 		function manageLocation() {
 			let pageid = kernel.location.id;
-			if (kernel.hasOwnProperty('lastLocation')) {
+			if (Object.hasOwn(kernel, 'lastLocation')) {
 				let n = pageid.replace(/-.*$/, ''),
 					m = kernel.lastLocation.id.replace(/-.*$/, '');
 				if (n !== m) {
