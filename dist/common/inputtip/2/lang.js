@@ -1,1 +1,0 @@
-"use strict";define(["common/kernel/kernel"],function(e){var n="Please check this field";return e.getLang({zh:"请检查此字段","zh-CN":"请检查此字段","zh-TW":"請檢查此字段","zh-HK":"請檢查此字段",en:n,"en-US":n,"en-AU":n,"en-CA":n,"en-IN":n,"en-NZ":n,"en-ZA":n,"en-GB":n})});

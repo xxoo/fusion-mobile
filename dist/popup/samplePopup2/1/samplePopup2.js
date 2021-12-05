@@ -1,1 +1,1 @@
-"use strict";define(["module","common/kernel/kernel"],function(e,o){var n=e.id.replace(/^[^\/]+\/|\/[^\/]+/g,"");document.querySelector("#popup>.content>."+n);return{onloadend:function(){o.setPopupBack("samplePopup","going back to samplePopup")}}});
+"use strict";define(["module","common/kernel/kernel"],(function(e,o){var n=e.id.replace(/^[^/]+\/|\/[^/]+/g,"");document.querySelector("#popup>.content>."+n);return{onloadend:function(){o.setPopupBack("samplePopup","going back to samplePopup")}}}));

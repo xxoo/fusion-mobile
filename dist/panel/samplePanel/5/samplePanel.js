@@ -1,1 +1,1 @@
-"use strict";define(["module","common/kernel/kernel"],function(e,n){var o=e.id.replace(/^[^\/]+\/|\/[^\/]+/g,"");document.querySelector("#panel>."+o);return{onunload:function(){},autoDestroy:!0}});
+"use strict";define(["module","common/kernel/kernel"],(function(e,n){var o=e.id.replace(/^[^/]+\/|\/[^/]+/g,"");document.querySelector("#panel>."+o);return{onunload:function(){},autoDestroy:!0}}));
