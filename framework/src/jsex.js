@@ -1,4 +1,4 @@
-//jsex version: 1.0.27
+//jsex version: 1.0.28
 //https://github.com/xxoo/jsex
 (() => {
 	'use strict';
@@ -7,8 +7,8 @@
 		//t = 0 for name, t = 1 for params
 		sectionlength = (s, t, forof) => {
 			const p = [
-				['[', ']', '!~+-*=<>|&{}?:,;(', /^([\d\w$.]+)|[!~+\-*=<>|&{}?:,;()]+/],
-				['(', ')', '!~+-*=<>|&{}?:,;[', /^([\d\w$.]+)|[!~+\-*=<>|&{}?:,;[\]]+/]
+				['[', ']', '!~+-*=<>|&{}?:,;(', /^([\d\w$#.]+)|[!~+\-*=<>|&{}?:,;()]+/],
+				['(', ')', '!~+-*=<>|&{}?:,;[', /^([\d\w$#.]+)|[!~+\-*=<>|&{}?:,;[\]]+/]
 			][t];
 			let e,
 				i = blanklength(s.substring(1)) + 1;
@@ -48,12 +48,10 @@
 							forof = 0;
 						}
 					} else if (forof === 2) {
-						if (m[1]) {
-							if (!['const', 'let', 'var'].includes(m[0])) {
-								forof = 3;
-							}
-						} else {
+						if (!m[1]) {
 							forof = 0;
+						} else if (!['const', 'let', 'var'].includes(m[0])) {
+							forof = 3;
 						}
 					} else if (forof === 3) {
 						forof = m[0] === 'of' ? 4 : 0;

@@ -1,6 +1,6 @@
 'use strict';
 define(['module', 'common/kernel/kernel', 'common/pointerevents/pointerevents', './lang'], function (module, kernel, pointerevents, lang) {
-	let dom = document.createElement('div'),
+	const dom = document.createElement('div'),
 		h = 32,
 		trans = 'margin-top 100ms ease-in-out',
 		observer = new MutationObserver(function (mutations) {
@@ -24,8 +24,8 @@ define(['module', 'common/kernel/kernel', 'common/pointerevents/pointerevents', 
 				});
 			},
 			action: action
-		},
-		that, cs, data, options, idxs, title, content, ok, clear, y, index, half, n, l;
+		};
+	let that, cs, data, options, idxs, title, content, ok, clear, y, index, half, n, l;
 	dom.innerHTML = '<div class="title">--</div><div class="content"></div><div class="btns"><a class="clear">--</a><a class="ok">--</a></div>';
 	title = dom.querySelector('.title').firstChild;
 	content = dom.querySelector('.content');
@@ -65,7 +65,7 @@ define(['module', 'common/kernel/kernel', 'common/pointerevents/pointerevents', 
 					return true;
 				}
 			} else if (evt.type === 'move') {
-				let m = evt.y - y;
+				const m = evt.y - y;
 				if (idxs.length < cs) {
 					content.firstChild.style.marginTop = Math.min(Math.max(0, l + m), h) + 'px';
 				} else {
@@ -105,8 +105,8 @@ define(['module', 'common/kernel/kernel', 'common/pointerevents/pointerevents', 
 
 	function attrchange(o) {
 		if (o.dataset.options) {
-			let data = JSON.parse(o.dataset.options);
-			if (dataType(data) === 'Array') {
+			const data = JSON.parse(o.dataset.options);
+			if (Array.isArray(data)) {
 				if (data.indexOf(o.dataset.value) < 0) {
 					if (o.dataset.required && data.length) {
 						o.firstChild.data = o.dataset.value = data[0];
@@ -120,7 +120,7 @@ define(['module', 'common/kernel/kernel', 'common/pointerevents/pointerevents', 
 				if (data.hasOwnProperty(o.dataset.value)) {
 					o.firstChild.data = data[o.dataset.value];
 				} else {
-					let ks = Object.keys(data);
+					const ks = Object.keys(data);
 					if (o.dataset.required && ks.length) {
 						o.dataset.value = ks[0];
 						o.firstChild.data = data[ks[0]];
@@ -146,7 +146,7 @@ define(['module', 'common/kernel/kernel', 'common/pointerevents/pointerevents', 
 	}
 
 	function action(o) {
-		let t = this;
+		const t = this;
 		kernel.htmlDialog(dom, 'selectDialog', onclose, function () {
 			if (t === select || !t) {
 				that = undefined;
@@ -157,7 +157,7 @@ define(['module', 'common/kernel/kernel', 'common/pointerevents/pointerevents', 
 				data = that.dataset;
 				options = JSON.parse(data.options);
 			}
-			if (dataType(options) === 'Array') {
+			if (Array.isArray(options)) {
 				idxs = options;
 				options = {};
 				index = 0;

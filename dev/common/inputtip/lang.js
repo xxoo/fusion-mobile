@@ -2,7 +2,7 @@
 define(['common/kernel/kernel'], function (kernel) {
 	let chs = '请检查此字段',
 		cht = '請檢查此字段',
-		eng = 'Please check this field';
+		eng = 'Please recheck this field';
 	return kernel.getLang({
 		zh: chs,
 		'zh-CN': chs,
