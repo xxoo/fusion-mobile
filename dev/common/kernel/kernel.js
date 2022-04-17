@@ -445,7 +445,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 									if (!reloadHint) {
 										reloadHint = evt.domEvent.view.document.createElement('span');
 										reloadHint.className = 'reloadHint';
-										reloadHint.appendChild(kernel.makeSvg('sync-alt-solid', 1));
+										reloadHint.appendChild(kernel.makeSvg('mdiReload'));
 										dom.appendChild(reloadHint);
 									}
 									let h = reloadHint.offsetHeight || reloadHint.clientHeight,
@@ -937,12 +937,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			// 包含onshow, onshowend, onhide, onhideend
 			kernel.popupEvents = {};
 			// 初始化窗口关闭按钮
-			popupClose.appendChild(kernel.makeSvg('times-light', 1));
+			popupClose.appendChild(kernel.makeSvg('mdiWindowClose', 1));
 			popupClose.addEventListener('click', function () {
 				kernel.closePopup();
 			});
 			// 初始化窗口返回按钮
-			back.insertBefore(kernel.makeSvg('angle-left-light', 1), back.firstChild);
+			back.insertBefore(kernel.makeSvg('mdiChevronLeft', 1), back.firstChild);
 			back.addEventListener('click', function (evt) {
 				if (typeof tempBack === 'function') {
 					tempBack(tempBackParam);
@@ -1043,7 +1043,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			kernel.showForeign = function (url, callback) { //展示站外内容
 				kernel.showReadable(`<iframe frameborder="no" scrolling="${browser.name === 'IOS' ? 'no' : 'auto'}" sandbox="allow-same-origin allow-forms allow-scripts allow-modals" src="${url}"></iframe>`, callback, 'foreign');
 			};
-			readableClose.appendChild(kernel.makeSvg('times-solid', 1));
+			readableClose.appendChild(kernel.makeSvg('mdiCloseThick', 1));
 			readableClose.addEventListener('click', kernel.hideReadable);
 			readableBox.addEventListener(anievt, function (evt) {
 				if (evt.target === this && this.classList.contains('out')) {
@@ -1076,7 +1076,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				photoViewContent = photoViewCtn.querySelector(':scope>img'),
 				photoViewActions = photoViewCtn.querySelector(':scope>.actions'),
 				guesture = touchguesture(photoViewCtn);
-
 			guesture.onzoomstart = zoomstart;
 			guesture.ondragstart = dragstart;
 			kernel.showPhotoView = function (url, btns, cb) {
@@ -1097,7 +1096,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					photoViewActions.style.display = 'none';
 				}
 			};
-
 			kernel.hidePhotoView = function () {
 				photoViewContent.src = 'about:blank';
 			};
@@ -1110,7 +1108,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				photoViewCtn.style.visibility = '';
 				self.removeEventListener('resize', syncPhotoViewSize);
 			});
-
 			kernel.showSliderView = function (doms, idx, className) {
 				sliderViewCtn.className = className || '';
 				for (let i = 0; i < doms.length; i++) {
@@ -1183,7 +1180,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			};
 			//目前只有loaded事件
 			kernel.dialogEvents = {};
-
 			slider.onchange = function () {
 				let txt = '';
 				if (this.children.length) {
@@ -1198,11 +1194,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				}
 				sliderViewCtn.querySelector(':scope>.nav').firstChild.data = txt;
 			};
-			dialogClose.appendChild(kernel.makeSvg('times-light', 1));
+			dialogClose.appendChild(kernel.makeSvg('mdiWindowClose', 1));
 			dialogClose.addEventListener('click', closeDialog);
 			nobtn.addEventListener('click', closeDialog);
 			yesbtn.addEventListener('click', kernel.closeDialog);
-			sliderViewClose.appendChild(kernel.makeSvg('times-solid', 1));
+			sliderViewClose.appendChild(kernel.makeSvg('mdiCloseThick', 1));
 			photoViewClose.appendChild(sliderViewClose.firstChild.cloneNode(true));
 			sliderViewClose.addEventListener('click', kernel.hideSliderView);
 			photoViewClose.addEventListener('click', kernel.hidePhotoView);
@@ -1463,7 +1459,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			}
 		};
 		kernel.pageEvents = {};
-		backbtn.insertBefore(kernel.makeSvg('angle-left-light', 1), backbtn.firstChild);
+		backbtn.insertBefore(kernel.makeSvg('mdiChevronLeft', 1), backbtn.firstChild);
 		headerRightMenuBtn.addEventListener('click', function (evt) {
 			let page = pages[pages[currentpage].alias ? pages[currentpage].alias : currentpage];
 			if (typeof page.onrightmenuclick === 'function') {

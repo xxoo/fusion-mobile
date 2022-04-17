@@ -5,22 +5,20 @@ define(['common/kernel/kernel'], function (kernel) {
 		self._hmt = document.createElement('script');
 		_hmt.src = '//hm.baidu.com/hm.js?[your_hmid]';
 		document.head.appendChild(_hmt);
-		_hmt = [
-			['_setAutoPageview', false]
-		];
+		_hmt = [['_setAutoPageview', false]];
 		kernel.listeners.add(kernel.pageEvents, 'route', function () {
 			_hmt.push(['_trackPageview', location.pathname + kernel.buildHash(kernel.location)]);
 		});
 	}
 	kernel.init([{
 		id: 'list',
-		ico: ['home-regular', 'home-solid']
+		ico: ['mdiHomeVariantOutline', 'mdiHomeVariant']
 	}, {
 		id: 'user',
-		ico: ['user-regular', 'user-solid']
+		ico: ['mdiAccountOutline', 'mdiAccount']
 	}, {
 		id: 'settings',
-		ico: ['cog-regular', 'cog-solid']
+		ico: ['mdiCogOutline', 'mdiCog']
 	}]);
 	if (!document.body.classList.contains('clean') && browser.platform === 'Android' && browser.name === 'unsupported' && !browser.app) {
 		kernel.htmlDialog('\

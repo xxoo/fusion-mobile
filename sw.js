@@ -1,20 +1,20 @@
-'use strict';
+'use module';
 let data;
 
-self.addEventListener('install', skipWaiting);
+oninstall = skipWaiting;
 
-self.addEventListener('message', function (event) {
-	if (event.data) {
-		if (typeof event.data === 'string') {
-			data = new URL(event.data, event.source.url).href;
-		} else if (event.data.framework && event.data.modules && event.data.prefix && event.data.home) {
-			data = event.data;
-			data.homeReg = RegExp('^' + new URL(data.home, event.source.url).href.replace(/[.*(){[\^$\\]/g, '\\$&') + '(index\\.html)?(\\?.*)?$');
+onmessage = function (evt) {
+	if (evt.data) {
+		if (typeof evt.data === 'string') {
+			data = new URL(evt.data, evt.source.url).href;
+		} else if (evt.data.framework && evt.data.modules && evt.data.prefix && evt.data.home) {
+			data = evt.data;
+			data.homeReg = RegExp('^' + new URL(data.home, evt.source.url).href.replace(/[.*(){[\^$\\]/g, '\\$&') + '(index\\.html)?(\\?.*)?$');
 			for (let i = 0; i < data.framework.length; i++) {
-				data.framework[i] = new URL(data.framework[i], event.source.url).href;
+				data.framework[i] = new URL(data.framework[i], evt.source.url).href;
 			}
 			for (let i = 0; i < data.modules.length; i++) {
-				data.modules[i] = new URL(data.modules[i] + '/', event.source.url).href;
+				data.modules[i] = new URL(data.modules[i] + '/', evt.source.url).href;
 			}
 			caches.open(data.prefix + 'modules').then(cache => cache.keys().then(keys => keys.forEach(request => {
 				if (!findModule(request.url)) {
@@ -28,28 +28,28 @@ self.addEventListener('message', function (event) {
 			})));
 		}
 	}
-});
+};
 
-self.addEventListener('fetch', function (event) {
-	if (data && event.request.method === 'GET') {
+onfetch = function (evt) {
+	if (data && evt.request.method === 'GET') {
 		if (typeof data === 'string') {
-			if (event.request.url.length >= data.length && event.request.url.substr(0, data.length) === data) {
-				event.respondWith(fetch(event.request, {
+			if (evt.request.url.length >= data.length && evt.request.url.substr(0, data.length) === data) {
+				evt.respondWith(fetch(evt.request, {
 					mode: 'no-cors',
 					cache: 'no-cache'
 				}));
 			}
 		} else {
 			let type;
-			if (data.framework.indexOf(event.request.url) >= 0) {
+			if (data.framework.indexOf(evt.request.url) >= 0) {
 				type = 'framework';
-			} else if (findModule(event.request.url)) {
+			} else if (findModule(evt.request.url)) {
 				type = 'modules';
-			} else if (data.homeReg.test(event.request.url)) {
+			} else if (data.homeReg.test(evt.request.url)) {
 				type = 'home';
 			}
-			if (type == 'home') {
-				event.respondWith(caches.open(data.home + type).then(cache => fetch(event.request, {
+			if (type === 'home') {
+				evt.respondWith(caches.open(data.home + type).then(cache => fetch(evt.request, {
 					mode: 'no-cors',
 					cache: 'no-cache'
 				}).then(response => {
@@ -59,11 +59,11 @@ self.addEventListener('fetch', function (event) {
 					status: 502
 				})))));
 			} else if (type) {
-				event.respondWith(caches.open(data.prefix + type).then(cache => cache.match(event.request).then(response => response ? response : fetch(event.request, {
+				evt.respondWith(caches.open(data.prefix + type).then(cache => cache.match(evt.request).then(response => response ? response : fetch(evt.request, {
 					mode: 'no-cors',
 					cache: 'no-cache'
 				}).then(response => {
-					cache.put(event.request, response.clone());
+					cache.put(evt.request, response.clone());
 					return response;
 				}, e => new Response(e.message, {
 					status: 502
@@ -71,7 +71,7 @@ self.addEventListener('fetch', function (event) {
 			}
 		}
 	}
-});
+};
 
 function findModule(url) {
 	let found;

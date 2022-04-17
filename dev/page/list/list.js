@@ -23,16 +23,16 @@ setTimeout(function(){
 }, 1000);`
 					},
 					'makeSvg(name:string, type?:0|1|2):SVGSVGElement': {
-						desc: '使用common/svgicos模块中name索引的内容作为path创建一个svg图标. type为0时图标的空白填充区域为0, 为1时图标会以最小的空白填充来使其成为正方形，为2时图标的空白填充区域为设计时指定的尺寸',
-						code: `console.log(kernel.makeSvg('home-regular'));`
+						desc: '使用<a href="https://materialdesignicons.com/" target="_blank" style="color: darkgoldenrod;">common/svgicos</a>模块中name索引的内容作为path创建一个svg图标. type为0时图标的空白填充区域为0, 为1时图标会以最小的空白填充来使其成为正方形，为2时图标的空白填充区域为设计时指定的尺寸',
+						code: `console.log(kernel.makeSvg('mdiHomeVariant'));`
 					},
 					'setSvgPath(svg:SVGSVGElement, name:string, type?:0|1|2):undefined': {
 						desc: '修改由makeSvg创建的图标. type为0时图标的空白填充区域为0, 为1时图标会以最小的空白填充来使其成为正方形，为2时图标的空白填充区域为设计时指定的尺寸',
-						code: `var svg = kernel.makeSvg('home-regular');
+						code: `var svg = kernel.makeSvg('mdiHomeVariant');
 console.log(svg.getAttribute('viewBox'));
-kernel.setSvgPath(svg, 'home-regular', 1);
+kernel.setSvgPath(svg, 'mdiHomeVariant', 1);
 console.log(svg.getAttribute('viewBox'));
-kernel.setSvgPath(svg, 'home-regular', 2);
+kernel.setSvgPath(svg, 'mdiHomeVariant', 2);
 console.log(svg.getAttribute('viewBox'));`
 					},
 					'buildHash(loc:Object):string': {
