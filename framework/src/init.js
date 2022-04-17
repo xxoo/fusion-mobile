@@ -2,7 +2,7 @@
 	'use strict';
 	var src = document.currentScript.getAttribute('src'),
 		prefix = src.replace(/framework\/[^\/]+$/, ''),
-		swfile = 'sw-mobile.js',
+		swfile = 'sw.js',
 		cfg = {
 			waitSeconds: 0,
 			baseUrl: prefix + 'dev/'
@@ -21,7 +21,8 @@
 			init();
 		} else {
 			navigator.serviceWorker.register(swfile, {
-				scope: './'
+				scope: './',
+				type: 'module'
 			}).then(function (registration) {
 				postmsg(registration.installing || registration.waiting || registration.active);
 				location.reload();
