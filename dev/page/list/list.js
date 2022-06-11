@@ -157,10 +157,6 @@ function func(evt){
 	console.log(evt);
 }`
 					},
-					'currentPopup:string': {
-						desc: '获取当前正在显示的弹窗id',
-						code: `console.log(fusion.currentPopup);`
-					},
 					'destroyPopup(id:string):boolean': {
 						desc: '销毁已加载的指定弹窗, 会出发弹窗的ondestroy事件. 不可销毁当前弹窗, 返回true表示销毁成功',
 						code: `console.log(fusion.destroyPopup('samplePopup2'));`
@@ -240,34 +236,23 @@ function func(evt){
 						title: 'showLoading(text?:string):undefined',
 						desc: '显示加载中界面, 这个方法包含一个引用计数, 每次调用会+1, 所以此方法必须和hideLoading成对使用',
 						code: `fusion.showLoading();
-console.log(fusion.isLoading());
+console.log(fusion.isLoading);
 setTimeout(fusion.hideLoading, 1000);
 fusion.listeners.on(fusion.dialogEvents, 'loaded', loaded);
 function loaded(evt){
 	fusion.listeners.off(this, evt.type, loaded);
-	console.log(fusion.isLoading());
+	console.log(fusion.isLoading);
 }`
 					},
 					'hideLoading():undefined': {
 						desc: '使showLoading的引用计数-1, 当到达0时才会关闭加载中界面, 并触发dialogEvents.onloaded事件',
 						code: `fusion.showLoading();
-console.log(fusion.isLoading());
+console.log(fusion.isLoading);
 setTimeout(fusion.hideLoading, 1000);
 fusion.listeners.on(fusion.dialogEvents, 'loaded', loaded);
 function loaded(evt){
 	fusion.listeners.off(this, evt.type, loaded);
-	console.log(fusion.isLoading());
-}`
-					},
-					'isLoading():boolean': {
-						desc: '判断加载中界面是否在显示',
-						code: `fusion.showLoading();
-console.log(fusion.isLoading());
-setTimeout(fusion.hideLoading, 1000);
-fusion.listeners.on(fusion.dialogEvents, 'loaded', loaded);
-function loaded(evt){
-	fusion.listeners.off(this, evt.type, loaded);
-	console.log(fusion.isLoading());
+	console.log(fusion.isLoading);
 }`
 					},
 					'hint(text:string, t?:number):undefined': {
@@ -287,6 +272,21 @@ function loaded(evt){
 					}
 				},
 				properties: {
+					'currentPopup:string': {
+						desc: '获取当前正在显示的弹窗id',
+						code: `console.log(fusion.currentPopup);`
+					},
+					'isLoading:boolean': {
+						desc: '判断加载中界面是否在显示',
+						code: `fusion.showLoading();
+console.log(fusion.isLoading);
+setTimeout(fusion.hideLoading, 1000);
+fusion.listeners.on(fusion.dialogEvents, 'loaded', loaded);
+function loaded(evt){
+	fusion.listeners.off(this, evt.type, loaded);
+	console.log(fusion.isLoading);
+}`
+					},
 					'location:Object': {
 						desc: '用于存放当前路由信息, 请勿直接修改',
 						code: `console.log(fusion.location);`
