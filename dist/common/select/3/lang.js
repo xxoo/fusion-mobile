@@ -1,0 +1,1 @@
+"use strict";define(["common/fusion/fusion"],(function(e){var n={ok:"确定",clear:"清除",choose:"请选择"},o={ok:"確定",clear:"清除",choose:"請選擇"},c={ok:"OK",clear:"Clear",choose:"Choose"};return e.getLang({zh:n,"zh-CN":n,"zh-TW":o,"zh-HK":o,en:c,"en-US":c,"en-AU":c,"en-CA":c,"en-IN":c,"en-NZ":c,"en-ZA":c,"en-GB":c})}));

@@ -1,0 +1,1 @@
+"use strict";define(["common/fusion/fusion"],(function(e){var n="请检查此字段",i="請檢查此字段",h="Please recheck this field";return e.getLang({zh:n,"zh-CN":n,"zh-TW":i,"zh-HK":i,en:h,"en-US":h,"en-AU":h,"en-CA":h,"en-IN":h,"en-NZ":h,"en-ZA":h,"en-GB":h})}));

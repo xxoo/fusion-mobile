@@ -1,0 +1,1 @@
+"use strict";define(["module","common/fusion/fusion"],(function(o,e){var n=o.id.replace(/^[^/]+\/|\/[^/]+/g,"");document.querySelector("#popup>.content>."+n);return{onloadend:function(){e.setPopupBack("samplePopup","going back to samplePopup")}}}));
