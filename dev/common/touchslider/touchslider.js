@@ -386,10 +386,10 @@ define(['common/pointerevents/pointerevents'], function (pointerevents) {
 
 	function ed(evt, obj, vars) {
 		if (obj.subcontainer.childNodes.length === 2) {
-			const speed = (evt.x - vars.ox) / (evt.domEvent.timeStamp - vars.ot),
-				s = Math.pow(speed, 2) * obj.rate;
+			const speed = (evt.x - vars.ox) / (evt.domEvent.timeStamp - vars.ot);
+			let s = Math.pow(speed, 2) * obj.rate;
 			if (speed < 0) {
-				s = s * -1;
+				s *= -1;
 			}
 			if (obj.children[obj.current] === obj.subcontainer.firstChild) {
 				if (obj.subcontainer.offsetLeft + s < obj.container.offsetWidth * -0.5) {
