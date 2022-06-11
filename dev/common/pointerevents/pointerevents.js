@@ -36,14 +36,6 @@ define(function () {
 			cancel: 'pointercancel'
 		};
 		touchActionStyle = 'touchAction';
-	} else if (self.MSPointerEvent) {
-		touchEvents = {
-			start: 'MSPointerDown',
-			move: 'MSPointerMove',
-			end: 'MSPointerUp',
-			cancel: 'MSPointerCancel'
-		};
-		touchActionStyle = 'msTouchAction';
 	} else {
 		touchEvents = {
 			start: 'mousedown',
