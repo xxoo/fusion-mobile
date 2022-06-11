@@ -27,12 +27,12 @@
  */
 
 'use strict';
-define(['common/pointerevents/pointerevents'], function(pointerevents) {
-	let touchguesture = function(dom) {
+define(['common/pointerevents/pointerevents'], function (pointerevents) {
+	const touchguesture = function (dom) {
 		if (this instanceof touchguesture) {
-			let that = this,
+			const that = this,
 				touchs = [];
-			this.destory = pointerevents(dom, function(evt) {
+			this.destory = pointerevents(dom, function (evt) {
 				return touchstart(that, evt, touchs);
 			}).destory;
 		} else {
@@ -44,7 +44,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	function touchstart(obj, evt, touchs) {
 		if (evt.type === 'start') {
 			if (touchs.length < 2) {
-				let o = {
+				const o = {
 					id: evt.id,
 					x: evt.x,
 					y: evt.y
@@ -88,7 +88,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 				});
 			}
 		} else {
-			let j = evt.id === touchs[0].id ? 0 : 1;
+			const j = evt.id === touchs[0].id ? 0 : 1;
 			touchs[j].x = evt.x;
 			touchs[j].y = evt.y;
 			fireEvent(obj, 'zoomchange', {
@@ -99,7 +99,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 
 	function ed(obj, evt, touchs) {
 		if (touchs.length === 2) {
-			let j = evt.id === touchs[0].id ? 0 : 1;
+			const j = evt.id === touchs[0].id ? 0 : 1;
 			touchs[j].x = evt.x;
 			touchs[j].y = evt.y;
 			fireEvent(obj, 'zoomend', {
@@ -121,7 +121,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	}
 
 	function fireEvent(obj, evt, o) {
-		let n = 'on' + evt;
+		const n = 'on' + evt;
 		if (typeof obj[n] === 'function') {
 			if (!o) {
 				o = {};

@@ -1,34 +1,34 @@
-@defaultFont: PingFang SC, Microsoft YaHei UI;
+@defaultFont: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Heiti SC";
 
-@appBackground: #F1F1F1;
-@appText: #4A4A4A;
+@appBackground: whitesmoke;
+@appText: slategray;
 
-@hintText: rgba(255, 255, 255, 0.8);
+@hintText: white;
 @hintBackground: rgba(0, 0, 0, 0.4);
 @hintShadow: rgba(0, 0, 0, 0.5);
 
-@helperBackground: rgba(0, 0, 0, 0.7);
+@helperBackground: rgba(0, 0, 0, 0.5);
 @maskFilter: blur(4px);
-@maskColor: rgba(0, 0, 0, 0.3);
+@maskColor: rgba(0, 0, 0, 0.5);
 
 @reloadHintBackground: white;
-@reloadHintShadow: rgba(0, 0, 0, 0.5);
-@reloadHintStartColor: #EF5A50;
-@reloadHintFinishColor: #71B4E0;
+@reloadHintShadow: 0 0 2px rgba(0, 0, 0, 0.5);
+@reloadHintStartColor: coral;
+@reloadHintFinishColor: seagreen;
 
 @headerHeight: 40px;
-@headerBackground: white;
-@headerText: #2B2B2B;
-@headerMargin: 0;
-@headerShadow: none;
+@headerBackground: snow;
+@headerText: dimgray;
+@headerBorder: none;
+@headerShadow: 0 0 2px rgba(0, 0, 0, 0.5);
 
 @footerHeight: 50px;
 @footerIconSize: 20px;
-@footerBackground: #F8F8F8;
-@footerFrontground: #9B9B9B;
-@footerFrontgroundHighlight: #71B4E0;
-@footerMargin: 1px;
-@footerShadow: 0 0 1px #B2B2B2;
+@footerBackground: whitesmoke;
+@footerFrontground: darkgray;
+@footerFrontgroundHighlight: slategray;
+@footerBorder: none;
+@footerShadow: 0 0 2px rgba(0, 0, 0, 0.5);
 
 @photoNavColor: white;
 @photoNavShadow: rgba(0, 0, 0, 0.5);
@@ -36,16 +36,18 @@
 @dialogBackground: white;
 @dialogShadow: rgba(0, 0, 0, 0.5);
 
-@photoViewBtnBackground: white;
-@photoViewBtnActiveBackground: #e6e6e6;
-@photoViewBtnShadow: #BABABA;
-@photoViewBtnActiveShadow: #adadad;
-@photoViewBtnText: #3E3E3E;
-@photoViewBtnActiveText: #333333;
+@photoViewBtnBackground: whitesmoke;
+@photoViewBtnActiveBackground: gainsboro;
+@photoViewBtnFrontground: gray;
+@photoViewBtnActiveFrontground: @footerFrontgroundHighlight;
+@photoViewBtnShadow: 0 0 4px rgba(0, 0, 0, 0.5);
 
-@roundCloseBackground: white;
-@roundCloseFrontground: gray;
-@roundCloseShadow: gray;
+@roundCloseBackground: rgba(255 255 255 / 0.5);
+@roundCloseFrontground: rgba(0 0 0 / 0.5);
+@roundCloseStroke: rgba(255 255 255 / 0.5);
+@roundCloseStrokeWidth: 0.5;
+@roundCloseShadow: 0 0 4px rgb(0 0 0 / 0.5);
+@roundCloseFilter: blur(2px);
 
 @loadingWidth: 120px;
 @loadingHeight: 100px;
@@ -59,12 +61,12 @@
 
 @readableBackground: white;
 
-@primaryBtnBackground: #EF5A50;
-@primaryBtnActiveBackground: #F23D2C;
-@primaryBtnText: white;
-@primaryBtnActiveText: white;
+@primaryBtnBackground: snow;
+@primaryBtnActiveBackground: whitesmoke;
+@primaryBtnText: dimgray;
+@primaryBtnActiveText: darkslategray;
 
-@secondryBtnBackground: #f7f7f7;
-@secondryBtnActiveBackground: #e6e6e6;
-@secondryBtnText: #3E3E3E;
-@secondryBtnActiveText: #333333;
+@secondryBtnBackground: ghostwhite;
+@secondryBtnActiveBackground: @primaryBtnActiveBackground;
+@secondryBtnText: @primaryBtnText;
+@secondryBtnActiveText: @primaryBtnActiveText;

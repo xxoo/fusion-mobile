@@ -1,10 +1,10 @@
 'use strict';
-define(['common/kernel/kernel'], function (kernel) {
+define(['common/fusion/fusion'], function (fusion) {
 	let chs = {
-			ok: '确定',
-			clear: '清除',
-			choose: '请选择'
-		},
+		ok: '确定',
+		clear: '清除',
+		choose: '请选择'
+	},
 		cht = {
 			ok: '確定',
 			clear: '清除',
@@ -15,7 +15,7 @@ define(['common/kernel/kernel'], function (kernel) {
 			clear: 'Clear',
 			choose: 'Choose'
 		};
-	return kernel.getLang({
+	return fusion.getLang({
 		zh: chs,
 		'zh-CN': chs,
 		'zh-TW': cht,

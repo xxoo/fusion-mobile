@@ -1,16 +1,16 @@
 'use strict';
-define(['common/kernel/kernel'], function (kernel) {
+define(['common/fusion/fusion'], function (fusion) {
 	//百度统计代码
 	if (location.host === 'your_production_host') {
 		self._hmt = document.createElement('script');
 		_hmt.src = '//hm.baidu.com/hm.js?[your_hmid]';
 		document.head.appendChild(_hmt);
 		_hmt = [['_setAutoPageview', false]];
-		kernel.listeners.add(kernel.pageEvents, 'route', function () {
-			_hmt.push(['_trackPageview', location.pathname + kernel.buildHash(kernel.location)]);
+		fusion.listeners.on(fusion.pageEvents, 'route', function () {
+			_hmt.push(['_trackPageview', location.pathname + fusion.buildHash(fusion.location)]);
 		});
 	}
-	kernel.init([{
+	fusion.init([{
 		id: 'list',
 		ico: ['mdiHomeVariantOutline', 'mdiHomeVariant']
 	}, {
@@ -21,7 +21,7 @@ define(['common/kernel/kernel'], function (kernel) {
 		ico: ['mdiCogOutline', 'mdiCog']
 	}]);
 	if (!document.body.classList.contains('clean') && browser.platform === 'Android' && browser.name === 'unsupported' && !browser.app) {
-		kernel.htmlDialog('\
+		fusion.htmlDialog('\
 			<div style="padding:10px;font-weight:bold;font-size:14px;">请更换浏览器</div>\
 			<div style="padding:0 20px 0 20px;font-size:12px;line-height:18px;text-align:justify;width:268px;">您使用的浏览器可能无法为本站提供完整支持, 推荐安装以下浏览器以获得更佳体验.</div>\
 			<div style="text-align:center;">\

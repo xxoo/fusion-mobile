@@ -6,6 +6,7 @@
 	-webkit-overflow-scrolling: touch;
 	-webkit-tap-highlight-color: transparent;
 	-webkit-touch-callout: none;
+	-webkit-user-drag: none;
 	font-size: inherit;
 	-webkit-text-size-adjust: none;
 	-moz-text-size-adjust: none;
@@ -27,11 +28,9 @@ html {
 	right: 0;
 	bottom: 0;
 	overscroll-behavior: none;
-	-ms-user-select: none;
-	-moz-user-select: none;
 	-webkit-user-select: none;
-	user-select: none;
 	font-family: @defaultFont;
+	user-select: none;
 	font-size: 16px;
 	line-height: 1;
 }
@@ -67,7 +66,6 @@ body {
 
 #page>.header>.back,
 #page>.header>.leftMenuBtn,
-#page>.header>.rightMenuBtn,
 #popup>.header>.back,
 #popup>.header>.close {
 	position: absolute;
@@ -96,10 +94,11 @@ body {
 
 	>.header {
 		flex: 0 0 @headerHeight;
+		box-sizing: content-box;
 		position: relative;
 		color: @headerText;
 		background-color: @headerBackground;
-		margin-bottom: @headerMargin;
+		border-bottom: @headerBorder;
 		box-shadow: @headerShadow;
 
 		>.back {
@@ -118,11 +117,12 @@ body {
 	>.content {
 		flex: 1 1 auto;
 		position: relative;
+		z-index: -1;
 
 		>div {
 			position: absolute;
 			top: 0;
-			left: -100%;
+			left: 0;
 			width: 100%;
 			height: 100%;
 			visibility: hidden;
@@ -148,16 +148,21 @@ body {
 		}
 
 		>.rightMenuBtn {
+			position: absolute;
+			top: 0;
 			right: 0;
+			bottom: 0;
+			margin: auto 0;
 		}
 	}
 
 	>.navMenu {
 		display: flex;
 		flex: 0 0 @footerHeight;
+		box-sizing: content-box;
 		background-color: @footerBackground;
 		position: relative;
-		margin-top: @footerMargin;
+		border-top: @footerBorder;
 		box-shadow: @footerShadow;
 
 		>a {
@@ -242,8 +247,7 @@ body {
 
 #panel,
 #dialog,
-#loading,
-#photoView,
+#photoView>.content,
 #sliderView {
 	background-color: @maskColor;
 	-webkit-backdrop-filter: @maskFilter;
@@ -271,42 +275,7 @@ body {
 	color: @appText;
 
 	>.btns {
-		overflow: visible;
-		text-align: center;
-		margin-bottom: 20px;
 		display: none;
-
-		>a {
-			display: inline-block;
-			border-radius: 4px;
-			line-height: 30px;
-			min-width: 80px;
-			padding: 0 10px;
-			margin: 0 15px;
-			vertical-align: top;
-			font-size: 14px;
-			box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
-
-			&.yes {
-				color: @primaryBtnText;
-				background-color: @primaryBtnBackground;
-
-				&:active {
-					color: @primaryBtnActiveText;
-					background-color: @primaryBtnActiveBackground;
-				}
-			}
-
-			&.no {
-				color: @secondryBtnText;
-				background-color: @secondryBtnBackground;
-
-				&:active {
-					color: @secondryBtnActiveText;
-					background-color: @secondryBtnActiveBackground;
-				}
-			}
-		}
 	}
 
 	>.close {
@@ -329,11 +298,45 @@ body {
 			margin: 16px 20px;
 			line-height: 22px;
 			white-space: pre-wrap;
-			text-align: justify;
 		}
 
 		>.btns {
 			display: block;
+			overflow: visible;
+			text-align: center;
+			margin-bottom: 20px;
+
+			>a {
+				display: inline-block;
+				border-radius: 4px;
+				line-height: 30px;
+				min-width: 80px;
+				padding: 0 10px;
+				margin: 0 15px;
+				vertical-align: top;
+				font-size: 14px;
+				box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+
+				&.yes {
+					color: @primaryBtnText;
+					background-color: @primaryBtnBackground;
+
+					&:active {
+						color: @primaryBtnActiveText;
+						background-color: @primaryBtnActiveBackground;
+					}
+				}
+
+				&.no {
+					color: @secondryBtnText;
+					background-color: @secondryBtnBackground;
+
+					&:active {
+						color: @secondryBtnActiveText;
+						background-color: @secondryBtnActiveBackground;
+					}
+				}
+			}
 		}
 
 		>.close {
@@ -341,7 +344,7 @@ body {
 		}
 	}
 
-	&.alert>.btns>.no {
+	&.alert>.btns>.yes {
 		display: none;
 	}
 }
@@ -505,35 +508,69 @@ body {
 }
 
 #photoView {
-	>img {
-		position: absolute;
+	display: flex;
+	flex-direction: column;
+
+	>.content {
+		flex: 1 1 auto;
+		position: relative;
+
+		>div {
+			position: absolute;
+			width: 100%;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			visibility: hidden;
+			pointer-events: none;
+			-webkit-animation-duration: 300ms;
+			-webkit-animation-timing-function: ease-in-out;
+			-webkit-animation-iteration-count: 1;
+			animation-duration: 300ms;
+			animation-timing-function: ease-in-out;
+			animation-iteration-count: 1;
+
+			>img {
+				position: absolute;
+				transform-origin: center;
+				transition-timing-function: ease-in-out;
+				transition-duration: 100ms;
+				transition-property: none;
+			}
+		}
 	}
 
 	>.actions {
-		position: absolute;
-		bottom: 10px;
-		left: 0;
-		right: 0;
-		text-align: center;
-		overflow: visible;
+		position: relative;
+		display: flex;
+		justify-content: space-evenly;
+		height: @footerHeight;
+		flex: 0 0 auto;
+		background-color: @photoViewBtnBackground;
+		box-shadow: @photoViewBtnShadow;
 
 		>a {
-			display: inline-block;
-			vertical-align: top;
-			margin: 0 5px;
-			font-size: 14px;
-			line-height: 30px;
-			padding: 0 10px;
-			min-width: 60px;
+			display: block;
+			flex: 0 0 auto;
+			margin: auto 0;
 			border-radius: 4px;
-			color: @photoViewBtnText;
-			background-color: @photoViewBtnBackground;
-			box-shadow: 0 0 2px @photoViewBtnShadow;
+			cursor: pointer;
+
+			>svg {
+				display: block;
+				width: 20px;
+				height: 20px;
+				margin: 5px;
+				fill: @photoViewBtnFrontground;
+			}
 
 			&:active {
-				color: @photoViewBtnActiveText;
+				box-shadow: 0 0 2px rgba(0, 0, 0, 0.5) inset;
 				background-color: @photoViewBtnActiveBackground;
-				box-shadow: 0 0 2px @photoViewBtnActiveShadow;
+
+				>svg {
+					fill: @photoViewBtnActiveFrontground;
+				}
 			}
 		}
 	}
@@ -544,19 +581,27 @@ body {
 #sliderView {
 	>.close {
 		position: absolute;
-		right: 4px;
-		top: 4px;
-		border-radius: 16px;
+		right: -40px;
+		top: -40px;
+		border-radius: 50%;
 		display: block;
+		width: 80px;
+		height: 80px;
 		background-color: @roundCloseBackground;
-		box-shadow: 0 0 4px @roundCloseShadow inset;
+		box-shadow: @roundCloseShadow;
+		-webkit-backdrop-filter: @roundCloseFilter;
+		backdrop-filter: @roundCloseFilter;
 
 		>svg {
 			display: block;
 			width: 16px;
 			height: 16px;
-			margin: 8px;
 			fill: @roundCloseFrontground;
+			margin: 48px 0 0 16px;
+			stroke: @roundCloseStroke;
+			stroke-width: @roundCloseStrokeWidth;
+			stroke-linecap: round;
+			stroke-linejoin: round;
 		}
 	}
 }
@@ -680,38 +725,35 @@ body {
 	pointer-events: none;
 }
 
-span.reloadHint {
+.iosScrollFix.rev:after {
+	bottom: auto;
+	top: -2px;
+}
+
+svg.reloadHint {
 	position: absolute;
 	left: 0;
 	right: 0;
 	margin: 0 auto;
 	width: 40px;
 	height: 40px;
+	border-radius: 50%;
 	opacity: 0;
+	box-shadow: @reloadHintShadow;
 	background-color: @reloadHintBackground;
-	padding: 8px;
-	box-shadow: 0 0 4px @reloadHintShadow;
-	border-radius: 20px;
-
-	>svg {
-		display: block;
-		height: 100%;
-		margin: 0 auto;
-		fill: @reloadHintStartColor;
-		transition: fill 100ms ease-in-out;
-	}
+	border: 4px solid @reloadHintBackground;
+	fill: @reloadHintStartColor;
 
 	&.pin {
-		animation: reloadPinAni 100ms ease-in-out;
-
-		>svg {
-			fill: @reloadHintFinishColor;
-		}
+		-webkit-animation: reloadPinAni 200ms ease-in-out;
+		animation: reloadPinAni 200ms ease-in-out;
+		fill: @reloadHintFinishColor;
 
 		@-webkit-keyframes reloadPinAni {
 			0% {
 				top: 35px;
 				transform: rotate(0deg);
+				fill: @reloadHintStartColor;
 			}
 
 			71.428571% {
@@ -722,6 +764,7 @@ span.reloadHint {
 			100% {
 				transform: rotate(0deg);
 				top: 40px;
+				fill: @reloadHintFinishColor;
 			}
 		}
 
@@ -729,6 +772,7 @@ span.reloadHint {
 			0% {
 				top: 35px;
 				transform: rotate(0deg);
+				fill: @reloadHintStartColor;
 			}
 
 			71.428571% {
@@ -739,6 +783,7 @@ span.reloadHint {
 			100% {
 				transform: rotate(0deg);
 				top: 40px;
+				fill: @reloadHintFinishColor;
 			}
 		}
 	}
@@ -747,20 +792,24 @@ span.reloadHint {
 @-webkit-keyframes viewTransL1 {
 	from {
 		left: 0;
+		opacity: 1;
 	}
 
 	to {
 		left: -50%;
+		opacity: 0;
 	}
 }
 
 @-webkit-keyframes viewTransR1 {
 	from {
 		left: 0;
+		opacity: 1;
 	}
 
 	to {
 		left: 50%;
+		opacity: 0;
 	}
 }
 
@@ -791,20 +840,24 @@ span.reloadHint {
 @keyframes viewTransL1 {
 	from {
 		left: 0;
+		opacity: 1;
 	}
 
 	to {
 		left: -50%;
+		opacity: 0;
 	}
 }
 
 @keyframes viewTransR1 {
 	from {
 		left: 0;
+		opacity: 1;
 	}
 
 	to {
 		left: 50%;
+		opacity: 0;
 	}
 }
 

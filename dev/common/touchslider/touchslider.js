@@ -10,10 +10,10 @@
  */
 
 'use strict';
-define(['common/pointerevents/pointerevents'], function(pointerevents) {
-	let peo,
-		touchslider = function(container, contents, idx) {
-		let that = this,
+define(['common/pointerevents/pointerevents'], function (pointerevents) {
+	let peo;
+	const touchslider = function (container, contents, idx) {
+		const that = this,
 			vars = {};
 		if (this instanceof touchslider) {
 			this.pushStack = []; //for adding elements while sliding
@@ -37,7 +37,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 			this.subcontainer.style.width = '200%';
 			this.subcontainer.style.height = '100%';
 			this.subcontainer.style.left = this.subcontainer.style.top = 0;
-			this.subcontainer.addEventListener('transitionend', function(evt) {
+			this.subcontainer.addEventListener('transitionend', function (evt) {
 				slided.call(this, evt, that);
 			}, false);
 			this.container.addEventListener('dragstart', cancelEvt, false);
@@ -86,7 +86,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	//the minimal touch movement in x to start sliding.
 	//if sliding begins, scrolling will be disabled in the entire document till it is end
 	touchslider.prototype.minVal = 5;
-	touchslider.prototype.add = function(o) {
+	touchslider.prototype.add = function (o) {
 		let result;
 		if (this.sliding) { //will push to children when sliding ends
 			this.pushStack.push(o);
@@ -125,7 +125,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 		}
 		return result;
 	};
-	touchslider.prototype.remove = function(i) {
+	touchslider.prototype.remove = function (i) {
 		let result;
 		if (this.sliding) {
 			if (typeof i === 'number') {
@@ -198,7 +198,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 		}
 		return result;
 	};
-	touchslider.prototype.clear = function() {
+	touchslider.prototype.clear = function () {
 		if (this.sliding) {
 			this.removeStack = this.children.slice(0);
 			this.pushStack = [];
@@ -208,7 +208,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 			}
 		}
 	};
-	touchslider.prototype.slideTo = function(i, direction) {
+	touchslider.prototype.slideTo = function (i, direction) {
 		let result;
 		if (typeof i !== 'number') {
 			i = this.children.indexOf(i);
@@ -234,12 +234,12 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 		}
 		return result;
 	};
-	touchslider.prototype.startPlay = function(delay) {
+	touchslider.prototype.startPlay = function (delay) {
 		this.stopPlay();
 		this.delay = delay;
 		restartTimer(this);
 	};
-	touchslider.prototype.stopPlay = function() {
+	touchslider.prototype.stopPlay = function () {
 		let result = this.delay;
 		if (result) {
 			delete this.delay;
@@ -296,7 +296,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 				}
 				vars.ox = vars.nx = vars.x = evt.x;
 				vars.ot = vars.nt = evt.domEvent.timeStamp;
-				vars.sl = function(evt) {
+				vars.sl = function (evt) {
 					document.removeEventListener('scroll', vars.sl, true);
 					delete vars.sl;
 				};
@@ -386,7 +386,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 
 	function ed(evt, obj, vars) {
 		if (obj.subcontainer.childNodes.length === 2) {
-			let speed = (evt.x - vars.ox) / (evt.domEvent.timeStamp - vars.ot),
+			const speed = (evt.x - vars.ox) / (evt.domEvent.timeStamp - vars.ot),
 				s = Math.pow(speed, 2) * obj.rate;
 			if (speed < 0) {
 				s = s * -1;
@@ -444,7 +444,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 	}
 
 	function fireEvent(obj, evt, o) {
-		let n = 'on' + evt;
+		const n = 'on' + evt;
 		if (typeof obj[n] === 'function') {
 			if (!o) {
 				o = {};
@@ -460,7 +460,7 @@ define(['common/pointerevents/pointerevents'], function(pointerevents) {
 
 	function restartTimer(obj) {
 		if (obj.delay) {
-			obj.timer = setTimeout(function() {
+			obj.timer = setTimeout(function () {
 				delete obj.timer;
 				obj.slideTo(obj.current + 1, 1);
 			}, obj.delay);

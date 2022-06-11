@@ -3,11 +3,12 @@
 #dialog>.selectDialog {
 	border-radius: 8px;
 
-	>.content>div {
+	>.content {
 		display: flex;
 		flex-direction: column;
 
 		>.title {
+			position: relative;
 			flex: 0 0 auto;
 			white-space: nowrap;
 			padding: 0 36px;
@@ -33,16 +34,19 @@
 				left: 0;
 				right: 0;
 				height: calc(50% - 17px);
-				background-color: rgba(240, 240, 240, 0.8);
 				box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+				//-webkit-backdrop-filter: blur(1px);
+				backdrop-filter: blur(1px);
 			}
 
 			&:before {
 				top: 0;
+				background: linear-gradient(180deg, rgba(240, 240, 240, 1) 0%, rgba(240, 240, 240, 0.25) 100%);
 			}
 
 			&:after {
 				bottom: 0;
+				background: linear-gradient(0deg, rgba(240, 240, 240, 1) 0%, rgba(240, 240, 240, 0.25) 100%);
 			}
 
 			>div {
@@ -50,37 +54,43 @@
 				text-overflow: ellipsis;
 				font-size: 16px;
 				line-height: 32px;
-				padding: 0 20px;
+				padding: 0 32px;
 				text-align: center;
-				color: black;
+				color: dimgray;
 				pointer-events: none;
 			}
 		}
 
 		>.btns {
+			display: flex;
 			flex: 0 0 auto;
 			padding: 15px 0;
-			text-align: center;
 			white-space: nowrap;
+			justify-content: space-evenly;
 
-			>a {
-				display: inline-block;
+			>button {
+				display: block;
+				flex: 0 0 auto;
 				border-radius: 4px;
 				line-height: 30px;
 				min-width: 80px;
 				padding: 0 10px;
-				margin: 0 15px;
-				vertical-align: top;
+				margin: 0;
 				font-size: 14px;
+				border: none;
 				box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
 
 				&.ok {
 					color: @primaryBtnText;
 					background-color: @primaryBtnBackground;
 
-					&:active {
+					&:not(:disabled):active {
 						color: @primaryBtnActiveText;
 						background-color: @primaryBtnActiveBackground;
+					}
+
+					&:disabled {
+						opacity: 0.5;
 					}
 				}
 
@@ -93,6 +103,31 @@
 						background-color: @secondryBtnActiveBackground;
 					}
 				}
+			}
+		}
+
+		>svg {
+			visibility: hidden;
+			position: absolute;
+			top: calc(50% - 28px);
+			height: 32px;
+			width: 32px;
+			fill: @secondryBtnText;
+			//background-color: @secondryBtnBackground;
+			//border-radius: 25%;
+			//box-shadow: 0 0 2px rgba(0 0 0 / 0.5);
+
+			&:active {
+				fill: @secondryBtnActiveText;
+				//background-color: @secondryBtnActiveBackground;
+			}
+
+			&.prev {
+				left: 0;
+			}
+
+			&.next {
+				right: 0;
 			}
 		}
 	}

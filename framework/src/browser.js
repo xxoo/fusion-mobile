@@ -24,13 +24,13 @@ var browser = function () {
 		browser.name = 'IOS';
 		browser.version = +M[2];
 	}
-	if (navigator.userAgent.match(/QQ\/\d+/i)) {
+	if (/QQ\/\d+/i.test(navigator.userAgent)) {
 		browser.app = 'QQ';
-	} else if (navigator.userAgent.match(/micromessenger\/\d+/i)) {
+	} else if (/micromessenger\/\d+/i.test(navigator.userAgent)) {
 		browser.app = 'WeChat';
-	} else if (navigator.userAgent.match(/WeiBo/i)) {
+	} else if (/WeiBo/i.test(navigator.userAgent)) {
 		browser.app = 'WeiBo';
-	} else if (browser.name === 'IOS' && navigator.userAgent.match(/Safari/)) {
+	} else if (browser.name === 'IOS' && /Safari/.test(navigator.userAgent)) {
 		browser.app = 'Safari';
 	}
 	return browser;

@@ -19,7 +19,7 @@
  */
 
 'use strict';
-define(function() {
+define(function () {
 	let touchEvents, touchActionStyle;
 	if (self.TouchEvent) {
 		touchEvents = {
@@ -49,13 +49,13 @@ define(function() {
 			start: 'mousedown',
 			move: 'mousemove',
 			end: 'mouseup'
-		}
+		};
 	}
 
-	return function(dom, callback) {
-		let peo = {
+	return function (dom, callback) {
+		const peo = {
 			pointers: [],
-			destory: function() {
+			destory: function () {
 				dom.removeEventListener(touchEvents.start, start);
 			}
 		};
@@ -71,14 +71,14 @@ define(function() {
 	};
 
 	function watchView(callback, pointers, peo, win) {
-		let o = {
-			move: function(evt) {
+		const o = {
+			move: function (evt) {
 				process(evt, callback, pointers, 'move', o, peo);
 			},
-			end: function(evt) {
+			end: function (evt) {
 				process(evt, callback, pointers, 'end', o, peo);
 			},
-			cancel: function(evt) {
+			cancel: function (evt) {
 				process(evt, callback, pointers, 'cancel', o, peo);
 			}
 		};
@@ -116,12 +116,12 @@ define(function() {
 	function pointerStart(evt, callback, pointers, peo) {
 		if ('pointerId' in evt) {
 			if (callback.call(peo, {
-					type: 'start',
-					id: evt.pointerId,
-					x: evt.clientX,
-					y: evt.clientY,
-					domEvent: evt
-				})) {
+				type: 'start',
+				id: evt.pointerId,
+				x: evt.clientX,
+				y: evt.clientY,
+				domEvent: evt
+			})) {
 				pointers.push(evt.pointerId);
 				if (pointers.length === 1) {
 					watchView(callback, pointers, peo, evt.view);
@@ -129,14 +129,14 @@ define(function() {
 			}
 		} else if ('changedTouches' in evt) {
 			for (let i = 0; i < evt.changedTouches.length; i++) {
-				let t = evt.changedTouches[i];
+				const t = evt.changedTouches[i];
 				if (callback.call(peo, {
-						type: 'start',
-						id: t.identifier,
-						x: t.clientX,
-						y: t.clientY,
-						domEvent: evt
-					})) {
+					type: 'start',
+					id: t.identifier,
+					x: t.clientX,
+					y: t.clientY,
+					domEvent: evt
+				})) {
 					pointers.push(t.identifier);
 					if (pointers.length === 1) {
 						watchView(callback, pointers, peo, evt.view);
@@ -145,12 +145,12 @@ define(function() {
 			}
 		} else {
 			if (callback.call(peo, {
-					type: 'start',
-					id: undefined,
-					x: evt.clientX,
-					y: evt.clientY,
-					domEvent: evt
-				})) {
+				type: 'start',
+				id: undefined,
+				x: evt.clientX,
+				y: evt.clientY,
+				domEvent: evt
+			})) {
 				pointers.push(undefined);
 				if (pointers.length === 1) {
 					watchView(callback, pointers, peo, evt.view);
@@ -161,15 +161,15 @@ define(function() {
 
 	function process(evt, callback, pointers, type, o, peo) {
 		if ('pointerId' in evt) {
-			let j = pointers.indexOf(evt.pointerId);
+			const j = pointers.indexOf(evt.pointerId);
 			if (j >= 0) {
 				if (callback.call(peo, {
-						type: type,
-						id: evt.pointerId,
-						x: evt.clientX,
-						y: evt.clientY,
-						domEvent: evt
-					}) || type !== 'move') {
+					type: type,
+					id: evt.pointerId,
+					x: evt.clientX,
+					y: evt.clientY,
+					domEvent: evt
+				}) || type !== 'move') {
 					pointers.splice(j, 1);
 					if (!pointers.length) {
 						unwatchView(o, evt.view);
@@ -178,16 +178,16 @@ define(function() {
 			}
 		} else if ('changedTouches' in evt) {
 			for (let i = 0; i < evt.changedTouches.length; i++) {
-				let t = evt.changedTouches[i],
+				const t = evt.changedTouches[i],
 					j = pointers.indexOf(t.identifier);
 				if (j >= 0) {
 					if (callback.call(peo, {
-							type: type,
-							id: t.identifier,
-							x: t.clientX,
-							y: t.clientY,
-							domEvent: evt
-						}) || type !== 'move') {
+						type: type,
+						id: t.identifier,
+						x: t.clientX,
+						y: t.clientY,
+						domEvent: evt
+					}) || type !== 'move') {
 						pointers.splice(j, 1);
 						if (!pointers.length) {
 							unwatchView(o, evt.view);
@@ -197,15 +197,15 @@ define(function() {
 				}
 			}
 		} else {
-			let j = pointers.indexOf(undefined);
+			const j = pointers.indexOf(undefined);
 			if (j >= 0) {
 				if (callback.call(peo, {
-						type: type,
-						id: undefined,
-						x: evt.clientX,
-						y: evt.clientY,
-						domEvent: evt
-					}) || type !== 'move') {
+					type: type,
+					id: undefined,
+					x: evt.clientX,
+					y: evt.clientY,
+					domEvent: evt
+				}) || type !== 'move') {
 					pointers.splice(j, 1);
 					if (!pointers.length) {
 						unwatchView(o, evt.view);
