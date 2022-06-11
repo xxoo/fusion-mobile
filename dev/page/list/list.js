@@ -427,7 +427,7 @@ function loaded(evt){
 	sld.onchange = function () {
 		nav.firstChild.data = navFormat(this.current, this.children.length);
 		if (mod && mod !== mods[this.current]) {
-			location.hash = '!' + thispage + '&mod=' + encodeURIComponent(mods[this.current]);
+			location.hash = '/' + thispage + '/mod=' + encodeURIComponent(mods[this.current]);
 		}
 	};
 	for (i in tree) {
