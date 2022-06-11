@@ -52,7 +52,7 @@
 				framework: RES_TO_CACHE,
 				modules: []
 			};
-			for (n in MODULES) {
+			for (const n in MODULES) {
 				msg.modules.push(MODULES[n]);
 			}
 		} else {
