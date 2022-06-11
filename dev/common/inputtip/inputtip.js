@@ -1,29 +1,42 @@
 'use strict';
-define(['module', 'common/kernel/kernel', './lang'], function (module, kernel, lang) {
+define(['module', 'common/fusion/fusion', './lang'], function (module, fusion, lang) {
 	let inv, target, tmo, synctmo, arr,
 		dom = document.createElement('div');
-	kernel.appendCss(require.toUrl(module.id));
+	fusion.appendCss(require.toUrl(module.id));
 	dom.id = 'inputtip';
-	dom.appendChild(document.createTextNode(lang));
+	dom.appendChild(document.createTextNode(''));
 	arr = dom.appendChild(document.createElement('span'));
 	document.body.appendChild(dom);
 	document.addEventListener('invalid', function (evt) {
 		evt.preventDefault();
+		show(evt.target);
+	}, true);
+
+	return show;
+
+	function show(t, txt) {
 		if (!inv) {
 			if (target) {
 				blur(true);
 			}
-			target = evt.target;
+			target = t;
 			target.focus();
+			if (document.activeElement !== target) {
+				target.scrollIntoView({
+					block: 'nearest',
+					inline: 'nearest'
+				});
+			}
 			target.addEventListener('blur', blur);
+			dom.firstChild.data = txt || lang;
 			syncPos();
 			dom.style.opacity = 1;
-			tmo = setTimeout(blur, 5 * 1000);
+			tmo = setTimeout(blur, 10 * 1000);
 			inv = setTimeout(function () {
 				inv = undefined;
 			}, 0);
 		}
-	}, true);
+	}
 
 	function syncPos() {
 		let w = dom.offsetWidth,

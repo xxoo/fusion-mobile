@@ -1,9 +1,9 @@
 'use strict';
-define(['common/kernel/kernel'], function (kernel) {
+define(['common/fusion/fusion'], function (fusion) {
 	let chs = '请检查此字段',
 		cht = '請檢查此字段',
 		eng = 'Please recheck this field';
-	return kernel.getLang({
+	return fusion.getLang({
 		zh: chs,
 		'zh-CN': chs,
 		'zh-TW': cht,
