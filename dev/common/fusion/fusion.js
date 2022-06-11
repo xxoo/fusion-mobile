@@ -1214,9 +1214,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					}
 				}
 			};
-			Object.defineProperty(fusion, 'isLoading', {
-				get: () => loadingRT > 0
-			});
 			fusion.hint = function (text, t) { //底部提示, 不干扰用户操作, 默认显示5秒
 				hintCtn.querySelector(':scope>.text').firstChild.data = text;
 				if (hintmo) {
@@ -1229,6 +1226,11 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					hintmo = undefined;
 				}, t ? t : 5000);
 			};
+			Object.defineProperty(fusion, 'isLoading', {
+				get: function () {
+					return loadingRT > 0;
+				}
+			});
 			//目前只有loaded事件
 			fusion.dialogEvents = { __proto__: null };
 			self.addEventListener('resize', resize);
