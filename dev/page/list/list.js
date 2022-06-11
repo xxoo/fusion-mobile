@@ -476,7 +476,7 @@ function loaded(evt){
 				for (i = 0; i < types.length; i++) {
 					tmp = document.createElement('a');
 					tmp.textContent = typeNames[types[i]];
-					tmp.href = '#!' + thispage + '&mod=' + encodeURIComponent(mod) + '&type=' + encodeURIComponent(types[i]);
+					tmp.href = '#/' + thispage + '/mod=' + encodeURIComponent(mod) + '/type=' + encodeURIComponent(types[i]);
 					tabs.appendChild(tmp);
 				}
 			}
@@ -491,7 +491,7 @@ function loaded(evt){
 				}
 				for (i in tree[mod][type]) {
 					tmp = `<div class="item">
-						<a href="#!${thispage}&mod=${encodeURIComponent(mod)}&type=${encodeURIComponent(type)}&api=${encodeURIComponent(getShotTitle(i))}">${i}</a><div class="desc">${tree[mod][type][i].desc}</div>`;
+						<a href="#/${thispage}/mod=${encodeURIComponent(mod)}/type=${encodeURIComponent(type)}/api=${encodeURIComponent(getShotTitle(i))}">${i}</a><div class="desc">${tree[mod][type][i].desc}</div>`;
 					if (tree[mod][type][i].code) {
 						tmp += `<div class="code">${tree[mod][type][i].code}</div>`;
 					}
