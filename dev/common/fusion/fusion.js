@@ -735,8 +735,9 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				return result;
 			};
 			Object.defineProperty(fusion, 'currentPanel', {
-				enumerable: true,
-				get: () => activePanel
+				get: function () {
+					return activePanel;
+				}
 			});
 			fusion.destroyPanel = function (id) {
 				if (panels[id].status === 2) {
@@ -896,7 +897,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			};
 			// 获取当前显示的 popup id
 			Object.defineProperty(fusion, 'currentPopup', {
-				enumerable: true,
 				get: () => activePopup
 			});
 			// 如果未指定id则临时改变当前弹窗的后退位置, 临时修改不能在loadend之前使用
@@ -1957,7 +1957,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					fusion.showLoading();
 					dom.style.opacity = 0;
 					dom.style.transition = 'opacity 400ms ease-in-out';
-					dom.ontransitionend = domtransend;
+					dom.ontransitionend = function (evt) {
+						if (evt.target === this) {
+							this.ontransitionend = null;
+							this.style.transition = '';
+						}
+					};
 					fusion.listeners.on(fusion.dialogEvents, 'loaded', loaded);
 					const js = n + id;
 					require([js], function (cfg) {
@@ -1990,12 +1995,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					dom.style.opacity = '';
 				}
 
-				function domtransend(evt) {
-					if (evt.target === this) {
-						this.ontransitionend = null;
-						this.style.transition = '';
-					}
-				}
+
 			}
 
 			function errorOccurs(res, msg) {
