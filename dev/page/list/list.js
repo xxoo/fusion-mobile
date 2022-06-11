@@ -178,10 +178,6 @@ function func(evt){
 					'closePanel(id?:string|Array):0|1|2': {
 						desc: '关闭侧边栏, 返回0表示操作失败, 返回1表示操作成功, 返回2表示操作已队列. 若失败, 原因可能是当前侧边栏的onunload方法返回true'
 					},
-					'currentPanel:string': {
-						desc: '获取当前正在显示的侧边栏id',
-						code: `console.log(fusion.currentPanel);`
-					},
 					'destroyPanel(id:string):boolean': {
 						desc: '销毁已加载的指定侧边栏, 会出发侧边栏的ondestroy事件. 不可销毁当前侧边栏, 返回true表示销毁成功',
 						code: `console.log(fusion.destroyPanel('samplePanel'));`
@@ -275,6 +271,10 @@ function loaded(evt){
 					'currentPopup:string': {
 						desc: '获取当前正在显示的弹窗id',
 						code: `console.log(fusion.currentPopup);`
+					},
+					'currentPanel:string': {
+						desc: '获取当前正在显示的侧边栏id',
+						code: `console.log(fusion.currentPanel);`
 					},
 					'isLoading:boolean': {
 						desc: '判断加载中界面是否在显示',
