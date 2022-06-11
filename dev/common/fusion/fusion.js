@@ -665,7 +665,12 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 								if (((s && !fusion.closePanel()) || !s) && content.style.transform !== 'translateX(0px)') {
 									content.style.transition = '';
 									content.style.transform = 'translateX(0px)';
-									content.ontransitionend = transend;
+									content.ontransitionend = function (evt) {
+										if (evt.target === this) {
+											this.style.transition = 'none';
+											this.ontransitionend = null;
+										}
+									};
 								}
 							} else {
 								evt.domEvent.view.addEventListener('scroll', scrolling, true);
@@ -739,7 +744,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					return true;
 				}
 			};
-			content.ontransitionend = function (evt) {
+			content.addEventListener('transitionend', function (evt) {
 				if (animating && evt.target === this) {
 					if (this.style.transform) {
 						if (typeof panels[activePanel].onloadend === 'function') {
@@ -769,7 +774,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 						tmp();
 					}
 				}
-			};
+			});
 
 			function hidePanel() {
 				if (typeof panels[activePanel].onunload !== 'function' || !panels[activePanel].onunload()) {
@@ -777,13 +782,6 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 					animating = content.querySelector(':scope>.' + activePanel);
 					content.style.transition = content.style.transform = '';
 					return true;
-				}
-			}
-
-			function transend(evt) {
-				if (evt.target === this) {
-					this.style.transition = 'none';
-					this.ontransitionend = null;
 				}
 			}
 
