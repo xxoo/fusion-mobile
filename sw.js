@@ -6,7 +6,7 @@ import './framework/src/jsex.js';
 let config;
 const getbase = url => url.replace(/^http(s)?:\/\/[^/]+|[^/]*(\?.*)?(#.*)?$/g, ''),
 	base = getbase(location.href),
-	homeReg = RegExp('^' + base.replace(/[.*(){[\^$\\]/g, '\\$&') + '(index\\.html)?(\\?.*)?$'),
+	homeReg = RegExp('^' + location.href.replace(/[^/]*(\?.*)?(#.*)?$/, '').replace(/[.*(){[\^$\\]/g, '\\$&') + '(index\\.html)?(\\?.*)?$'),
 	findImmutable = url => {
 		for (let i = 0; i < config.immutable.length; i++) {
 			if (config.immutable[i].test(url)) {
