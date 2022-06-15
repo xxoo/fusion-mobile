@@ -9,7 +9,7 @@ let config;
 
 caches.open(base + 'home').then(cache => cache.match('config')).then(response => response && response.text()).then(txt => {
 	if (txt) {
-		const o = txt.toJsex();
+		const o = txt.parseJsex();
 		if (o) {
 			config = o.value;
 		}
