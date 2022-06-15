@@ -89,7 +89,7 @@ onfetch = function (evt) {
 };
 
 function getbase(url) {
-	return url.replace(/^http(s)?:\/\/[^/]+|[^/]+$/, '');
+	return url.replace(/^http(s)?:\/\/[^/]+|[^/]+$/g, '');
 }
 
 function findModule(url) {
