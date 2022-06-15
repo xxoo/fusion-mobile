@@ -41,7 +41,7 @@ onmessage = function (evt) {
 				}
 			})));
 		}
-		caches.open(base + 'home').then(cache => cache.put('config', toJsex(config)));
+		caches.open(base + 'home').then(cache => cache.put('config', new Response(toJsex(config))));
 	}
 };
 
