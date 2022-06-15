@@ -48,10 +48,10 @@
 			RES_TO_CACHE.push(src);
 			msg = {
 				framework: RES_TO_CACHE,
-				modules: []
+				module: []
 			};
 			for (const n in MODULES) {
-				msg.modules.push(MODULES[n]);
+				msg.module.push(MODULES[n]);
 			}
 		} else {
 			msg = prefix;

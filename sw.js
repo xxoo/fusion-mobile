@@ -15,8 +15,8 @@ const getbase = url => url.replace(/^http(s)?:\/\/[^/]+|[^/]*(\?.*)?(#.*)?$/g, '
 		}
 	},
 	findModule = url => {
-		for (let i = 0; i < config.modules.length; i++) {
-			if (url.length > config.modules[i].length && url.substr(0, config.modules[i].length) === config.modules[i]) {
+		for (let i = 0; i < config.module.length; i++) {
+			if (url.length > config.module[i].length && url.substr(0, config.module[i].length) === config.module[i]) {
 				return true;
 			}
 		}
@@ -37,7 +37,7 @@ onmessage = function (evt) {
 	if (getbase(evt.source.url) === base && evt.data) {
 		if (typeof evt.data === 'string') {
 			config = new URL(evt.data, evt.source.url).href;
-		} else if (evt.data.framework && evt.data.modules) {
+		} else if (evt.data.framework && evt.data.module) {
 			config = evt.data;
 			config.immutable = [];
 			let i = 0;
@@ -49,8 +49,8 @@ onmessage = function (evt) {
 					config.immutable.push(config.framework.splice(i, 1)[0]);
 				}
 			}
-			for (let i = 0; i < config.modules.length; i++) {
-				config.modules[i] = new URL(config.modules[i] + '/', evt.source.url).href;
+			for (let i = 0; i < config.module.length; i++) {
+				config.module[i] = new URL(config.module[i] + '/', evt.source.url).href;
 			}
 			caches.open(base + 'module').then(cache => cache.keys().then(keys => keys.forEach(request => {
 				if (!findModule(request.url)) {
