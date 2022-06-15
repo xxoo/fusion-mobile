@@ -1,12 +1,12 @@
-var browser = function () {
+const browser = function () {
 	'use strict';
-	var M,
-		browser = {
-			platform: '',
-			name: '',
-			app: '',
-			version: 0
-		};
+	let M;
+	const browser = {
+		platform: '',
+		name: '',
+		app: '',
+		version: 0
+	};
 	if (M = navigator.userAgent.match(/Macintosh|Windows/)) {
 		browser.platform = M[0];
 		if (M = navigator.userAgent.match(/(Edge)\/(\d+)/) || navigator.userAgent.match(/(Chrome|Firefox)\/(\d+)/) || navigator.userAgent.match(/(AppleWebKit)\/(\d+)/)) {
