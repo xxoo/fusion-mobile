@@ -4,9 +4,9 @@ if (typeof globalThis === 'undefined') {
 }
 import './framework/src/jsex.js';
 let config;
-const base = getbase(location.href),
+const getbase = url => url.replace(/^http(s)?:\/\/[^/]+|[^/]*(\?.*)?(#.*)?$/g, ''),
+	base = getbase(location.href),
 	homeReg = RegExp('^' + base.replace(/[.*(){[\^$\\]/g, '\\$&') + '(index\\.html)?(\\?.*)?$'),
-	getbase = url => url.replace(/^http(s)?:\/\/[^/]+|[^/]*(\?.*)?(#.*)?$/g, ''),
 	findFramework = url => {
 		for (let i = 0; i < config.framework.length; i++) {
 			if (typeof config.framework[i] === 'string') {
