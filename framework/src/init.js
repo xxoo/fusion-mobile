@@ -3,7 +3,7 @@
 	if (typeof Element.prototype.replaceChildren !== 'function') {
 		Element.prototype.replaceChildren = function (...nodes) {
 			this.innerHTML = '';
-			for (let i = 0; i < s.length; i++) {
+			for (let i = 0; i < nodes.length; i++) {
 				this.append(nodes[i]);
 			}
 		};
