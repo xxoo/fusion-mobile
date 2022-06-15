@@ -7,13 +7,9 @@ let config;
 const getbase = url => url.replace(/^http(s)?:\/\/[^/]+|[^/]*(\?.*)?(#.*)?$/g, ''),
 	base = getbase(location.href),
 	homeReg = RegExp('^' + base.replace(/[.*(){[\^$\\]/g, '\\$&') + '(index\\.html)?(\\?.*)?$'),
-	findFramework = url => {
-		for (let i = 0; i < config.framework.length; i++) {
-			if (typeof config.framework[i] === 'string') {
-				if (url === config.framework[i]) {
-					return true;
-				}
-			} else if (config.framework[i].test(url)) {
+	findImmutable = url => {
+		for (let i = 0; i < config.regexs.length; i++) {
+			if (config.regexs[i].test(url)) {
 				return true;
 			}
 		}
@@ -43,20 +39,25 @@ onmessage = function (evt) {
 			config = new URL(evt.data, evt.source.url).href;
 		} else if (evt.data.framework && evt.data.modules) {
 			config = evt.data;
-			for (let i = 0; i < config.framework.length; i++) {
+			config.immutable = [];
+			let i = 0;
+			while (i < config.framework.length) {
 				if (typeof config.framework[i] === 'string') {
 					config.framework[i] = new URL(config.framework[i], evt.source.url).href;
+					i++;
+				} else {
+					config.immutable.push(config.framework.splice(i, 1)[0]);
 				}
 			}
 			for (let i = 0; i < config.modules.length; i++) {
 				config.modules[i] = new URL(config.modules[i] + '/', evt.source.url).href;
 			}
-			caches.open(config.home + 'modules').then(cache => cache.keys().then(keys => keys.forEach(request => {
+			caches.open(base + 'module').then(cache => cache.keys().then(keys => keys.forEach(request => {
 				if (!findModule(request.url)) {
 					cache.delete(request);
 				}
 			})));
-			caches.open(config.home + 'framework').then(cache => cache.keys().then(keys => keys.forEach(request => {
+			caches.open(base + 'framework').then(cache => cache.keys().then(keys => keys.forEach(request => {
 				if (config.framework.indexOf(request.url) < 0) {
 					cache.delete(request);
 				}
@@ -77,10 +78,12 @@ onfetch = function (evt) {
 			}
 		} else {
 			let type;
-			if (findFramework(evt.request.url)) {
+			if (config.framework.indexOf(evt.request.url) >= 0) {
 				type = 'framework';
 			} else if (findModule(evt.request.url)) {
-				type = 'modules';
+				type = 'module';
+			} else if (findImmutable(evt.request.url)) {
+				type = 'immutable';
 			} else if (homeReg.test(evt.request.url)) {
 				type = 'home';
 			}
