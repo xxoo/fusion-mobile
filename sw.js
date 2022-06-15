@@ -3,9 +3,28 @@ if (typeof globalThis === 'undefined') {
 	self.globalThis = self;
 }
 import './framework/src/jsex.js';
-const base = getbase(location.href),
-	homeReg = RegExp('^' + base.replace(/[.*(){[\^$\\]/g, '\\$&') + '(index\\.html)?(\\?.*)?$');
 let config;
+const base = getbase(location.href),
+	homeReg = RegExp('^' + base.replace(/[.*(){[\^$\\]/g, '\\$&') + '(index\\.html)?(\\?.*)?$'),
+	getbase = url => url.replace(/^http(s)?:\/\/[^/]+|[^/]*(\?.*)?(#.*)?$/g, ''),
+	findFramework = url => {
+		for (let i = 0; i < config.framework.length; i++) {
+			if (typeof config.framework[i] === 'string') {
+				if (url === config.framework[i]) {
+					return true;
+				}
+			} else if (config.framework[i].test(url)) {
+				return true;
+			}
+		}
+	},
+	findModule = url => {
+		for (let i = 0; i < config.modules.length; i++) {
+			if (url.length > config.modules[i].length && url.substr(0, config.modules[i].length) === config.modules[i]) {
+				return true;
+			}
+		}
+	};
 
 caches.open(base + 'home').then(cache => cache.match('config')).then(response => response && response.text()).then(txt => {
 	if (txt) {
@@ -25,7 +44,9 @@ onmessage = function (evt) {
 		} else if (evt.data.framework && evt.data.modules) {
 			config = evt.data;
 			for (let i = 0; i < config.framework.length; i++) {
-				config.framework[i] = new URL(config.framework[i], evt.source.url).href;
+				if (typeof config.framework[i] === 'string') {
+					config.framework[i] = new URL(config.framework[i], evt.source.url).href;
+				}
 			}
 			for (let i = 0; i < config.modules.length; i++) {
 				config.modules[i] = new URL(config.modules[i] + '/', evt.source.url).href;
@@ -56,7 +77,7 @@ onfetch = function (evt) {
 			}
 		} else {
 			let type;
-			if (config.framework.indexOf(evt.request.url) >= 0) {
+			if (findFramework(evt.request.url)) {
 				type = 'framework';
 			} else if (findModule(evt.request.url)) {
 				type = 'modules';
@@ -87,18 +108,3 @@ onfetch = function (evt) {
 		}
 	}
 };
-
-function getbase(url) {
-	return url.replace(/^http(s)?:\/\/[^/]+|[^/]*(\?.*)?(#.*)?$/g, '');
-}
-
-function findModule(url) {
-	let found;
-	for (let i = 0; i < config.modules.length; i++) {
-		if (url.length > config.modules[i].length && url.substr(0, config.modules[i].length) === config.modules[i]) {
-			found = true;
-			break;
-		}
-	}
-	return found;
-}
