@@ -47,8 +47,6 @@
 		if (BUILD) {
 			RES_TO_CACHE.push(src);
 			msg = {
-				home: location.pathname.replace(/(index\.html)?$/, ''),
-				prefix: prefix,
 				framework: RES_TO_CACHE,
 				modules: []
 			};
