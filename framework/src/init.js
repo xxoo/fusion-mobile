@@ -47,8 +47,8 @@
 		if (BUILD) {
 			RES_TO_CACHE.push(src);
 			msg = {
-				framework: RES_TO_CACHE,
-				module: []
+				file: RES_TO_CACHE,
+				module: DIR_TO_CACHE
 			};
 			for (const n in MODULES) {
 				msg.module.push(MODULES[n]);
