@@ -19,7 +19,7 @@ onmessage = function (evt) {
 	if (getbase(evt.source.url) === base && evt.data) {
 		if (typeof evt.data === 'string') {
 			config = new URL(evt.data, evt.source.url).href;
-		} else if (evt.data.framework && evt.data.module) {
+		} else if (evt.data.file && evt.data.dir) {
 			config = evt.data;
 			for (let i = 0; i < config.file.length; i++) {
 				config.file[i] = new URL(config.file[i], evt.source.url).href;
@@ -27,12 +27,12 @@ onmessage = function (evt) {
 			for (let i = 0; i < config.dir.length; i++) {
 				config.dir[i] = new URL(config.dir[i] + '/', evt.source.url).href;
 			}
-			caches.open(base + 'module').then(cache => cache.keys().then(keys => keys.forEach(request => {
+			caches.open(base + 'dir').then(cache => cache.keys().then(keys => keys.forEach(request => {
 				if (!find(request.url)) {
 					cache.delete(request);
 				}
 			})));
-			caches.open(base + 'framework').then(cache => cache.keys().then(keys => keys.forEach(request => {
+			caches.open(base + 'file').then(cache => cache.keys().then(keys => keys.forEach(request => {
 				if (config.file.indexOf(request.url) < 0) {
 					cache.delete(request);
 				}
