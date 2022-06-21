@@ -48,10 +48,10 @@
 			RES_TO_CACHE.push(src);
 			msg = {
 				file: RES_TO_CACHE,
-				module: DIR_TO_CACHE
+				dir: DIR_TO_CACHE
 			};
 			for (const n in MODULES) {
-				msg.module.push(MODULES[n]);
+				msg.dir.push(MODULES[n]);
 			}
 		} else {
 			msg = prefix;
