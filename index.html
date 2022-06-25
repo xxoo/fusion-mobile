@@ -8,11 +8,12 @@
 		<meta name="apple-mobile-web-app-capable" content="yes"/>
 		<meta name="mobile-web-app-capable" content="yes"/>
 		<meta name="msapplication-tap-highlight" content="no"/>
+		<link rel="manifest" href="manifest.json"/>
 		<title>fusion mobile</title>
 		<style>
 			html.loading {
 				height: 100%;
-				background-image: url(/fusion-mobile/loading.svg);
+				background-image: url(loading.svg);
 				background-size: 50% auto;
 				background-repeat: no-repeat;
 				background-position: 50% 50%;
@@ -24,10 +25,10 @@
 		<script>
 			const BUILD = 0,
 				MODULES = {},
-				RES_TO_CACHE = ['/fusion-mobile/loading.svg'],
+				RES_TO_CACHE = ['loading.svg'],
 				DIR_TO_CACHE = [];
 		</script>
-		<script src="/fusion-mobile/framework/all.js?5" async></script>
+		<script src="framework/all.js?5" async></script>
 	</head>
 	<body style="transition: opacity 400ms ease-in-out;">
 		<!--页面框架-->
