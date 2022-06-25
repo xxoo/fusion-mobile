@@ -1,0 +1,23 @@
+{
+	"name": "fusion mobile",
+	"short_name": "fusion mobile",
+	"start_url": "./",
+	"display": "standalone",
+	"background_color": "#fff",
+	"theme_color": "snow",
+	"description": "simply SPA framework",
+	"orientation": "portrait-primary",
+	"scope": "./",
+	"icons": [
+		{
+			"src": "logo.png",
+			"sizes": "1280x1280",
+			"type": "image/png"
+		},
+		{
+			"src": "logo128.png",
+			"sizes": "128x128",
+			"type": "image/png"
+		}
+	]
+}
