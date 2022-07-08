@@ -45,7 +45,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				if (name in svgicos) {
 					name = svgicos[name];
 				}
-				svg.firstChild.setAttribute('d', name);
+				svg.firstElementChild.setAttribute('d', name);
 				let box;
 				if (type == 3) {
 					box = {
@@ -1098,6 +1098,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				photoViewActions = photoViewBox.querySelector(':scope>.actions'),
 				flip = photoViewActions.querySelector(':scope>.flip'),
 				rotate = photoViewActions.querySelector(':scope>.rotate'),
+				down = photoViewActions.querySelector(':scope>.down'),
 				prev = photoViewActions.querySelector(':scope>.prev'),
 				next = photoViewActions.querySelector(':scope>.next'),
 				guesture = touchguesture(photoViewCtn);
@@ -1105,9 +1106,10 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				cp = cur;
 				for (let i = 0; i < urls.length; i++) {
 					const ctn = document.createElement('div'),
-						img = document.createElement('img');
+						img = new Image;
 					if (cur === i) {
 						ctn.style.visibility = 'inherit';
+						down.href = urls[i];
 					}
 					ctn.appendChild(img);
 					photoViewCtn.appendChild(ctn);
@@ -1255,11 +1257,17 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			nobtn.onclick = dialogClose.onclick = fusion.closeDialog.bind(fusion, false);
 			prev.onclick = function () {
 				const ncp = cp === 0 ? photoViewCtn.childElementCount - 1 : cp - 1;
-				viewSwitch(photoViewCtn.children[ncp], photoViewCtn.children[cp], true, () => cp = ncp);
+				viewSwitch(photoViewCtn.children[ncp], photoViewCtn.children[cp], true, () => {
+					cp = ncp;
+					down.href = photoViewCtn.children[cp].firstChild.firstChild.src;
+				});
 			};
 			next.onclick = function () {
 				const ncp = cp === photoViewCtn.childElementCount - 1 ? 0 : cp + 1;
-				viewSwitch(photoViewCtn.children[ncp], photoViewCtn.children[cp], false, () => cp = ncp);
+				viewSwitch(photoViewCtn.children[ncp], photoViewCtn.children[cp], false, () => {
+					cp = ncp;
+					down.href = photoViewCtn.children[cp].firstChild.firstChild.src;
+				});
 			};
 			flip.onclick = function () {
 				const p = photos[cp];
@@ -1283,6 +1291,7 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 			next.appendChild(fusion.makeSvg('mdiChevronRight', 1));
 			flip.appendChild(fusion.makeSvg('mdiFlipHorizontal', 1));
 			rotate.appendChild(fusion.makeSvg('mdiFileRotateRightOutline', 1));
+			down.appendChild(fusion.makeSvg('mdiTrayArrowDown', 1));
 			dialogClose.appendChild(fusion.makeSvg('mdiWindowClose', 1));
 			sliderViewClose.appendChild(fusion.makeSvg('mdiCloseThick', 1));
 			photoViewClose.appendChild(sliderViewClose.firstChild.cloneNode(true));
