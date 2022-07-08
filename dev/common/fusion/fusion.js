@@ -1259,14 +1259,14 @@ define(['common/touchslider/touchslider', 'common/touchguesture/touchguesture', 
 				const ncp = cp === 0 ? photoViewCtn.childElementCount - 1 : cp - 1;
 				viewSwitch(photoViewCtn.children[ncp], photoViewCtn.children[cp], true, () => {
 					cp = ncp;
-					down.href = photoViewCtn.children[cp].firstChild.firstChild.src;
+					down.href = photoViewCtn.children[cp].firstChild.src;
 				});
 			};
 			next.onclick = function () {
 				const ncp = cp === photoViewCtn.childElementCount - 1 ? 0 : cp + 1;
 				viewSwitch(photoViewCtn.children[ncp], photoViewCtn.children[cp], false, () => {
 					cp = ncp;
-					down.href = photoViewCtn.children[cp].firstChild.firstChild.src;
+					down.href = photoViewCtn.children[cp].firstChild.src;
 				});
 			};
 			flip.onclick = function () {
