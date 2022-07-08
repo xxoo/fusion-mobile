@@ -199,7 +199,7 @@ function func(evt){
 					},
 					'showPhotoView(url:string, btns?:Array, func?:Function):undefined': {
 						desc: '显示图片查看器, btns是显示在底部的按钮文字, func是点击这些按钮是会执行的回调, 接受一个参数i, 为按钮的索引',
-						code: ``
+						code: `fusion.showPhotoView(['https://cn.bing.com/az/hprichbg/rb/SnailsKissing_ZH-CN7861942488_1920x1080.jpg','https://cn.bing.com/th?id=OHR.SpottedDeers_ZH-CN8790816034_UHD.jpg']);`
 					},
 					'hidePhotoView():undefined': {
 						desc: '关闭图片查看器, 一般不需要手动调用'
